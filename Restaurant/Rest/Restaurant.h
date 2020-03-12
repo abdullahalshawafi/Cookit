@@ -7,7 +7,6 @@
 #include "..\Generic_DS\Queue.h"
 #include "..\Events\Event.h"
 
-
 #include "Order.h"
 
 // it is the maestro of the project
@@ -45,7 +44,8 @@ public:
 	//
 	// TODO: Add More Member Functions As Needed
 	//
-
+	void Interactive_Mode();
+	void StepByStep_Mode();
 
 /// ===================    DEMO-related functions. Should be removed in phases 1&2   ================= 
 

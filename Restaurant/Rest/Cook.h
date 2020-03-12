@@ -14,7 +14,8 @@ public:
 	virtual ~Cook();
 	int GetID() const;
 	ORD_TYPE GetType() const;
+	int GetSpeed() const;
 	void setID(int);
 	void setType(ORD_TYPE) ;
-
+	void setSpeed(int);
 };
