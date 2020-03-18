@@ -21,7 +21,7 @@ private:
 	//	DEMO-related members. Should be removed in phases 1&2
 	Queue<Order*> DEMO_Queue;	//Important: This is just for demo
 	/// ==>
-	
+	Queue<Order*> Step_by_Step_Queue;
 	
 	
 	//

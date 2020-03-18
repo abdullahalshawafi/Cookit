@@ -243,23 +243,25 @@ void Restaurant::StepByStep_Mode()
 {
 	pGUI->PrintMessage("Please enter the input text file name: ");
 	string FileName = pGUI->GetString();
-	ifstream InputFile(FileName, ios::in);
+	ifstream InputFile;
+	FileName = FileName + ".txt";
+	InputFile.open(FileName);
+	if (!(InputFile.is_open()))
+	{
+		pGUI->PrintMessage("this file is not found ,please try again ...");
+
+	}
+
 
 	int N = 0, G = 0, V = 0;
 	int SN = 0, SG = 0, SV = 0;
 	int BO = 0, BN = 0, BG = 0, BV = 0;
 	int AutoP = 0, M = 0;
 	InputFile >> N >> G >> V;
-	cout << N << " " << G << " " << V << endl;
 	InputFile >> SN >> SG >> SV;
-	cout << SN << " " << SG << " " << SV << endl;
 	InputFile >> BO >> BN >> BG >> BV;
-	cout << BO << " " << BN << " " << BG << " " << BV << endl;
 	InputFile >> AutoP;
-	cout << AutoP << endl;
 	InputFile >> M;
-	cout << M << endl;
-
 	int EventCnt = M;
 	Order* pOrd;
 	Event* pEv;
@@ -394,7 +396,6 @@ void Restaurant::StepByStep_Mode()
 		/////////////////////////////////////////////////////////////////////////////////////////
 
 		pGUI->UpdateInterface();
-		Sleep(1000);
 		CurrentTimeStep++;	//advance timestep
 		pGUI->ResetDrawingList();
 	}
@@ -436,7 +437,7 @@ void Restaurant::Just_A_Demo()
 	//Just for sake of demo, generate some cooks and add them to the drawing list
 	//In next phases, Cooks info should be loaded from input file
 	
-	int C_count = 12;
+	int C_count = 5;
 	Cook* pC = new Cook[C_count];
 	int cID = 1;
 
