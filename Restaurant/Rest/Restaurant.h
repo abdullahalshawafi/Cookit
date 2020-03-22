@@ -1,27 +1,36 @@
-#ifndef __RESTAURANT_H_
-#define __RESTAURANT_H_
+#pragma once
 
+#include <fstream>
+#include "Order.h"
+#include "Cook.h"
 #include "..\Defs.h"
 #include "..\CMUgraphicsLib\CMUgraphics.h"
 #include "..\GUI\GUI.h"
 #include "..\Generic_DS\Queue.h"
-#include "..\Events\Event.h"
-
-#include "Order.h"
+#include"..\Generic_DS\PriorityQueue.h"
+#include "..\Generic_DS\LinkedList.h"
 
 // it is the maestro of the project
+class Event;
+
 class Restaurant  
 {	
 private:
 	GUI *pGUI;
 	Queue<Event*> EventsQueue;	//Queue of all events that will be loaded from file
-
-	
+	Queue<Order*> WaitingNormal;
+	Queue<Order*> WaitingVegan;
+	PriorityQueue<Order*> WaitingVIP;
+	Queue<Order*>FinishedList;
+	LinkedList<Order*> InServiceNRM;
+	LinkedList<Order*> InServiceVIP;
+	LinkedList<Order*> InServiceVGN;
+	Cook* CookList;
 	/// ==> 
 	//	DEMO-related members. Should be removed in phases 1&2
 	Queue<Order*> DEMO_Queue;	//Important: This is just for demo
 	/// ==>
-	Queue<Order*> Step_by_Step_Queue;
+	
 	
 	
 	//
@@ -46,16 +55,15 @@ public:
 	//
 	void Interactive_Mode();
 	void StepByStep_Mode();
+	void ReadInputFile(ifstream & InputFile);
+	void AddtoVIPQueue(Order* po);	//adds an order to the demo queue
+	void AddtoNormalQueue(Order* po);
+	void AddtoVeganQueue(Order* po);
+	bool DeleteNormalQueue(int id);
 
-/// ===================    DEMO-related functions. Should be removed in phases 1&2   ================= 
-
-	void Just_A_Demo();	//just to show a demo and should be removed in phase1 1 & 2
-	void AddtoDemoQueue(Order* po);	//adds an order to the demo queue
 
 /// ================================================================================================== 
 
 
 
 };
-
-#endif

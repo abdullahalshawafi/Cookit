@@ -1,5 +1,4 @@
-#ifndef __EVENT_H_
-#define __EVENT_H_
+#pragma once
 
 #include "..\Defs.h"
 
@@ -22,5 +21,3 @@ public:
 
 };
 
-
-#endif

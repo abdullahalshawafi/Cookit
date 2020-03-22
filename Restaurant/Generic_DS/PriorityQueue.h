@@ -1,75 +1,25 @@
 #pragma once
-/*This code is an updated version from "Data Abstraction & Problem Solving with C++,WALLS AND MIRRORS ,SIXTH EDITION"*/
+#include "PriorityNode.h"
 
-/*
-This is a program that implements the queue abstract data type using a linked list.
-The queue is implemented as a chain of linked nodes that has two pointers,
-a frontPtr pointer for the front of the queue and a backPtr pointer for the back of the queue.
-*/
-
-/*
-
-				The Node: item of type T and a "next" pointer
-					-------------
-					| item| next | --->
-					-------------
-General Queue case:
-
-				 frontPtr																backPtr
-					\											   						/
-					 \											  					   /
-					------------- 	  ------------- 	  ------------- 	  -------------
-					| item| next |--->| item| next |--->  | item| next |--->  | item| next |---> NULL
-					------------- 	  ------------- 	  ------------- 	  -------------
-
-Empty Case:
-
-				 frontptr	 backptr
-						\	 /
-						 \	/
-					---- NULL ------
-
-
-Single Node Case:
-				 frontPtr	 backPtr
-					\		/
-					 \	   /
-					--------
-					|	|nxt -->NULL
-					--------
-
-*/
-
-#include "Node.h"
-
-template <typename T>
-class Queue
+template < typename T>
+class PriorityQueue
 {
 private:
 
-	Node<T>* backPtr;
-	Node<T>* frontPtr;
+	PriorityNode<T>* backPtr;
+	PriorityNode<T>* frontPtr;
 public:
-	Queue();
+	PriorityQueue();
 	bool isEmpty() const;
-	bool enqueue(const T& newEntry);
-	bool dequeue(T& frntEntry);
-	bool peekFront(T& frntEntry)  const;
+	PriorityNode<T>* SearchForOrder(T Ord);
+	bool enqueue(const T& newEntry, int Per);
+	bool dequeue(T frntEntry);
+	bool peekFront(const T& frntEntry)  const;
 	T* toArray(int& count);	//returns array of T (array if items)
-	Order* SearchForOrder(int id);
-
-	~Queue();
+	~PriorityQueue();
 };
-/////////////////////////////////////////////////////////////////////////////////////////
-
-/*
-Function: Queue()
-The constructor of the Queue class.
-
-*/
-
-template <typename T>
-Queue<T>::Queue()
+template < typename T>
+PriorityQueue<T>::PriorityQueue<T>()
 {
 	backPtr = nullptr;
 	frontPtr = nullptr;
@@ -84,8 +34,8 @@ Sees whether this queue is empty.
 Input: None.
 Output: True if the queue is empty; otherwise false.
 */
-template <typename T>
-bool Queue<T>::isEmpty() const
+template < typename T>
+bool PriorityQueue<T>::isEmpty() const
 {
 	if (frontPtr == nullptr)
 		return true;
@@ -102,16 +52,31 @@ Input: newEntry .
 Output: True if the operation is successful; otherwise false.
 */
 
-template <typename T>
-bool Queue<T>::enqueue(const T& newEntry)
+template < typename T>
+bool PriorityQueue<T>::enqueue(const T& newEntry, int pre)
 {
-	Node<T>* newNodePtr = new Node<T>(newEntry);
+	PriorityNode<T>* temp = frontPtr;
+	PriorityNode<T>* newNodePtr = new PriorityNode<T>(newEntry, pre);
 	// Insert the new node
 	if (isEmpty())
-		frontPtr = newNodePtr; // The queue is empty
+		frontPtr = newNodePtr;// The queue is empty
+	else if (newNodePtr->GetPriority() > temp->GetPriority())
+	{
+		frontPtr = newNodePtr;
+		newNodePtr->setNext(temp);
+	}
 	else
-		backPtr->setNext(newNodePtr); // The queue was not empty
-	backPtr = newNodePtr; // New node is at back
+	{
+		while (temp->getNext() && temp->getNext()->GetPriority() > newNodePtr->GetPriority())
+			temp = temp->getNext();
+
+		newNodePtr->setNext(temp->getNext());
+		temp->setNext(newNodePtr);
+
+
+		if (!newNodePtr->getNext())
+			backPtr = newNodePtr;
+	}
 	return true;
 } // end enqueue
 
@@ -126,13 +91,13 @@ Input: None.
 Output: True if the operation is successful; otherwise false.
 */
 
-template <typename T>
-bool Queue<T>::dequeue(T& frntEntry)
+template < typename T>
+bool PriorityQueue<T>::dequeue(T frntEntry)
 {
 	if (isEmpty())
 		return false;
 
-	Node<T>* nodeToDeletePtr = frontPtr;
+	PriorityNode<T>* nodeToDeletePtr = frontPtr;
 	frntEntry = frontPtr->getItem();
 	frontPtr = frontPtr->getNext();
 	// Queue is not empty; remove front
@@ -157,8 +122,8 @@ Input: None.
 Output: The front of the queue.
 return: flase if Queue is empty
 */
-template <typename T>
-bool Queue<T>::peekFront(T& frntEntry) const
+template < typename T>
+bool PriorityQueue<T>::peekFront(const T& frntEntry) const
 {
 	if (isEmpty())
 		return false;
@@ -169,8 +134,8 @@ bool Queue<T>::peekFront(T& frntEntry) const
 }
 ///////////////////////////////////////////////////////////////////////////////////
 
-template <typename T>
-Queue<T>::~Queue()
+template < typename T>
+PriorityQueue<T>::~PriorityQueue<T>()
 {
 }
 
@@ -183,15 +148,15 @@ Output: count: the length of the returned array (zero if Queue is empty)
 returns: The array of T. (nullptr if Queue is empty)
 */
 
-template <typename T>
-T* Queue<T>::toArray(int& count)
+template < typename T>
+T* PriorityQueue<T>::toArray(int& count)
 {
 	count = 0;
 
 	if (!frontPtr)
 		return nullptr;
 	//counting the no. of items in the Queue
-	Node<T>* p = frontPtr;
+	PriorityNode<T>* p = frontPtr;
 	while (p)
 	{
 		count++;
@@ -208,21 +173,17 @@ T* Queue<T>::toArray(int& count)
 	}
 	return Arr;
 }
-
-
-template <typename T>
-Order* Queue<T>::SearchForOrder(int id)
+template < typename T>
+PriorityNode<T>* PriorityQueue<T>::SearchForOrder(T Ord)
 {
-	Node<Order*>* Temp = frontPtr;
-	if (!Temp)
-		return nullptr;
+	PriorityNode<T>* Temp = frontPtr;
 	while (Temp)
 	{
-		if (Temp->getItem()->GetID() == id)
-			return Temp->getItem();
+		if (Temp->getItem() == Ord)
+			return Temp;
 		Temp = Temp->getNext();
 	}
-	return nullptr;
+	return Temp;
 
 
 }

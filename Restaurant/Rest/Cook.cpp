@@ -1,8 +1,11 @@
 #include "Cook.h"
 
+int Cook::OrdToBreak = 0;
 
 Cook::Cook()
 {
+	CurrOrd = 0;
+	InBreak = false;
 }
 
 
@@ -43,3 +46,28 @@ void Cook::setSpeed(int s)
 	speed = s;
 }
 
+void Cook::setBO(int bo)
+{
+	OrdToBreak = bo;
+}
+void Cook::setBD(int bd)
+{
+	BreakDuration = bd;
+}
+int Cook::getBO(int)
+{
+	return OrdToBreak;
+}
+int Cook::getBD(int)
+{
+	return BreakDuration;
+}
+
+void Cook::setInBreak(bool in)
+{
+	InBreak = in;
+}
+bool Cook::getInBreak()
+{
+	return InBreak;
+}

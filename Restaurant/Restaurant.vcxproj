@@ -76,6 +76,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Events\CancellationEvent.h" />
     <ClInclude Include="CMUgraphicsLib\CMUgraphics.h" />
     <ClInclude Include="CMUgraphicsLib\colors.h" />
     <ClInclude Include="CMUgraphicsLib\error.h" />
@@ -98,14 +99,19 @@
     <ClInclude Include="Defs.h" />
     <ClInclude Include="Events\ArrivalEvent.h" />
     <ClInclude Include="Events\Event.h" />
+    <ClInclude Include="Generic_DS\LinkedList.h" />
     <ClInclude Include="Generic_DS\Node.h" />
+    <ClInclude Include="Generic_DS\PriorityNode.h" />
+    <ClInclude Include="Generic_DS\PriorityQueue.h" />
     <ClInclude Include="Generic_DS\Queue.h" />
     <ClInclude Include="GUI\GUI.h" />
+    <ClInclude Include="Events\PromotionEvent.h" />
     <ClInclude Include="Rest\Cook.h" />
     <ClInclude Include="Rest\Order.h" />
     <ClInclude Include="Rest\Restaurant.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Events\CancellationEvent.cpp" />
     <ClCompile Include="CMUgraphicsLib\CMUgraphics.cpp" />
     <ClCompile Include="CMUgraphicsLib\colors.cpp" />
     <ClCompile Include="CMUgraphicsLib\image.cpp" />
@@ -145,6 +151,7 @@
     <ClCompile Include="Events\Event.cpp" />
     <ClCompile Include="Events\ArrivalEvent.cpp" />
     <ClCompile Include="GUI\GUI.cpp" />
+    <ClCompile Include="Events\PromotionEvent.cpp" />
     <ClCompile Include="Rest\Cook.cpp" />
     <ClCompile Include="Rest\Order.cpp" />
     <ClCompile Include="Rest\Restaurant.cpp" />

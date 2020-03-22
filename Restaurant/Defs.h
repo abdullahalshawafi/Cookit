@@ -1,8 +1,4 @@
-#ifndef __DEFS_H_
-#define __DEFS_H_
-
-
-
+#pragma once
 
 
 enum ORD_TYPE	//types of orders
@@ -36,5 +32,3 @@ enum PROG_MODE	//mode of the program interface
 #define MaxPossibleOrdCnt 999	//max possible order count (arbitrary value)
 #define MaxPossibleMcCnt  100	//max possible cook count (arbitrary value)
 
-
-#endif
