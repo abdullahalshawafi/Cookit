@@ -11,6 +11,7 @@ using namespace std;
 Restaurant::Restaurant()
 {
 	pGUI = NULL;
+	C_count = 0;
 }
 
 void Restaurant::RunSimulation()
@@ -76,7 +77,7 @@ void Restaurant::FillDrawingList()
 
 		//Let's add ALL Cooks to GUI::DrawingList
 
-	for (int i = 0; i < sizeof(CookList); i++)
+	for (int i = 0; i < C_count; i++)
 		pGUI->AddToDrawingList(&CookList[i]);
 
 	//Let's add ALL Ordes to GUI::DrawingList
@@ -92,6 +93,18 @@ void Restaurant::FillDrawingList()
 		pGUI->AddToDrawingList(pOrd);
 	}
 
+	///////////Adding In service Normal Orders to GUI::DrawingList//////////
+	Order* pServiceOrd;
+	int count_ServiceOrd = 0;
+	int Servicesize = 0;
+	Order** ServiceNRM_Orders_Array = InServiceNRM.toArray(Servicesize);
+	count_ServiceOrd += Servicesize;
+	for (int i = 0; i < Servicesize; i++)
+	{
+		pServiceOrd = ServiceNRM_Orders_Array[i];
+		pGUI->AddToDrawingList(pServiceOrd);
+	}
+
 	///////////Adding Vegan Orders to GUI::DrawingList//////////
 	Order** VGN_Orders_Array = WaitingVegan.toArray(size);
 	count_Ord += size;
@@ -100,6 +113,16 @@ void Restaurant::FillDrawingList()
 		pOrd = VGN_Orders_Array[i];
 		pGUI->AddToDrawingList(pOrd);
 	}
+
+	///////////Adding In service Vegan Orders to GUI::DrawingList//////////
+	Order** ServiceVGN_Orders_Array = InServiceVGN.toArray(Servicesize);
+	count_ServiceOrd += Servicesize;
+	for (int i = 0; i < Servicesize; i++)
+	{
+		pServiceOrd = ServiceVGN_Orders_Array[i];
+		pGUI->AddToDrawingList(pServiceOrd);
+	}
+
 	///////////Adding VIP Orders to GUI::DrawingList//////////
 	Order** VIP_Orders_Array = WaitingVIP.toArray(size);
 	count_Ord += size;
@@ -108,6 +131,16 @@ void Restaurant::FillDrawingList()
 		pOrd = VIP_Orders_Array[i];
 		pGUI->AddToDrawingList(pOrd);
 	}
+
+	///////////Adding In service VIP Orders to GUI::DrawingList//////////
+	Order** ServiceVIP_Orders_Array = InServiceVIP.toArray(Servicesize);
+	count_ServiceOrd += Servicesize;
+	for (int i = 0; i < Servicesize; i++)
+	{
+		pServiceOrd = ServiceVIP_Orders_Array[i];
+		pGUI->AddToDrawingList(pServiceOrd);
+	}
+
 	/////////////////////////////////////////////////////////////////////////////////////////
 
 }
@@ -140,7 +173,7 @@ void Restaurant::ReadInputFile(ifstream& InputFile)
 	pGUI->PrintMessage("CLICK to continue ...");
 	pGUI->waitForClick();
 
-	int C_count = N + G + V;
+	C_count = N + G + V;
 	CookList = new Cook[C_count];
 	int cID = 1;
 	CookList[0].setBO(BO);

@@ -38,8 +38,8 @@ public:
 	void InsertBeg(const T& data)
 	{
 		Node<T>* R = new Node<T>(data);
-		Head = R;
 		R->setNext(Head);
+		Head = R;
 		count++;
 
 	}
@@ -95,7 +95,7 @@ public:
 	}
 
 	////////////////////////////////////////////////////////////////////////
-	const T* LinkedList<T>::toArray(int& size) const
+	T* LinkedList<T>::toArray(int& size) const
 	{
 		T* retArr = new T[count];
 		Node<T>* curPtr = Head;
