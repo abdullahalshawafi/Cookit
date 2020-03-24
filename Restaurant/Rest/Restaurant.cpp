@@ -142,12 +142,24 @@ void Restaurant::FillDrawingList()
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////
+	Order* pFinishedOrd;
+	int finishedsize = 0;
+	int finished = 0;
+	///////////Adding the finished Orders to GUI::DrawingList//////////
+	Order** Finished_Orders_Array = FinishedList.toArray(finishedsize);
+	finished += finishedsize;
+	for (int i = 0; i < finishedsize; i++)
+	{
+		pFinishedOrd = Finished_Orders_Array[i];
+		pGUI->AddToDrawingList(pFinishedOrd);
+	}
 
 }
 void Restaurant::ReadInputFile(ifstream& InputFile)
 {
 	pGUI->PrintMessage("Please enter the input text file name: ");
 	string FileName = pGUI->GetString();
+	FileName = FileName + ".txt";
 	InputFile.open(FileName, ios::in);
 
 	int N = 0, G = 0, V = 0;
@@ -315,9 +327,12 @@ void Restaurant::Interactive_Mode()
 		//c)each 5 timesteps moving order of each type from InService to Finished list
 		if (CurrentTimeStep % 5 == 0)
 		{
+			if(InServiceNRM.getcount() !=0)
 			FinishedList.enqueue(InServiceNRM.Remove());
-			FinishedList.enqueue(InServiceVGN.Remove());
-			FinishedList.enqueue(InServiceVIP.Remove());
+			if (InServiceVGN.getcount() != 0)
+				FinishedList.enqueue(InServiceVGN.Remove());
+			if (InServiceVIP.getcount() != 0)
+				FinishedList.enqueue(InServiceVIP.Remove());
 		}
 
 

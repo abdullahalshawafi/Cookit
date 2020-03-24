@@ -1,0 +1,12 @@
+﻿  Restaurant.cpp
+C:\Users\DELL\OneDrive\Desktop\New folder (4)\Restaurant-System-Simulation\Restaurant\Generic_DS\PriorityQueue.h(22,1): warning C4812: obsolete declaration style: please use 'PriorityQueue<T>::PriorityQueue' instead
+C:\Users\DELL\OneDrive\Desktop\New folder (4)\Restaurant-System-Simulation\Restaurant\Rest\Restaurant.cpp(183,12): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+C:\Users\DELL\OneDrive\Desktop\New folder (4)\Restaurant-System-Simulation\Restaurant\Rest\Restaurant.cpp(181,9): warning C4101: 'pOrd': unreferenced local variable
+C:\Users\DELL\OneDrive\Desktop\New folder (4)\Restaurant-System-Simulation\Restaurant\Rest\Restaurant.cpp(297,3): warning C4996: 'itoa': The POSIX name for this item is deprecated. Instead, use the ISO C and C++ conformant name: _itoa. See online help for details.
+C:\Users\DELL\OneDrive\Desktop\New folder (4)\Restaurant-System-Simulation\Restaurant\Rest\Restaurant.cpp(361,3): warning C4996: 'itoa': The POSIX name for this item is deprecated. Instead, use the ISO C and C++ conformant name: _itoa. See online help for details.
+C:\Users\DELL\OneDrive\Desktop\New folder (4)\Restaurant-System-Simulation\Restaurant\Rest\Restaurant.cpp(395,8): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\Users\DELL\OneDrive\Desktop\New folder (4)\Restaurant-System-Simulation\Restaurant\Generic_DS\PriorityQueue.h(22,1): warning C4812: obsolete declaration style: please use 'PriorityQueue<Order *>::PriorityQueue' instead
+C:\Users\DELL\OneDrive\Desktop\New folder (4)\Restaurant-System-Simulation\Restaurant\Generic_DS\PriorityQueue.h(23): message : while compiling class template member function 'PriorityQueue<Order *>::PriorityQueue(void)'
+C:\Users\DELL\OneDrive\Desktop\New folder (4)\Restaurant-System-Simulation\Restaurant\Rest\Restaurant.cpp(12): message : see reference to function template instantiation 'PriorityQueue<Order *>::PriorityQueue(void)' being compiled
+C:\Users\DELL\OneDrive\Desktop\New folder (4)\Restaurant-System-Simulation\Restaurant\Rest\Restaurant.h(23): message : see reference to class template instantiation 'PriorityQueue<Order *>' being compiled
+  Restaurant.vcxproj -> C:\Users\DELL\OneDrive\Desktop\New folder (4)\Restaurant-System-Simulation\Debug\Restaurant.exe

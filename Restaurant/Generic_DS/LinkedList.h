@@ -59,7 +59,10 @@ public:
 		}
 		count = 0;
 	}
-
+	int getcount()
+	{
+		return count;
+	}
 	////////////////////////////////////////////////////////////////////////
 	//InsertEnd 
 	//inserts a new node at end if the list

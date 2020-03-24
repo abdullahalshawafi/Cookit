@@ -20,6 +20,7 @@ public:
 template < typename T>
 Node<T>::Node()
 {
+
 	next = nullptr;
 }
 
