@@ -17,7 +17,7 @@ Restaurant::Restaurant()
 void Restaurant::RunSimulation()
 {
 	pGUI = new GUI;
-	PROG_MODE	mode = pGUI->getGUIMode();
+	PROG_MODE mode = pGUI->getGUIMode();
 	ifstream in;
 	ReadInputFile(in);
 	int currentstep = 0;
@@ -32,12 +32,11 @@ void Restaurant::RunSimulation()
 		break;
 	case MODE_SLNT:
 		break;
-
+	default:
+		break;
 	};
 
 }
-
-
 
 //////////////////////////////////  Event handling functions   /////////////////////////////
 
@@ -50,11 +49,10 @@ void Restaurant::ExecuteEvents(int CurrentTimeStep)
 		if (pE->getEventTime() > CurrentTimeStep)	//no more events at current timestep
 			return;
 
-		pE->Execute(this);
+		pE->Execute(this);          //executes the event
 		EventsQueue.dequeue(pE);	//remove event from the queue
-		delete pE;		//deallocate event object from memory
+		delete pE;					//deallocate event object from memory
 	}
-
 }
 
 
@@ -72,10 +70,11 @@ void Restaurant::FillDrawingList()
 	//To add orders it should call function  void GUI::AddToDrawingList(Order* pOrd);
 	//To add Cooks it should call function  void GUI::AddToDrawingList(Cook* pCc);
 	/////////////////////////////////////////////////////////////////////////////////////////
-		/// The next code section should be done through function "FillDrawingList()" once you
-		/// decide the appropriate list type for Orders and Cooks
 
-		//Let's add ALL Cooks to GUI::DrawingList
+	/// The next code section should be done through function "FillDrawingList()" once you
+	/// decide the appropriate list type for Orders and Cooks
+
+	//Let's add ALL Cooks to GUI::DrawingList
 
 	for (int i = 0; i < C_count; i++)
 		pGUI->AddToDrawingList(&CookList[i]);
@@ -156,8 +155,8 @@ void Restaurant::FillDrawingList()
 		pFinishedOrd = Finished_Orders_Array[i];
 		pGUI->AddToDrawingList(pFinishedOrd);
 	}
-
 }
+
 void Restaurant::ReadInputFile(ifstream& InputFile)
 {
 	pGUI->PrintMessage("Please enter the input text file name: ");
@@ -224,8 +223,10 @@ void Restaurant::ReadInputFile(ifstream& InputFile)
 	}
 
 	//printing the cooks information
+	cout << "Cooks Information\n";
 	for (int i = 0; i < C_count; i++)
-		cout << CookList[i].GetID() << " " << CookList[i].GetSpeed() << " " << CookList[i].GetType() << "\n";
+		cout << CookList[i].GetID() << " " << CookList[i].GetType() << " " << CookList[i].GetSpeed() << " " << CookList[i].getBD()
+			<< " " << CookList[i].getBO() << " " << CookList[i].getInBreak() << "\n";
 
 	int EvTime = 0;
 
@@ -286,11 +287,11 @@ void Restaurant::ReadInputFile(ifstream& InputFile)
 	}
 	
 }
+
 void Restaurant::Interactive_Mode()
 {
 
 	int CurrentTimeStep = 1;
-
 
 	//as long as events queue is not empty yet
 	while (!EventsQueue.isEmpty())
@@ -398,16 +399,16 @@ void  Restaurant::AddtoVIPQueue(Order* po)	//adds an order to the demo queue
 	WaitingVIP.enqueue(po, p);
 }
 
-
 void  Restaurant::AddtoNormalQueue(Order* po)
 {
 	WaitingNormal.enqueue(po);
 }
+
 void  Restaurant::AddtoVeganQueue(Order* po)
 {
 	WaitingVegan.enqueue(po);
-
 }
+
 bool  Restaurant::DeleteNormalQueue(int id)
 {
 	Order* OrderToDelete = WaitingNormal.SearchForOrder(id);
@@ -416,6 +417,5 @@ bool  Restaurant::DeleteNormalQueue(int id)
 		WaitingNormal.dequeue(OrderToDelete);
 		return true;
 	}
-	else
-		return false;
+	return false;
 }

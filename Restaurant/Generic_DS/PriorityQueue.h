@@ -13,7 +13,7 @@ public:
 	bool isEmpty() const;
 	PriorityNode<T>* SearchForOrder(T Ord);
 	bool enqueue(const T& newEntry, int Per);
-	bool dequeue(T frntEntry);
+	bool dequeue(T& frntEntry);
 	bool peekFront(const T& frntEntry)  const;
 	T* toArray(int& count);	//returns array of T (array if items)
 	~PriorityQueue();
@@ -59,7 +59,10 @@ bool PriorityQueue<T>::enqueue(const T& newEntry, int pre)
 	PriorityNode<T>* newNodePtr = new PriorityNode<T>(newEntry, pre);
 	// Insert the new node
 	if (isEmpty())
+	{
 		frontPtr = newNodePtr;// The queue is empty
+		backPtr = newNodePtr;
+	}
 	else if (newNodePtr->GetPriority() > temp->GetPriority())
 	{
 		frontPtr = newNodePtr;
@@ -92,7 +95,7 @@ Output: True if the operation is successful; otherwise false.
 */
 
 template < typename T>
-bool PriorityQueue<T>::dequeue(T frntEntry)
+bool PriorityQueue<T>::dequeue(T& frntEntry)
 {
 	if (isEmpty())
 		return false;

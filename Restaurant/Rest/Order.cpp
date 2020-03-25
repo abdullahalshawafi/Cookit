@@ -8,11 +8,15 @@ Order::Order(int id, ORD_TYPE r_Type, double OM, int OS)
 	totalMoney = OM;
 	OrderSize = OS;
 }
+
 Order::Order()
 {
+
 }
+
 Order::~Order()
 {
+
 }
 
 int Order::GetID()
@@ -20,12 +24,10 @@ int Order::GetID()
 	return ID;
 }
 
-
 ORD_TYPE Order::GetType() const
 {
 	return type;
 }
-
 
 void Order::SetDistance(int d)
 {
@@ -36,7 +38,6 @@ int Order::GetDistance() const
 {
 	return Distance;
 }
-
 
 void Order::setStatus(ORD_STATUS s)
 {
@@ -64,8 +65,6 @@ bool Order::operator==(Order Ord)
 		return true;
 	else
 		return false;
-
-
 }
 
 int Order::GetArrivalTime()

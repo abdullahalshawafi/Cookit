@@ -46,7 +46,6 @@ template <typename T>
 class Queue
 {
 private:
-
 	Node<T>* backPtr;
 	Node<T>* frontPtr;
 public:
@@ -55,9 +54,9 @@ public:
 	bool enqueue(const T& newEntry);
 	bool dequeue(T& frntEntry);
 	bool peekFront(T& frntEntry)  const;
-	T* toArray(int& count);	//returns array of T (array if items)
+	T* toArray(int& count);	//returns array of T (array of items)
 	Order* SearchForOrder(int id);
-
+	void printQueue() const;
 	~Queue();
 };
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -67,13 +66,11 @@ Function: Queue()
 The constructor of the Queue class.
 
 */
-
 template <typename T>
 Queue<T>::Queue()
 {
 	backPtr = nullptr;
 	frontPtr = nullptr;
-
 }
 /////////////////////////////////////////////////////////////////////////////////////////
 
@@ -87,12 +84,8 @@ Output: True if the queue is empty; otherwise false.
 template <typename T>
 bool Queue<T>::isEmpty() const
 {
-	if (frontPtr == nullptr)
-		return true;
-	else
-		return false;
+	return (frontPtr == nullptr);
 }
-
 /////////////////////////////////////////////////////////////////////////////////////////
 
 /*Function:enqueue
@@ -101,7 +94,6 @@ Adds newEntry at the back of this queue.
 Input: newEntry .
 Output: True if the operation is successful; otherwise false.
 */
-
 template <typename T>
 bool Queue<T>::enqueue(const T& newEntry)
 {
@@ -114,8 +106,6 @@ bool Queue<T>::enqueue(const T& newEntry)
 	backPtr = newNodePtr; // New node is at back
 	return true;
 } // end enqueue
-
-
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /*Function: dequeue
@@ -125,7 +115,6 @@ earliest.
 Input: None.
 Output: True if the operation is successful; otherwise false.
 */
-
 template <typename T>
 bool Queue<T>::dequeue(T& frntEntry)
 {
@@ -141,12 +130,8 @@ bool Queue<T>::dequeue(T& frntEntry)
 
 	// Free memory reserved by the dequeued node
 	delete nodeToDeletePtr;
-
-
 	return true;
-
 }
-
 /////////////////////////////////////////////////////////////////////////////////////////
 
 /*
@@ -165,7 +150,6 @@ bool Queue<T>::peekFront(T& frntEntry) const
 
 	frntEntry = frontPtr->getItem();
 	return true;
-
 }
 ///////////////////////////////////////////////////////////////////////////////////
 
@@ -173,7 +157,6 @@ template <typename T>
 Queue<T>::~Queue()
 {
 }
-
 /////////////////////////////////////////////////////////////////////////////////////////
 
 /*
@@ -182,7 +165,6 @@ returns an array of "T"
 Output: count: the length of the returned array (zero if Queue is empty)
 returns: The array of T. (nullptr if Queue is empty)
 */
-
 template <typename T>
 T* Queue<T>::toArray(int& count)
 {
@@ -198,7 +180,6 @@ T* Queue<T>::toArray(int& count)
 		p = p->getNext();
 	}
 
-
 	T* Arr = new T[count];
 	p = frontPtr;
 	for (int i = 0; i < count; i++)
@@ -208,7 +189,6 @@ T* Queue<T>::toArray(int& count)
 	}
 	return Arr;
 }
-
 
 template <typename T>
 Order* Queue<T>::SearchForOrder(int id)
@@ -223,6 +203,16 @@ Order* Queue<T>::SearchForOrder(int id)
 		Temp = Temp->getNext();
 	}
 	return nullptr;
+}
 
-
+template <typename T>
+void Queue<T>::printQueue() const
+{
+	int size = 0;
+	T* arr = toArray(size);
+	for (int i = 0; i < size; i++)
+	{
+		cout << arr[i] << " --> ";
+	}
+	cout << "NULL\n";
 }

@@ -21,8 +21,8 @@ public:
 	void setSpeed(int);
 	static void setBO(int);
 	void setBD(int);
-	static int getBO(int);
-	int getBD(int);
+	static int getBO();
+	int getBD();
 	void setInBreak(bool);
 	bool getInBreak();
 	//e3mly func lel availability

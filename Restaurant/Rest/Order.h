@@ -12,7 +12,6 @@ protected:
 	int Distance;	//The distance (in meters) between the order location and the resturant 
 	int OrderSize;
 	double totalMoney;	//Total order money
-
 	int ArrTime, ServTime, FinishTime;	//arrival, service start, and finish times
 
 
@@ -26,12 +25,9 @@ public:
 	virtual ~Order();
 
 	int GetID();
-
 	ORD_TYPE GetType() const;
-
 	void SetDistance(int d);
 	int GetDistance() const;
-
 	void setStatus(ORD_STATUS s);
 	ORD_STATUS getStatus() const;
 	void setSize(int s);

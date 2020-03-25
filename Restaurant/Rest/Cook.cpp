@@ -54,11 +54,11 @@ void Cook::setBD(int bd)
 {
 	BreakDuration = bd;
 }
-int Cook::getBO(int)
+int Cook::getBO()
 {
 	return OrdToBreak;
 }
-int Cook::getBD(int)
+int Cook::getBD()
 {
 	return BreakDuration;
 }

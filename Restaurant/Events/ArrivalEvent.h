@@ -7,9 +7,9 @@
 //class for the arrival event
 class ArrivalEvent : public Event
 {
-	//info about the order ralted to arrival event
+	//info about the order related to arrival event
 	int OrdDistance;	//order distance
-	ORD_TYPE OrdType;		//order type: Normal, vegan, VIP	                
+	ORD_TYPE OrdType;	//order type: Normal, vegan, VIP	                
 	double OrdMoney;	//Total order money
 	int OrdSize;
 public:
