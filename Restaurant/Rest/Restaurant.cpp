@@ -93,6 +93,26 @@ void Restaurant::FillDrawingList()
 		pGUI->AddToDrawingList(pOrd);
 	}
 
+	///////////Adding Vegan Orders to GUI::DrawingList//////////
+	Order** VGN_Orders_Array = WaitingVegan.toArray(size);
+	count_Ord += size;
+	for (int i = 0; i < size; i++)
+	{
+		pOrd = VGN_Orders_Array[i];
+		pGUI->AddToDrawingList(pOrd);
+	}
+
+	///////////Adding VIP Orders to GUI::DrawingList//////////
+	Order** VIP_Orders_Array = WaitingVIP.toArray(size);
+	count_Ord += size;
+	for (int i = 0; i < size; i++)
+	{
+		pOrd = VIP_Orders_Array[i];
+		pGUI->AddToDrawingList(pOrd);
+	}
+
+	/////////////////////////////////////////////////////////////////////////////////////////
+
 	///////////Adding In service Normal Orders to GUI::DrawingList//////////
 	Order* pServiceOrd;
 	int count_ServiceOrd = 0;
@@ -105,15 +125,6 @@ void Restaurant::FillDrawingList()
 		pGUI->AddToDrawingList(pServiceOrd);
 	}
 
-	///////////Adding Vegan Orders to GUI::DrawingList//////////
-	Order** VGN_Orders_Array = WaitingVegan.toArray(size);
-	count_Ord += size;
-	for (int i = 0; i < size; i++)
-	{
-		pOrd = VGN_Orders_Array[i];
-		pGUI->AddToDrawingList(pOrd);
-	}
-
 	///////////Adding In service Vegan Orders to GUI::DrawingList//////////
 	Order** ServiceVGN_Orders_Array = InServiceVGN.toArray(Servicesize);
 	count_ServiceOrd += Servicesize;
@@ -121,15 +132,6 @@ void Restaurant::FillDrawingList()
 	{
 		pServiceOrd = ServiceVGN_Orders_Array[i];
 		pGUI->AddToDrawingList(pServiceOrd);
-	}
-
-	///////////Adding VIP Orders to GUI::DrawingList//////////
-	Order** VIP_Orders_Array = WaitingVIP.toArray(size);
-	count_Ord += size;
-	for (int i = 0; i < size; i++)
-	{
-		pOrd = VIP_Orders_Array[i];
-		pGUI->AddToDrawingList(pOrd);
 	}
 
 	///////////Adding In service VIP Orders to GUI::DrawingList//////////
@@ -142,10 +144,11 @@ void Restaurant::FillDrawingList()
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////
+
+	///////////Adding the finished Orders to GUI::DrawingList//////////
 	Order* pFinishedOrd;
 	int finishedsize = 0;
 	int finished = 0;
-	///////////Adding the finished Orders to GUI::DrawingList//////////
 	Order** Finished_Orders_Array = FinishedList.toArray(finishedsize);
 	finished += finishedsize;
 	for (int i = 0; i < finishedsize; i++)
@@ -293,9 +296,8 @@ void Restaurant::Interactive_Mode()
 	while (!EventsQueue.isEmpty())
 	{
 		//print current timestep
-		char timestep[10];
-		itoa(CurrentTimeStep, timestep, 10);
-		pGUI->PrintMessage(timestep);
+		string timestep = to_string(CurrentTimeStep);
+		pGUI->PrintMessage("TS: " + timestep);
 
 		//a) Executing Events at this current step 
 		ExecuteEvents(CurrentTimeStep);	//execute all events at current time step
