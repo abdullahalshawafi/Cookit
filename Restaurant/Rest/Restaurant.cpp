@@ -294,7 +294,7 @@ void Restaurant::Interactive_Mode()
 	int CurrentTimeStep = 1;
 
 	//as long as events queue is not empty yet
-	while (!EventsQueue.isEmpty())
+	while (!EventsQueue.isEmpty()|| InServiceVGN.getcount() != 0 || InServiceVIP.getcount()!=0|| InServiceNRM.getcount() != 0)
 	{
 		//print current timestep
 		string timestep = to_string(CurrentTimeStep);
