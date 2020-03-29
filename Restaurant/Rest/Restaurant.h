@@ -26,18 +26,9 @@ private:
 	LinkedList<Order*> InServiceVIP;
 	LinkedList<Order*> InServiceVGN;
 	int C_count;
+	int count_Ord;
+	int CurrentTimeStep = 1;
 	Cook* CookList;
-	/// ==> 
-	//	DEMO-related members. Should be removed in phases 1&2
-	Queue<Order*> DEMO_Queue;	//Important: This is just for demo
-	/// ==>
-	
-	
-	
-	//
-	// TODO: Add More Data Members As Needed
-	//
-
 public:
 	
 	Restaurant();
@@ -45,26 +36,12 @@ public:
 	
 	void ExecuteEvents(int TimeStep);	//executes all events at current timestep
 	void RunSimulation();
-
-	
-
-
 	void FillDrawingList();
-
-	//
-	// TODO: Add More Member Functions As Needed
-	//
 	void Interactive_Mode();
 	void StepByStep_Mode();
 	void ReadInputFile(ifstream & InputFile);
-	void AddtoVIPQueue(Order* po);	//adds an order to the demo queue
+	void AddtoVIPQueue(Order* po);
 	void AddtoNormalQueue(Order* po);
 	void AddtoVeganQueue(Order* po);
 	bool DeleteNormalQueue(int id);
-
-
-/// ================================================================================================== 
-
-
-
 };

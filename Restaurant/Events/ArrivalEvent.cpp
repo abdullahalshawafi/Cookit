@@ -1,6 +1,5 @@
 #include "ArrivalEvent.h"
 
-
 ArrivalEvent::ArrivalEvent(int eTime, int oID, ORD_TYPE oType, int OS, double tMoney) :Event(eTime, oID)
 {
 	OrdType = oType;

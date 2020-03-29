@@ -40,7 +40,9 @@ Single Node Case:
 
 */
 
+#include <iostream>
 #include "Node.h"
+#include "../Events/Event.h"
 
 template <typename T>
 class Queue
@@ -56,7 +58,6 @@ public:
 	bool peekFront(T& frntEntry)  const;
 	T* toArray(int& count);	//returns array of T (array of items)
 	Order* SearchForOrder(int id);
-	void printQueue() const;
 	~Queue();
 };
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -203,16 +204,4 @@ Order* Queue<T>::SearchForOrder(int id)
 		Temp = Temp->getNext();
 	}
 	return nullptr;
-}
-
-template <typename T>
-void Queue<T>::printQueue() const
-{
-	int size = 0;
-	T* arr = toArray(size);
-	for (int i = 0; i < size; i++)
-	{
-		cout << arr[i] << " --> ";
-	}
-	cout << "NULL\n";
 }

@@ -4,8 +4,6 @@
 template < typename T>
 class PriorityQueue
 {
-private:
-
 	PriorityNode<T>* backPtr;
 	PriorityNode<T>* frontPtr;
 public:
@@ -18,12 +16,12 @@ public:
 	T* toArray(int& count);	//returns array of T (array if items)
 	~PriorityQueue();
 };
+
 template < typename T>
 PriorityQueue<T>::PriorityQueue<T>()
 {
 	backPtr = nullptr;
 	frontPtr = nullptr;
-
 }
 /////////////////////////////////////////////////////////////////////////////////////////
 
@@ -42,7 +40,6 @@ bool PriorityQueue<T>::isEmpty() const
 	else
 		return false;
 }
-
 /////////////////////////////////////////////////////////////////////////////////////////
 
 /*Function:enqueue
@@ -51,7 +48,6 @@ Adds newEntry at the back of this queue.
 Input: newEntry .
 Output: True if the operation is successful; otherwise false.
 */
-
 template < typename T>
 bool PriorityQueue<T>::enqueue(const T& newEntry, int pre)
 {
@@ -82,8 +78,6 @@ bool PriorityQueue<T>::enqueue(const T& newEntry, int pre)
 	}
 	return true;
 } // end enqueue
-
-
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /*Function: dequeue
@@ -93,7 +87,6 @@ earliest.
 Input: None.
 Output: True if the operation is successful; otherwise false.
 */
-
 template < typename T>
 bool PriorityQueue<T>::dequeue(T& frntEntry)
 {
@@ -109,12 +102,8 @@ bool PriorityQueue<T>::dequeue(T& frntEntry)
 
 	// Free memory reserved by the dequeued node
 	delete nodeToDeletePtr;
-
-
 	return true;
-
 }
-
 /////////////////////////////////////////////////////////////////////////////////////////
 
 /*
@@ -133,15 +122,14 @@ bool PriorityQueue<T>::peekFront(const T& frntEntry) const
 
 	frntEntry = frontPtr->getItem();
 	return true;
-
 }
 ///////////////////////////////////////////////////////////////////////////////////
 
 template < typename T>
 PriorityQueue<T>::~PriorityQueue<T>()
 {
-}
 
+}
 /////////////////////////////////////////////////////////////////////////////////////////
 
 /*
@@ -150,7 +138,6 @@ returns an array of "T"
 Output: count: the length of the returned array (zero if Queue is empty)
 returns: The array of T. (nullptr if Queue is empty)
 */
-
 template < typename T>
 T* PriorityQueue<T>::toArray(int& count)
 {
@@ -165,8 +152,7 @@ T* PriorityQueue<T>::toArray(int& count)
 		count++;
 		p = p->getNext();
 	}
-
-
+	
 	T* Arr = new T[count];
 	p = frontPtr;
 	for (int i = 0; i < count; i++)
@@ -176,6 +162,7 @@ T* PriorityQueue<T>::toArray(int& count)
 	}
 	return Arr;
 }
+
 template < typename T>
 PriorityNode<T>* PriorityQueue<T>::SearchForOrder(T Ord)
 {
@@ -187,6 +174,4 @@ PriorityNode<T>* PriorityQueue<T>::SearchForOrder(T Ord)
 		Temp = Temp->getNext();
 	}
 	return Temp;
-
-
 }

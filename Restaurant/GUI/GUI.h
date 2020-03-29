@@ -113,7 +113,7 @@ public:
 
 	// Output Functions  ---------------------------
 	void PrintMessage(string msg) const; // prints a message in the status bar
-
+	void PrintMessageWithoutClearing(string msg) const; // prints a message in the status bar
 
 	void UpdateInterface();
 	void AddToDrawingList(Order* pOrd);	//Adds a new order to the drawing queue

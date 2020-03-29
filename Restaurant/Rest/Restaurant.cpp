@@ -82,7 +82,7 @@ void Restaurant::FillDrawingList()
 	//Let's add ALL Ordes to GUI::DrawingList
 	///////////Adding Normal Orders to GUI::DrawingList//////////
 	Order* pOrd;
-	int count_Ord = 0;
+	count_Ord = 0;
 	int size = 0;
 	Order** NRM_Orders_Array = WaitingNormal.toArray(size);
 	count_Ord += size;
@@ -111,7 +111,12 @@ void Restaurant::FillDrawingList()
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////
+	//print waiting numbers
+	string waitingnum = to_string(count_Ord);
+	//print current timestep
+	string timestep = to_string(CurrentTimeStep);
 
+	pGUI->PrintMessage("TS: " + timestep + "   waiting num : " + waitingnum);
 	///////////Adding In service Normal Orders to GUI::DrawingList//////////
 	Order* pServiceOrd;
 	int count_ServiceOrd = 0;
@@ -184,9 +189,6 @@ void Restaurant::ReadInputFile(ifstream& InputFile)
 	Event* pEv;
 	srand(time(NULL));
 
-	pGUI->PrintMessage("CLICK to continue ...");
-	pGUI->waitForClick();
-
 	C_count = N + G + V;
 	CookList = new Cook[C_count];
 	int cID = 1;
@@ -223,10 +225,12 @@ void Restaurant::ReadInputFile(ifstream& InputFile)
 	}
 
 	//printing the cooks information
-	cout << "Cooks Information\n";
+	cout << "\nCooks Information\n";
 	for (int i = 0; i < C_count; i++)
-		cout << CookList[i].GetID() << " " << CookList[i].GetType() << " " << CookList[i].GetSpeed() << " " << CookList[i].getBD()
-			<< " " << CookList[i].getBO() << " " << CookList[i].getInBreak() << "\n";
+		cout << "ID: " << CookList[i].GetID() << " Type: " << CookList[i].GetType() << " Speed: " << CookList[i].GetSpeed() 
+		<< " Break Duration: " << CookList[i].getBD() << " Orders to break: " << CookList[i].getBO() 
+		<< " Is in break? " << CookList[i].getInBreak() << "\n";
+	cout << endl;
 
 	int EvTime = 0;
 
@@ -257,7 +261,6 @@ void Restaurant::ReadInputFile(ifstream& InputFile)
 			cout << OrderSize << " " << OrderCost << endl;
 			pEv = new ArrivalEvent(EvTime, O_id, (ORD_TYPE)OrderType, OrderSize, OrderCost);
 			EventsQueue.enqueue(pEv);
-
 			break;
 
 		case 'X':
@@ -284,22 +287,14 @@ void Restaurant::ReadInputFile(ifstream& InputFile)
 		default:
 			break;
 		}
-	}
-	
+	}	
 }
 
 void Restaurant::Interactive_Mode()
 {
-
-	int CurrentTimeStep = 1;
-
 	//as long as events queue is not empty yet
-	while (!EventsQueue.isEmpty())
+	while (!EventsQueue.isEmpty() || InServiceVGN.getcount() != 0 || InServiceVIP.getcount() != 0 || InServiceNRM.getcount() != 0)
 	{
-		//print current timestep
-		string timestep = to_string(CurrentTimeStep);
-		pGUI->PrintMessage("TS: " + timestep);
-
 		//a) Executing Events at this current step 
 		ExecuteEvents(CurrentTimeStep);	//execute all events at current time step
 
@@ -313,13 +308,11 @@ void Restaurant::Interactive_Mode()
 			InServiceNRM.InsertBeg(pOrd);
 		}
 
-
 		if (WaitingVegan.dequeue(pOrd))
 		{
 			pOrd->setStatus(SRV);
 			InServiceVGN.InsertBeg(pOrd);
 		}
-
 
 		if (WaitingVIP.dequeue(pOrd))
 		{
@@ -327,24 +320,23 @@ void Restaurant::Interactive_Mode()
 			pOrd->SetInServiceTime(CurrentTimeStep);
 			InServiceVIP.InsertBeg(pOrd);
 		}
+
 		//c)each 5 timesteps moving order of each type from InService to Finished list
 		if (CurrentTimeStep % 5 == 0)
 		{
-			if(InServiceNRM.getcount() !=0)
-			FinishedList.enqueue(InServiceNRM.Remove());
+			if (InServiceNRM.getcount() !=0)
+				FinishedList.enqueue(InServiceNRM.Remove());
 			if (InServiceVGN.getcount() != 0)
 				FinishedList.enqueue(InServiceVGN.Remove());
 			if (InServiceVIP.getcount() != 0)
 				FinishedList.enqueue(InServiceVIP.Remove());
 		}
-
-
+		
 		pGUI->UpdateInterface();
 		pGUI->waitForClick();
 		CurrentTimeStep++;	//advance timestep
 		pGUI->ResetDrawingList();
 	}
-
 
 	pGUI->PrintMessage("generation done, click to END program");
 	pGUI->waitForClick();
@@ -380,21 +372,8 @@ void Restaurant::StepByStep_Mode()
 	pGUI->waitForClick();
 }
 
-
-
-//////////////////////////////////////////////////////////////////////////////////////////////
-/// ==> 
-///  DEMO-related functions. Should be removed in phases 1&2
-
-//Begin of DEMO-related functions
-
-//This is just a demo function for project introductory phase
-//It should be removed starting phase 1
-
-
-
 void  Restaurant::AddtoVIPQueue(Order* po)	//adds an order to the demo queue
-{// To Calculate The Periority Of The Order
+{	// To Calculate The Periority Of The Order
 	int p = po->GetOrderMoney() + po->GetOrderSize() + 2 * po->GetArrivalTime();
 	WaitingVIP.enqueue(po, p);
 }

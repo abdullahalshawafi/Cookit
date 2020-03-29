@@ -12,14 +12,11 @@ private:
 	//You can add tail pointer too (depending on your problem)
 	int count;	//Number of nodes in the list
 public:
-
-
 	LinkedList()
 	{
 		count = 0;
 		Head = nullptr;
 	}
-
 	// creates linked list from the passed array
 
 	//List is being desturcted ==> delete all items in the list
@@ -28,6 +25,7 @@ public:
 		DeleteAll();
 	}
 	////////////////////////////////////////////////////////////////////////
+
 	/*
 	* Function: InsertBeg.
 	* Creates a new node and adds it to the beginning of a linked list.
@@ -41,9 +39,9 @@ public:
 		R->setNext(Head);
 		Head = R;
 		count++;
-
 	}
 	////////////////////////////////////////////////////////////////////////
+
 	/*
 	* Function: DeleteAll.
 	* Deletes all nodes of the list.
@@ -59,11 +57,13 @@ public:
 		}
 		count = 0;
 	}
+
 	int getcount()
 	{
 		return count;
 	}
 	////////////////////////////////////////////////////////////////////////
+
 	//InsertEnd 
 	//inserts a new node at end if the list
 	void InsertEnd(const T& data)
@@ -75,13 +75,10 @@ public:
 			P = P->getNext();
 
 		P->setNext(R);
-
-
 		count++;
-
 	}
-
 	////////////////////////////////////////////////////////////////////////
+
 	//RemoveFirst
 	//removes and returns the first node from the list
 	Node<T>* RemoveFirst()
@@ -94,10 +91,9 @@ public:
 			p->setNext(nullptr);
 		}
 		return p;
-
 	}
-
 	////////////////////////////////////////////////////////////////////////
+
 	T* LinkedList<T>::toArray(int& size) const
 	{
 		T* retArr = new T[count];
@@ -134,7 +130,9 @@ public:
 		}
 		return minFinish;
 	}
-	T Remove() {    //removes any order (will be used in phase 1 only)
+
+	T Remove()    //removes any order (will be used in phase 1 only)
+	{    
 		if (!Head)
 			return nullptr;
 
@@ -181,7 +179,6 @@ Order* LinkedList<Order*>::Remove()
 	count--;
 	p->getItem()->setStatus(DONE);
 	return p->getItem();
-
 }
 
 Order* LinkedList<Order*>::RemoveFinishedFirst()
