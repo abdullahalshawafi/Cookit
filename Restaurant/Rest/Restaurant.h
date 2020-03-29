@@ -26,6 +26,9 @@ private:
 	LinkedList<Order*> InServiceVIP;
 	LinkedList<Order*> InServiceVGN;
 	int C_count;
+	int count_Ord ;
+	int CurrentTimeStep = 1;
+
 	Cook* CookList;
 	/// ==> 
 	//	DEMO-related members. Should be removed in phases 1&2

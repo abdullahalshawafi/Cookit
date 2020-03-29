@@ -82,8 +82,8 @@ void Restaurant::FillDrawingList()
 	//Let's add ALL Ordes to GUI::DrawingList
 	///////////Adding Normal Orders to GUI::DrawingList//////////
 	Order* pOrd;
-	int count_Ord = 0;
 	int size = 0;
+	count_Ord = 0;
 	Order** NRM_Orders_Array = WaitingNormal.toArray(size);
 	count_Ord += size;
 	for (int i = 0; i < size; i++)
@@ -111,7 +111,12 @@ void Restaurant::FillDrawingList()
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////
-
+	//print waiting numbers
+	string waitingnum = to_string(count_Ord);
+	//print current timestep
+	string timestep = to_string(CurrentTimeStep);
+	
+	pGUI->PrintMessage("TS: " + timestep + "   waiting num : " + waitingnum);
 	///////////Adding In service Normal Orders to GUI::DrawingList//////////
 	Order* pServiceOrd;
 	int count_ServiceOrd = 0;
@@ -291,20 +296,15 @@ void Restaurant::ReadInputFile(ifstream& InputFile)
 void Restaurant::Interactive_Mode()
 {
 
-	int CurrentTimeStep = 1;
-
+	
 	//as long as events queue is not empty yet
 	while (!EventsQueue.isEmpty()|| InServiceVGN.getcount() != 0 || InServiceVIP.getcount()!=0|| InServiceNRM.getcount() != 0)
 	{
-		//print current timestep
-		string timestep = to_string(CurrentTimeStep);
-		pGUI->PrintMessage("TS: " + timestep);
-
 		//a) Executing Events at this current step 
 		ExecuteEvents(CurrentTimeStep);	//execute all events at current time step
 
 		FillDrawingList();
-
+		
 		//b) Picking 1 order from each type from Waiting to be InService	
 		Order* pOrd;
 		if (WaitingNormal.dequeue(pOrd))
