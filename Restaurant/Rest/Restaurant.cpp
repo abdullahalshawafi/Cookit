@@ -298,7 +298,7 @@ void Restaurant::Interactive_Mode()
 
 	
 	//as long as events queue is not empty yet
-	while (!EventsQueue.isEmpty()|| InServiceVGN.getcount() != 0 || InServiceVIP.getcount()!=0|| InServiceNRM.getcount() != 0)
+	do
 	{
 		//a) Executing Events at this current step 
 		ExecuteEvents(CurrentTimeStep);	//execute all events at current time step
@@ -340,12 +340,12 @@ void Restaurant::Interactive_Mode()
 
 
 		pGUI->UpdateInterface();
+		pGUI->ResetDrawingList();
 		pGUI->waitForClick();
 		CurrentTimeStep++;	//advance timestep
-		pGUI->ResetDrawingList();
-	}
-
-
+	} while (!EventsQueue.isEmpty() || InServiceVGN.getcount() != 0 || InServiceVIP.getcount() != 0 || InServiceNRM.getcount() != 0 || !WaitingNormal.isEmpty() || !WaitingVegan.isEmpty() || !WaitingVIP.isEmpty());
+	FillDrawingList();
+	pGUI->UpdateInterface();
 	pGUI->PrintMessage("generation done, click to END program");
 	pGUI->waitForClick();
 }
