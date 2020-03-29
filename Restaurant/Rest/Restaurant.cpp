@@ -84,6 +84,7 @@ void Restaurant::FillDrawingList()
 	Order* pOrd;
 	count_Ord = 0;
 	int size = 0;
+	count_Ord = 0;
 	Order** NRM_Orders_Array = WaitingNormal.toArray(size);
 	count_Ord += size;
 	for (int i = 0; i < size; i++)
@@ -191,13 +192,11 @@ void Restaurant::ReadInputFile(ifstream& InputFile)
 
 	C_count = N + G + V;
 	CookList = new Cook[C_count];
-	int cID = 1;
 	CookList[0].setBO(BO);
 	//Adding the normal cooks the cooks array
 	for (int i = 0; i < N; i++)
 	{
-		cID += (rand() % 15 + 1);
-		CookList[i].setID(cID);
+		CookList[i].setID(i + 1);
 		CookList[i].setSpeed(SN);
 		CookList[i].setType(TYPE_NRM);
 		CookList[i].setBD(BN);
@@ -207,8 +206,7 @@ void Restaurant::ReadInputFile(ifstream& InputFile)
 	// Adding the vegan cooks the cooks array
 	for (int i = N; i < C_count - V; i++)
 	{
-		cID += (rand() % 15 + 1);
-		CookList[i].setID(cID);
+		CookList[i].setID(i + 1);
 		CookList[i].setSpeed(SG);
 		CookList[i].setType(TYPE_VGAN);
 		CookList[i].setBD(BG);
@@ -217,8 +215,7 @@ void Restaurant::ReadInputFile(ifstream& InputFile)
 	//Adding the VIP cooks the cooks array
 	for (int i = N + G; i < C_count; i++)
 	{
-		cID += (rand() % 15 + 1);
-		CookList[i].setID(cID);
+		CookList[i].setID(i + 1);
 		CookList[i].setSpeed(SV);
 		CookList[i].setType(TYPE_VIP);
 		CookList[i].setBD(BV);
@@ -293,13 +290,13 @@ void Restaurant::ReadInputFile(ifstream& InputFile)
 void Restaurant::Interactive_Mode()
 {
 	//as long as events queue is not empty yet
-	while (!EventsQueue.isEmpty() || InServiceVGN.getcount() != 0 || InServiceVIP.getcount() != 0 || InServiceNRM.getcount() != 0)
+	while (!EventsQueue.isEmpty()|| InServiceVGN.getcount() != 0 || InServiceVIP.getcount()!=0|| InServiceNRM.getcount() != 0)
 	{
 		//a) Executing Events at this current step 
 		ExecuteEvents(CurrentTimeStep);	//execute all events at current time step
 
 		FillDrawingList();
-
+		
 		//b) Picking 1 order from each type from Waiting to be InService	
 		Order* pOrd;
 		if (WaitingNormal.dequeue(pOrd))
@@ -322,7 +319,7 @@ void Restaurant::Interactive_Mode()
 		}
 
 		//c)each 5 timesteps moving order of each type from InService to Finished list
-		if (CurrentTimeStep % 5 == 0)
+		if ((CurrentTimeStep + 1) % 5 == 0)
 		{
 			if (InServiceNRM.getcount() !=0)
 				FinishedList.enqueue(InServiceNRM.Remove());
@@ -337,6 +334,20 @@ void Restaurant::Interactive_Mode()
 		CurrentTimeStep++;	//advance timestep
 		pGUI->ResetDrawingList();
 	}
+
+	ExecuteEvents(CurrentTimeStep);
+	FillDrawingList();
+	if ((CurrentTimeStep + 1) % 5 == 0)
+	{
+		if (InServiceNRM.getcount() != 0)
+			FinishedList.enqueue(InServiceNRM.Remove());
+		if (InServiceVGN.getcount() != 0)
+			FinishedList.enqueue(InServiceVGN.Remove());
+		if (InServiceVIP.getcount() != 0)
+			FinishedList.enqueue(InServiceVIP.Remove());
+	}
+	pGUI->UpdateInterface();
+	pGUI->ResetDrawingList();
 
 	pGUI->PrintMessage("generation done, click to END program");
 	pGUI->waitForClick();

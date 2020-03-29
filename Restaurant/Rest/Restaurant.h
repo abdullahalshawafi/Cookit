@@ -13,10 +13,10 @@
 // it is the maestro of the project
 class Event;
 
-class Restaurant  
-{	
+class Restaurant
+{
 private:
-	GUI *pGUI;
+	GUI* pGUI;
 	Queue<Event*> EventsQueue;	//Queue of all events that will be loaded from file
 	Queue<Order*> WaitingNormal;
 	Queue<Order*> WaitingVegan;
@@ -30,16 +30,16 @@ private:
 	int CurrentTimeStep = 1;
 	Cook* CookList;
 public:
-	
+
 	Restaurant();
 	~Restaurant();
-	
+
 	void ExecuteEvents(int TimeStep);	//executes all events at current timestep
 	void RunSimulation();
 	void FillDrawingList();
 	void Interactive_Mode();
 	void StepByStep_Mode();
-	void ReadInputFile(ifstream & InputFile);
+	void ReadInputFile(ifstream& InputFile);
 	void AddtoVIPQueue(Order* po);
 	void AddtoNormalQueue(Order* po);
 	void AddtoVeganQueue(Order* po);
