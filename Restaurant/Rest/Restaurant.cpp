@@ -289,8 +289,8 @@ void Restaurant::ReadInputFile(ifstream& InputFile)
 
 void Restaurant::Interactive_Mode()
 {
-	//as long as events queue is not empty yet
-	while (!EventsQueue.isEmpty()|| InServiceVGN.getcount() != 0 || InServiceVIP.getcount()!=0|| InServiceNRM.getcount() != 0)
+	bool notFinished = false;
+	do	//as long as events queue is not empty yet
 	{
 		//a) Executing Events at this current step 
 		ExecuteEvents(CurrentTimeStep);	//execute all events at current time step
@@ -328,27 +328,17 @@ void Restaurant::Interactive_Mode()
 			if (InServiceVIP.getcount() != 0)
 				FinishedList.enqueue(InServiceVIP.Remove());
 		}
+
+		notFinished = !EventsQueue.isEmpty() || InServiceVGN.getcount() != 0 || InServiceVIP.getcount() != 0 || InServiceNRM.getcount() != 0 || !WaitingNormal.isEmpty() || !WaitingVegan.isEmpty() || !WaitingVIP.isEmpty();
 		
 		pGUI->UpdateInterface();
+		pGUI->ResetDrawingList();
 		pGUI->waitForClick();
 		CurrentTimeStep++;	//advance timestep
-		pGUI->ResetDrawingList();
-	}
-
-	ExecuteEvents(CurrentTimeStep);
+	} while (notFinished);
+	
 	FillDrawingList();
-	if ((CurrentTimeStep + 1) % 5 == 0)
-	{
-		if (InServiceNRM.getcount() != 0)
-			FinishedList.enqueue(InServiceNRM.Remove());
-		if (InServiceVGN.getcount() != 0)
-			FinishedList.enqueue(InServiceVGN.Remove());
-		if (InServiceVIP.getcount() != 0)
-			FinishedList.enqueue(InServiceVIP.Remove());
-	}
 	pGUI->UpdateInterface();
-	pGUI->ResetDrawingList();
-
 	pGUI->PrintMessage("generation done, click to END program");
 	pGUI->waitForClick();
 }
