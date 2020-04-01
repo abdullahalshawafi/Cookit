@@ -125,7 +125,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Demo_Main.cpp" />
     <ClCompile Include="CMUgraphicsLib\jpeg\jcomapi.c">
       <Filter>CMUGraphicsLib\JPEG</Filter>
     </ClCompile>
@@ -251,6 +250,7 @@
     </ClCompile>
     <ClCompile Include="Events\CancellationEvent.cpp" />
     <ClCompile Include="Events\PromotionEvent.cpp" />
+    <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="CMUgraphicsLib\Manual.txt">

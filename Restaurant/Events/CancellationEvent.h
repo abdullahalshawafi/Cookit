@@ -8,8 +8,7 @@ class Event;
 
 class CancellationEvent : public Event
 {
-	int eTime;
-	int oID;
+	int id;
 public:
 	CancellationEvent(int eTime, int oID);
 	//Add more constructors if needed

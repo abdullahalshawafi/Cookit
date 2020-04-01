@@ -57,7 +57,8 @@ public:
 	bool dequeue(T& frntEntry);
 	bool peekFront(T& frntEntry)  const;
 	T* toArray(int& count);	//returns array of T (array of items)
-	Order* SearchForOrder(int id);
+	bool SearchForOrder(int id);
+	int GetNumOfTheQueue();
 	~Queue();
 };
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -192,16 +193,42 @@ T* Queue<T>::toArray(int& count)
 }
 
 template <typename T>
-Order* Queue<T>::SearchForOrder(int id)
+bool Queue<T>::SearchForOrder(int id)
 {
-	Node<Order*>* Temp = frontPtr;
+	Node<T>* Temp = frontPtr;
+	Node<T>* Nodetodelete = NULL;
 	if (!Temp)
-		return nullptr;
-	while (Temp)
+		return false;
+	if (Temp->getItem()->GetID() == id)
 	{
-		if (Temp->getItem()->GetID() == id)
-			return Temp->getItem();
+		Nodetodelete = Temp;
+		frontPtr = Temp->getNext();
+		delete Nodetodelete;
+		return true;
+	}
+	while (Temp && Temp->getNext())
+	{
+		if (Temp->getNext()->getItem()->GetID() == id)
+		{
+			Nodetodelete = Temp->getNext();
+			Temp->setNext(Temp->getNext()->getNext());
+			delete Nodetodelete;
+			return true;
+		}
 		Temp = Temp->getNext();
 	}
-	return nullptr;
+	return false;
+}
+
+template <typename T>
+int Queue<T>::GetNumOfTheQueue()
+{
+	int count = 0;
+	Node<T>* Temp = frontPtr;
+	while (!Temp)
+	{
+		count++;
+		Temp = Temp->getNext();
+	}
+	return count;
 }

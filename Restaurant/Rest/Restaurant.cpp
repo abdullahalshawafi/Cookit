@@ -12,6 +12,15 @@ Restaurant::Restaurant()
 {
 	pGUI = NULL;
 	C_count = 0;
+	NRM_OrdCount = 0;
+	VGN_OrdCount = 0;
+	VIP_OrdCount = 0;
+	NRM_SRVCount = 0;
+	VGN_SRVCount = 0;
+	VIP_SRVCount = 0;
+	NRM_FinishedCount = 0;
+	VGN_FinishedCount = 0;
+	VIP_FinishedCount = 0;
 }
 
 void Restaurant::RunSimulation()
@@ -80,13 +89,13 @@ void Restaurant::FillDrawingList()
 		pGUI->AddToDrawingList(&CookList[i]);
 
 	//Let's add ALL Ordes to GUI::DrawingList
+
 	///////////Adding Normal Orders to GUI::DrawingList//////////
 	Order* pOrd;
-	count_Ord = 0;
+	NRM_OrdCount = 0;
 	int size = 0;
-	count_Ord = 0;
 	Order** NRM_Orders_Array = WaitingNormal.toArray(size);
-	count_Ord += size;
+	NRM_OrdCount += size;
 	for (int i = 0; i < size; i++)
 	{
 		pOrd = NRM_Orders_Array[i];
@@ -94,8 +103,9 @@ void Restaurant::FillDrawingList()
 	}
 
 	///////////Adding Vegan Orders to GUI::DrawingList//////////
+	VGN_OrdCount = 0;
 	Order** VGN_Orders_Array = WaitingVegan.toArray(size);
-	count_Ord += size;
+	VGN_OrdCount += size;
 	for (int i = 0; i < size; i++)
 	{
 		pOrd = VGN_Orders_Array[i];
@@ -103,27 +113,21 @@ void Restaurant::FillDrawingList()
 	}
 
 	///////////Adding VIP Orders to GUI::DrawingList//////////
+	VIP_OrdCount = 0;
 	Order** VIP_Orders_Array = WaitingVIP.toArray(size);
-	count_Ord += size;
+	VIP_OrdCount += size;
 	for (int i = 0; i < size; i++)
 	{
 		pOrd = VIP_Orders_Array[i];
 		pGUI->AddToDrawingList(pOrd);
 	}
 
-	/////////////////////////////////////////////////////////////////////////////////////////
-	//print waiting numbers
-	string waitingnum = to_string(count_Ord);
-	//print current timestep
-	string timestep = to_string(CurrentTimeStep);
-
-	pGUI->PrintMessage("TS: " + timestep + "   waiting num : " + waitingnum);
 	///////////Adding In service Normal Orders to GUI::DrawingList//////////
 	Order* pServiceOrd;
-	int count_ServiceOrd = 0;
+	NRM_SRVCount = 0;
 	int Servicesize = 0;
 	Order** ServiceNRM_Orders_Array = InServiceNRM.toArray(Servicesize);
-	count_ServiceOrd += Servicesize;
+	NRM_SRVCount += Servicesize;
 	for (int i = 0; i < Servicesize; i++)
 	{
 		pServiceOrd = ServiceNRM_Orders_Array[i];
@@ -131,8 +135,9 @@ void Restaurant::FillDrawingList()
 	}
 
 	///////////Adding In service Vegan Orders to GUI::DrawingList//////////
+	VGN_SRVCount = 0;
 	Order** ServiceVGN_Orders_Array = InServiceVGN.toArray(Servicesize);
-	count_ServiceOrd += Servicesize;
+	VGN_SRVCount += Servicesize;
 	for (int i = 0; i < Servicesize; i++)
 	{
 		pServiceOrd = ServiceVGN_Orders_Array[i];
@@ -140,8 +145,9 @@ void Restaurant::FillDrawingList()
 	}
 
 	///////////Adding In service VIP Orders to GUI::DrawingList//////////
+	VIP_SRVCount = 0;
 	Order** ServiceVIP_Orders_Array = InServiceVIP.toArray(Servicesize);
-	count_ServiceOrd += Servicesize;
+	VIP_SRVCount += Servicesize;
 	for (int i = 0; i < Servicesize; i++)
 	{
 		pServiceOrd = ServiceVIP_Orders_Array[i];
@@ -150,15 +156,35 @@ void Restaurant::FillDrawingList()
 
 	/////////////////////////////////////////////////////////////////////////////////////////
 
-	///////////Adding the finished Orders to GUI::DrawingList//////////
+	///////////Adding the finished Normal Orders to GUI::DrawingList//////////
 	Order* pFinishedOrd;
+	NRM_FinishedCount = 0;
 	int finishedsize = 0;
-	int finished = 0;
-	Order** Finished_Orders_Array = FinishedList.toArray(finishedsize);
-	finished += finishedsize;
+	Order** FinishedNRM_Orders_Array = FinishedNRM.toArray(finishedsize);
+	NRM_FinishedCount += finishedsize;
 	for (int i = 0; i < finishedsize; i++)
 	{
-		pFinishedOrd = Finished_Orders_Array[i];
+		pFinishedOrd = FinishedNRM_Orders_Array[i];
+		pGUI->AddToDrawingList(pFinishedOrd);
+	}
+
+	///////////Adding the finished Vegan Orders to GUI::DrawingList//////////
+	VGN_FinishedCount = 0;
+	Order** FinishedVGN_Orders_Array = FinishedVGN.toArray(finishedsize);
+	VGN_FinishedCount += finishedsize;
+	for (int i = 0; i < finishedsize; i++)
+	{
+		pFinishedOrd = FinishedVGN_Orders_Array[i];
+		pGUI->AddToDrawingList(pFinishedOrd);
+	}
+
+	///////////Adding the finished Normal Orders to GUI::DrawingList//////////
+	VIP_FinishedCount = 0;
+	Order** FinishedVIP_Orders_Array = FinishedVIP.toArray(finishedsize);
+	VIP_FinishedCount += finishedsize;
+	for (int i = 0; i < finishedsize; i++)
+	{
+		pFinishedOrd = FinishedVIP_Orders_Array[i];
 		pGUI->AddToDrawingList(pFinishedOrd);
 	}
 }
@@ -224,8 +250,8 @@ void Restaurant::ReadInputFile(ifstream& InputFile)
 	//printing the cooks information
 	cout << "\nCooks Information\n";
 	for (int i = 0; i < C_count; i++)
-		cout << "ID: " << CookList[i].GetID() << " Type: " << CookList[i].GetType() << " Speed: " << CookList[i].GetSpeed() 
-		<< " Break Duration: " << CookList[i].getBD() << " Orders to break: " << CookList[i].getBO() 
+		cout << "ID: " << CookList[i].GetID() << " Type: " << CookList[i].GetType() << " Speed: " << CookList[i].GetSpeed()
+		<< " Break Duration: " << CookList[i].getBD() << " Orders to break: " << CookList[i].getBO()
 		<< " Is in break? " << CookList[i].getInBreak() << "\n";
 	cout << endl;
 
@@ -284,7 +310,7 @@ void Restaurant::ReadInputFile(ifstream& InputFile)
 		default:
 			break;
 		}
-	}	
+	}
 }
 
 void Restaurant::Interactive_Mode()
@@ -296,24 +322,47 @@ void Restaurant::Interactive_Mode()
 		ExecuteEvents(CurrentTimeStep);	//execute all events at current time step
 
 		FillDrawingList();
+
+		/////////////////////////////////////////////////////////////////////////////////////////
 		
+		string waitingNRM = to_string(NRM_OrdCount);
+		string waitingVGN = to_string(VGN_OrdCount);
+		string waitingVIP = to_string(VIP_OrdCount);
+
+		string finishedNRM = to_string(NRM_FinishedCount);
+		string finishedVGN = to_string(VGN_FinishedCount);
+		string finishedVIP = to_string(VIP_FinishedCount);
+
+		string timestep = to_string(CurrentTimeStep);
+
+		pGUI->PrintMessage("TS: " + timestep);	//print current timestep
+		pGUI->PrintWaitingOrders("Waiting: (Normal = " + waitingNRM + "), (Vegan = " + waitingVGN + "), (VIP = " + waitingVIP + ")");	//print waiting orders numbers
+		pGUI->PrintAvailableCooks("Cooks: (Normal = 5), (Vegan = 3), (VIP = 1)");
+		pGUI->PrintAssignedOrders("N6(V3)");
+		pGUI->PrintFinishedOrders("Finished: (Normal = " + finishedNRM + "), (Vegan = " + finishedVGN + "), (VIP = " + finishedVIP + ")");	//print finished orders numbers
+
 		//b) Picking 1 order from each type from Waiting to be InService	
 		Order* pOrd;
+		Order* pOrd1;
+
 		if (WaitingNormal.dequeue(pOrd))
 		{
 			pOrd->setStatus(SRV);
+			pOrd->SetInServiceTime(CurrentTimeStep);
 			InServiceNRM.InsertBeg(pOrd);
 		}
 
 		if (WaitingVegan.dequeue(pOrd))
 		{
 			pOrd->setStatus(SRV);
+			pOrd->SetInServiceTime(CurrentTimeStep);
 			InServiceVGN.InsertBeg(pOrd);
 		}
 
 		if (WaitingVIP.dequeue(pOrd))
 		{
 			pOrd->setStatus(SRV);
+			//pOrd->SetArrivalTime(CurrentTimeStep);
 			pOrd->SetInServiceTime(CurrentTimeStep);
 			InServiceVIP.InsertBeg(pOrd);
 		}
@@ -321,25 +370,52 @@ void Restaurant::Interactive_Mode()
 		//c)each 5 timesteps moving order of each type from InService to Finished list
 		if ((CurrentTimeStep + 1) % 5 == 0)
 		{
-			if (InServiceNRM.getcount() !=0)
-				FinishedList.enqueue(InServiceNRM.Remove());
+			if (InServiceNRM.getcount() != 0)
+			{
+				pOrd1 = InServiceNRM.Remove();
+				if (pOrd1->GetArrivalTime() == pOrd1->getInServiceTime())
+					InServiceNRM.InsertEnd(pOrd1);
+				else
+					FinishedNRM.enqueue(pOrd1);
+				/*else
+					InServiceNRM.InsertBeg(pOrd1);*/
+			}
+
 			if (InServiceVGN.getcount() != 0)
-				FinishedList.enqueue(InServiceVGN.Remove());
+			{
+				pOrd1 = InServiceVGN.Remove();
+				if (pOrd1->GetArrivalTime() != pOrd1->getInServiceTime())
+					FinishedVGN.enqueue(pOrd1);
+				else
+					InServiceVGN.InsertEnd(pOrd1);
+				/*else
+					InServiceVGN.InsertBeg(pOrd1);*/
+			}
+
 			if (InServiceVIP.getcount() != 0)
-				FinishedList.enqueue(InServiceVIP.Remove());
+			{
+				pOrd1 = InServiceVIP.Remove();
+				if (pOrd1->GetArrivalTime() != pOrd1->getInServiceTime())
+					FinishedVIP.enqueue(pOrd1);
+				else
+					InServiceVIP.InsertEnd(pOrd1);
+				///*else
+				//	InServiceVIP.InsertBeg(pOrd1);
+			}
 		}
 
 		notFinished = !EventsQueue.isEmpty() || InServiceVGN.getcount() != 0 || InServiceVIP.getcount() != 0 || InServiceNRM.getcount() != 0 || !WaitingNormal.isEmpty() || !WaitingVegan.isEmpty() || !WaitingVIP.isEmpty();
-		
+
 		pGUI->UpdateInterface();
 		pGUI->ResetDrawingList();
 		pGUI->waitForClick();
 		CurrentTimeStep++;	//advance timestep
+
 	} while (notFinished);
-	
+
 	FillDrawingList();
 	pGUI->UpdateInterface();
-	pGUI->PrintMessage("generation done, click to END program");
+	pGUI->PrintMessageWithoutClearing("generation done, click to END program");
 	pGUI->waitForClick();
 }
 
@@ -391,11 +467,6 @@ void  Restaurant::AddtoVeganQueue(Order* po)
 
 bool  Restaurant::DeleteNormalQueue(int id)
 {
-	Order* OrderToDelete = WaitingNormal.SearchForOrder(id);
-	if (OrderToDelete)
-	{
-		WaitingNormal.dequeue(OrderToDelete);
-		return true;
-	}
-	return false;
+	bool IsFound = WaitingNormal.SearchForOrder(id);
+	return IsFound;
 }

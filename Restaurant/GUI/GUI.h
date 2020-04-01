@@ -114,6 +114,10 @@ public:
 	// Output Functions  ---------------------------
 	void PrintMessage(string msg) const; // prints a message in the status bar
 	void PrintMessageWithoutClearing(string msg) const; // prints a message in the status bar
+	void PrintWaitingOrders(string msg) const;
+	void PrintAvailableCooks(string msg) const;
+	void PrintAssignedOrders(string msg) const;
+	void PrintFinishedOrders(string msg) const;
 
 	void UpdateInterface();
 	void AddToDrawingList(Order* pOrd);	//Adds a new order to the drawing queue

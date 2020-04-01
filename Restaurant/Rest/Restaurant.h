@@ -21,12 +21,16 @@ private:
 	Queue<Order*> WaitingNormal;
 	Queue<Order*> WaitingVegan;
 	PriorityQueue<Order*> WaitingVIP;
-	Queue<Order*>FinishedList;
+	Queue<Order*>FinishedNRM;
+	Queue<Order*>FinishedVGN;
+	Queue<Order*>FinishedVIP;
 	LinkedList<Order*> InServiceNRM;
 	LinkedList<Order*> InServiceVIP;
 	LinkedList<Order*> InServiceVGN;
 	int C_count;
-	int count_Ord;
+	int NRM_OrdCount, VGN_OrdCount, VIP_OrdCount;
+	int NRM_SRVCount, VGN_SRVCount, VIP_SRVCount;
+	int NRM_FinishedCount, VGN_FinishedCount, VIP_FinishedCount;
 	int CurrentTimeStep = 1;
 	Cook* CookList;
 public:
