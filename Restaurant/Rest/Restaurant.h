@@ -16,6 +16,8 @@ class Event;
 class Restaurant
 {
 private:
+	LinkedList<Cook*> AvailableCooks;
+	LinkedList<Cook*> InBreakCooks;
 	GUI* pGUI;
 	Queue<Event*> EventsQueue;	//Queue of all events that will be loaded from file
 	Queue<Order*> WaitingNormal;

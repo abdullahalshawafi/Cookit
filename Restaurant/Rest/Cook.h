@@ -25,5 +25,7 @@ public:
 	int getBD();
 	void setInBreak(bool);
 	bool getInBreak();
+	void setCurrOrd(int);
+	int getCurrOrd();
 	//e3mly func lel availability
 };

@@ -71,3 +71,11 @@ bool Cook::getInBreak()
 {
 	return InBreak;
 }
+void Cook::setCurrOrd(int x)
+{
+	CurrOrd = x;
+}
+int Cook::getCurrOrd()
+{
+	return CurrOrd;
+}

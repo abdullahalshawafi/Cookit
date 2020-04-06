@@ -26,6 +26,33 @@ public:
 	}
 	////////////////////////////////////////////////////////////////////////
 
+	void DeleteNode(T& item)
+	{
+		if (!Head)
+			return;
+		if (Head->getItem == item)
+		{
+			delete Head;
+			Head = nullptr;
+			count--;
+			return;
+		}
+		Node<T>* p = Head->getNext();
+		Node<T>* prev = Head;
+		while (p)
+		{
+			if (p->getItem() == item)
+			{
+				prev->setNext(p->getNext());
+				delete p;
+				return;
+			}
+			prev = p;
+			p = p->getNext();
+		}
+
+
+	}
 	/*
 	* Function: InsertBeg.
 	* Creates a new node and adds it to the beginning of a linked list.
@@ -68,14 +95,23 @@ public:
 	//inserts a new node at end if the list
 	void InsertEnd(const T& data)
 	{
-		Node<T>* R = new Node<T>(data);
+			Node<T> * ptr = Head;
+		if (!Head)
+		{
+			Node<T>* R = new Node<T>(data);
+			Head = R;
+			Head->setNext(NULL);
+		}
 
-		Node<T>* P = Head;
-		while (P->getNext())
-			P = P->getNext();
-
-		P->setNext(R);
-		count++;
+		else
+		{
+			while (ptr && ptr->getNext())
+				ptr = ptr->getNext();
+			Node<T>* R = new Node<T>(data);
+			ptr->setNext(R);
+			R->setNext(NULL);
+		}
+			count++;
 	}
 	////////////////////////////////////////////////////////////////////////
 
@@ -154,33 +190,62 @@ public:
 		return p->getItem();
 	}
 	////////////////////////////////////////////////////////////////////////
+	void sortCooks()//sorting cooks corresponding to availabilty time
+		{
+			Node<T>* p = Head;
+			Node<T>* temp = Head;
+			while (p)
+			{
+				if (Head->getItem()->getCurrOrd() > p->getItem()->getCurrOrd())
+				{
+					temp = Head;
+					//Head->setNext(p->getNext());
+					Head = p;
+					Head->setNext(temp);
+					p = temp->getNext();
+				}
+				else p = p->getNext();
+			}
+			Node<T>* min = Head;
+			Node<T>* prev = Head;
+			p = Head->getNext();
+			while (p)
+			{
+				if (p->getItem()->getCurrOrd() == min->getItem()->getCurrOrd())
+				{
+					temp = p;
+					prev->setNext(temp->getNext());
+					temp->setNext(min->getNext());
+					min->setNext(temp);
+				}
+				else
+				{prev = p;
+				p = p->getNext();
+				}
+			}
+			int minCurr = min->getItem()->getCurrOrd() + 1;
+			prev = min;
+			p = min->getNext();
+			while (p)
+			{
+				while (p)
+				{
+					if (p->getItem()->getCurrOrd() == minCurr)
+					{
+						temp = p;
+						prev->setNext(temp->getNext());
+						temp->setNext(min->getNext());
+						min->setNext(temp);
+					}
+					prev = p;
+					p = p->getNext();
+				}
+				minCurr = min->getItem()->getCurrOrd() + 1;
+				prev = min;
+				p = min->getNext();
+			}
+		}
 };
-
-Order* LinkedList<Order*>::Remove()
-{
-	if (!Head)
-		return nullptr;
-
-	Node<Order*>* p = Head;
-	Node<Order*>* prev = Head;
-	if (!p->getNext()) // only one node
-	{
-		Head = nullptr;
-		count = 0;
-		p->getItem()->setStatus(DONE);
-		return p->getItem();
-	}
-	while (p && p->getNext())
-	{
-		prev = p;
-		p = p->getNext();
-	}
-	prev->setNext(NULL);
-	count--;
-	p->getItem()->setStatus(DONE);
-	return p->getItem();
-}
-
 Order* LinkedList<Order*>::RemoveFinishedFirst()
 {
 	if (!Head)
@@ -203,9 +268,6 @@ Order* LinkedList<Order*>::RemoveFinishedFirst()
 			minFinish = p->getItem();
 		p = p->getNext();
 	}
-	minFinish->setStatus(DONE);
-	return minFinish;
+
 }
-
-
 

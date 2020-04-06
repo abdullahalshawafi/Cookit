@@ -85,8 +85,14 @@ void Restaurant::FillDrawingList()
 
 	//Let's add ALL Cooks to GUI::DrawingList
 
-	for (int i = 0; i < C_count; i++)
-		pGUI->AddToDrawingList(&CookList[i]);
+	AvailableCooks.sortCooks();
+	Cook* pCook;
+	int C_size = 0;
+	Cook** CookArr = AvailableCooks.toArray(C_size);
+	for (int i = 0; i < C_size; i++)
+	{
+		pGUI->AddToDrawingList(CookArr[i]);
+	}
 
 	//Let's add ALL Ordes to GUI::DrawingList
 
@@ -217,44 +223,48 @@ void Restaurant::ReadInputFile(ifstream& InputFile)
 	srand(time(NULL));
 
 	C_count = N + G + V;
-	CookList = new Cook[C_count];
-	CookList[0].setBO(BO);
-	//Adding the normal cooks the cooks array
+	int cID = 0;
+	Cook* pCook;
 	for (int i = 0; i < N; i++)
 	{
-		CookList[i].setID(i + 1);
-		CookList[i].setSpeed(SN);
-		CookList[i].setType(TYPE_NRM);
-		CookList[i].setBD(BN);
-
+		pCook = new Cook;
+		cID++;
+		pCook->setID(cID);
+		pCook->setSpeed(SN);
+		pCook->setType(TYPE_NRM);
+		pCook->setBD(BN);
+		AvailableCooks.InsertEnd(pCook);
 	}
+	pCook->setBO(BO);
 
-	// Adding the vegan cooks the cooks array
-	for (int i = N; i < C_count - V; i++)
-	{
-		CookList[i].setID(i + 1);
-		CookList[i].setSpeed(SG);
-		CookList[i].setType(TYPE_VGAN);
-		CookList[i].setBD(BG);
-	}
+		// Adding the vegan cooks the cooks array
+		for (int i = N; i < C_count - V; i++)
+		{
+			pCook = new Cook;
+			cID++;
+			pCook->setID(cID);
+			pCook->setSpeed(SN);
+			pCook->setType(TYPE_NRM);
+			pCook->setBD(BN);
+			AvailableCooks.InsertEnd(pCook);
+		}
+		pCook->setBO(BO);
 
-	//Adding the VIP cooks the cooks array
-	for (int i = N + G; i < C_count; i++)
-	{
-		CookList[i].setID(i + 1);
-		CookList[i].setSpeed(SV);
-		CookList[i].setType(TYPE_VIP);
-		CookList[i].setBD(BV);
-	}
+		//Adding the VIP cooks the cooks array
+		for (int i = N + G; i < C_count; i++)
+		{
+			pCook = new Cook;
+			cID++;
+			pCook->setID(cID);
+			pCook->setSpeed(SN);
+			pCook->setType(TYPE_NRM);
+			pCook->setBD(BN);
+			AvailableCooks.InsertEnd(pCook);
+		}
 
+	
 	//printing the cooks information
-	cout << "\nCooks Information\n";
-	for (int i = 0; i < C_count; i++)
-		cout << "ID: " << CookList[i].GetID() << " Type: " << CookList[i].GetType() << " Speed: " << CookList[i].GetSpeed()
-		<< " Break Duration: " << CookList[i].getBD() << " Orders to break: " << CookList[i].getBO()
-		<< " Is in break? " << CookList[i].getInBreak() << "\n";
-	cout << endl;
-
+	
 	int EvTime = 0;
 
 	int O_id = 0;
@@ -341,15 +351,18 @@ void Restaurant::Interactive_Mode()
 		pGUI->PrintAssignedOrders("N6(V3)");
 		pGUI->PrintFinishedOrders("Finished: (Normal = " + finishedNRM + "), (Vegan = " + finishedVGN + "), (VIP = " + finishedVIP + ")");	//print finished orders numbers
 
+		int csize = 0, i = 0;
+		Cook** C_Arr = AvailableCooks.toArray(csize);
 		//b) Picking 1 order from each type from Waiting to be InService	
 		Order* pOrd;
 		Order* pOrd1;
-
 		if (WaitingNormal.dequeue(pOrd))
 		{
 			pOrd->setStatus(SRV);
 			pOrd->SetInServiceTime(CurrentTimeStep);
 			InServiceNRM.InsertBeg(pOrd);
+			C_Arr[i]->setCurrOrd(C_Arr[i]->getCurrOrd() + 1);
+			i++;
 		}
 
 		if (WaitingVegan.dequeue(pOrd))
@@ -357,6 +370,8 @@ void Restaurant::Interactive_Mode()
 			pOrd->setStatus(SRV);
 			pOrd->SetInServiceTime(CurrentTimeStep);
 			InServiceVGN.InsertBeg(pOrd);
+			C_Arr[i]->setCurrOrd(C_Arr[i]->getCurrOrd() + 1);
+			i++;
 		}
 
 		if (WaitingVIP.dequeue(pOrd))
@@ -365,6 +380,8 @@ void Restaurant::Interactive_Mode()
 			//pOrd->SetArrivalTime(CurrentTimeStep);
 			pOrd->SetInServiceTime(CurrentTimeStep);
 			InServiceVIP.InsertBeg(pOrd);
+			C_Arr[i]->setCurrOrd(C_Arr[i]->getCurrOrd() + 1);
+			i++;
 		}
 
 		//c)each 5 timesteps moving order of each type from InService to Finished list
