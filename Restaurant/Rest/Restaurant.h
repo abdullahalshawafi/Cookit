@@ -8,7 +8,7 @@
 #include "..\GUI\GUI.h"
 #include "..\Generic_DS\Queue.h"
 #include"..\Generic_DS\PriorityQueue.h"
-#include "..\Generic_DS\LinkedList.h"
+#include "..\Generic_DS\List.h"
 
 // it is the maestro of the project
 class Event;
@@ -24,15 +24,16 @@ private:
 	Queue<Order*>FinishedNRM;
 	Queue<Order*>FinishedVGN;
 	Queue<Order*>FinishedVIP;
-	LinkedList<Order*> InServiceNRM;
-	LinkedList<Order*> InServiceVIP;
-	LinkedList<Order*> InServiceVGN;
+	List<Order*> InServiceNRM;
+	List<Order*> InServiceVIP;
+	List<Order*> InServiceVGN;
+	List<Cook*> AvailableCooks;
+	List<Cook*> InBreakCooks;
 	int C_count;
 	int NRM_OrdCount, VGN_OrdCount, VIP_OrdCount;
 	int NRM_SRVCount, VGN_SRVCount, VIP_SRVCount;
 	int NRM_FinishedCount, VGN_FinishedCount, VIP_FinishedCount;
 	int CurrentTimeStep = 1;
-	Cook* CookList;
 public:
 
 	Restaurant();

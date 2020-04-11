@@ -8,17 +8,14 @@ Cook::Cook()
 	InBreak = false;
 }
 
-
 Cook::~Cook()
 {
 }
-
 
 int Cook::GetID() const
 {
 	return ID;
 }
-
 
 ORD_TYPE Cook::GetType() const
 {
@@ -29,7 +26,6 @@ int Cook::GetSpeed() const
 {
 	return speed;
 }
-
 
 void Cook::setID(int id)
 {
@@ -50,14 +46,17 @@ void Cook::setBO(int bo)
 {
 	OrdToBreak = bo;
 }
+
 void Cook::setBD(int bd)
 {
 	BreakDuration = bd;
 }
+
 int Cook::getBO()
 {
 	return OrdToBreak;
 }
+
 int Cook::getBD()
 {
 	return BreakDuration;
@@ -67,7 +66,18 @@ void Cook::setInBreak(bool in)
 {
 	InBreak = in;
 }
+
 bool Cook::getInBreak()
 {
 	return InBreak;
+}
+
+void Cook::setCurrOrd(int x)
+{
+	CurrOrd = x;
+}
+
+int Cook::getCurrOrd()
+{
+	return CurrOrd;
 }

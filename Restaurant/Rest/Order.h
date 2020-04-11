@@ -19,8 +19,8 @@ protected:
 	//
 
 public:
-	Order(int ID, ORD_TYPE r_Type, double OM = 0, int OS = 0);
 	Order();
+	Order(int id, ORD_TYPE r_Type, double OM, int OS);
 	virtual ~Order();
 
 	int GetID();
@@ -37,7 +37,6 @@ public:
 	int GetArrivalTime();
 	int GetOrderSize();
 	double GetOrderMoney();
-	bool  operator == (Order Ord);
 	//
 	// TODO: Add More Member Functions As Needed
 	//

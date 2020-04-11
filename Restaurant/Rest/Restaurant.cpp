@@ -84,9 +84,13 @@ void Restaurant::FillDrawingList()
 	/// decide the appropriate list type for Orders and Cooks
 
 	//Let's add ALL Cooks to GUI::DrawingList
-
-	for (int i = 0; i < C_count; i++)
-		pGUI->AddToDrawingList(&CookList[i]);
+	Cook* pCook;
+	int C_size = 0;
+	Cook** CookArr = AvailableCooks.toArray(C_size);
+	for (int i = 0; i < C_size; i++)
+	{
+		pGUI->AddToDrawingList(CookArr[i]);
+	}
 
 	//Let's add ALL Ordes to GUI::DrawingList
 
@@ -217,43 +221,39 @@ void Restaurant::ReadInputFile(ifstream& InputFile)
 	srand(time(NULL));
 
 	C_count = N + G + V;
-	CookList = new Cook[C_count];
-	CookList[0].setBO(BO);
+	Cook* pCook;
+	pCook->setBO(BO);
+
 	//Adding the normal cooks the cooks array
 	for (int i = 0; i < N; i++)
 	{
-		CookList[i].setID(i + 1);
-		CookList[i].setSpeed(SN);
-		CookList[i].setType(TYPE_NRM);
-		CookList[i].setBD(BN);
-
+		pCook = new Cook;
+		pCook->setID(i + 1);
+		pCook->setSpeed(SN);
+		pCook->setType(TYPE_NRM);
+		pCook->setBD(BN);
+		AvailableCooks.InsertEnd(pCook);
 	}
-
 	// Adding the vegan cooks the cooks array
 	for (int i = N; i < C_count - V; i++)
 	{
-		CookList[i].setID(i + 1);
-		CookList[i].setSpeed(SG);
-		CookList[i].setType(TYPE_VGAN);
-		CookList[i].setBD(BG);
+		pCook = new Cook;
+		pCook->setID(i + 1);
+		pCook->setSpeed(SN);
+		pCook->setType(TYPE_VGAN);
+		pCook->setBD(BN);
+		AvailableCooks.InsertEnd(pCook);
 	}
-
 	//Adding the VIP cooks the cooks array
 	for (int i = N + G; i < C_count; i++)
 	{
-		CookList[i].setID(i + 1);
-		CookList[i].setSpeed(SV);
-		CookList[i].setType(TYPE_VIP);
-		CookList[i].setBD(BV);
+		pCook = new Cook;
+		pCook->setID(i + 1);
+		pCook->setSpeed(SN);
+		pCook->setType(TYPE_VIP);
+		pCook->setBD(BN);
+		AvailableCooks.InsertEnd(pCook);
 	}
-
-	//printing the cooks information
-	cout << "\nCooks Information\n";
-	for (int i = 0; i < C_count; i++)
-		cout << "ID: " << CookList[i].GetID() << " Type: " << CookList[i].GetType() << " Speed: " << CookList[i].GetSpeed()
-		<< " Break Duration: " << CookList[i].getBD() << " Orders to break: " << CookList[i].getBO()
-		<< " Is in break? " << CookList[i].getInBreak() << "\n";
-	cout << endl;
 
 	int EvTime = 0;
 
@@ -324,7 +324,7 @@ void Restaurant::Interactive_Mode()
 		FillDrawingList();
 
 		/////////////////////////////////////////////////////////////////////////////////////////
-		
+
 		string waitingNRM = to_string(NRM_OrdCount);
 		string waitingVGN = to_string(VGN_OrdCount);
 		string waitingVIP = to_string(VIP_OrdCount);
@@ -344,12 +344,17 @@ void Restaurant::Interactive_Mode()
 		//b) Picking 1 order from each type from Waiting to be InService	
 		Order* pOrd;
 		Order* pOrd1;
+		int csize = 0, i = 0;
+		Cook** C_Arr = AvailableCooks.toArray(csize);
 
 		if (WaitingNormal.dequeue(pOrd))
 		{
 			pOrd->setStatus(SRV);
 			pOrd->SetInServiceTime(CurrentTimeStep);
 			InServiceNRM.InsertBeg(pOrd);
+			AvailableCooks.InsertEnd(AvailableCooks.RemoveFirst()->getItem());
+			/*C_Arr[i]->setCurrOrd(C_Arr[i]->getCurrOrd() + 1);
+			i++;*/
 		}
 
 		if (WaitingVegan.dequeue(pOrd))
@@ -357,14 +362,19 @@ void Restaurant::Interactive_Mode()
 			pOrd->setStatus(SRV);
 			pOrd->SetInServiceTime(CurrentTimeStep);
 			InServiceVGN.InsertBeg(pOrd);
+			AvailableCooks.InsertEnd(AvailableCooks.RemoveFirst()->getItem());
+			/*C_Arr[i]->setCurrOrd(C_Arr[i]->getCurrOrd() + 1);
+			i++;*/
 		}
 
 		if (WaitingVIP.dequeue(pOrd))
 		{
 			pOrd->setStatus(SRV);
-			//pOrd->SetArrivalTime(CurrentTimeStep);
 			pOrd->SetInServiceTime(CurrentTimeStep);
 			InServiceVIP.InsertBeg(pOrd);
+			AvailableCooks.InsertEnd(AvailableCooks.RemoveFirst()->getItem());
+			/*C_Arr[i]->setCurrOrd(C_Arr[i]->getCurrOrd() + 1);
+			i++;*/
 		}
 
 		//c)each 5 timesteps moving order of each type from InService to Finished list
@@ -376,7 +386,10 @@ void Restaurant::Interactive_Mode()
 				if (pOrd1->GetArrivalTime() == pOrd1->getInServiceTime())
 					InServiceNRM.InsertEnd(pOrd1);
 				else
+				{
+					pOrd1->setStatus(DONE);
 					FinishedNRM.enqueue(pOrd1);
+				}
 				/*else
 					InServiceNRM.InsertBeg(pOrd1);*/
 			}
@@ -385,7 +398,10 @@ void Restaurant::Interactive_Mode()
 			{
 				pOrd1 = InServiceVGN.Remove();
 				if (pOrd1->GetArrivalTime() != pOrd1->getInServiceTime())
+				{
+					pOrd1->setStatus(DONE);
 					FinishedVGN.enqueue(pOrd1);
+				}
 				else
 					InServiceVGN.InsertEnd(pOrd1);
 				/*else
@@ -396,7 +412,10 @@ void Restaurant::Interactive_Mode()
 			{
 				pOrd1 = InServiceVIP.Remove();
 				if (pOrd1->GetArrivalTime() != pOrd1->getInServiceTime())
+				{
+					pOrd1->setStatus(DONE);
 					FinishedVIP.enqueue(pOrd1);
+				}
 				else
 					InServiceVIP.InsertEnd(pOrd1);
 				///*else

@@ -114,13 +114,13 @@
     <ClInclude Include="Events\PromotionEvent.h">
       <Filter>Restaurant</Filter>
     </ClInclude>
-    <ClInclude Include="Generic_DS\LinkedList.h">
-      <Filter>Restaurant</Filter>
-    </ClInclude>
     <ClInclude Include="Generic_DS\PriorityNode.h">
       <Filter>Restaurant</Filter>
     </ClInclude>
     <ClInclude Include="Generic_DS\PriorityQueue.h">
+      <Filter>Restaurant</Filter>
+    </ClInclude>
+    <ClInclude Include="Generic_DS\List.h">
       <Filter>Restaurant</Filter>
     </ClInclude>
   </ItemGroup>

@@ -99,7 +99,7 @@
     <ClInclude Include="Defs.h" />
     <ClInclude Include="Events\ArrivalEvent.h" />
     <ClInclude Include="Events\Event.h" />
-    <ClInclude Include="Generic_DS\LinkedList.h" />
+    <ClInclude Include="Generic_DS\List.h" />
     <ClInclude Include="Generic_DS\Node.h" />
     <ClInclude Include="Generic_DS\PriorityNode.h" />
     <ClInclude Include="Generic_DS\PriorityQueue.h" />

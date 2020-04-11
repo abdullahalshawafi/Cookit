@@ -49,14 +49,6 @@ int Order::getSize()
 	return OrderSize;
 }
 
-bool Order::operator==(Order Ord)
-{
-	if (ID == Ord.GetID())
-		return true;
-	else
-		return false;
-}
-
 int Order::GetArrivalTime()
 {
 	return ArrTime;
