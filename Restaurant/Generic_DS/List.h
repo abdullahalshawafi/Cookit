@@ -25,6 +25,32 @@ public:
 	}
 	////////////////////////////////////////////////////////////////////////
 
+	void DeleteNode(T& item)
+	{
+		if (!Head)
+			return;
+		if (Head->getItem == item)
+		{
+			delete Head;
+			Head = nullptr;
+			count--;
+			return;
+		}
+		Node<T>* p = Head->getNext();
+		Node<T>* prev = Head;
+		while (p)
+		{
+			if (p->getItem() == item)
+			{
+				prev->setNext(p->getNext());
+				delete p;
+				return;
+			}
+			prev = p;
+			p = p->getNext();
+		}
+	}
+
 	/*
 	* Function: InsertBeg.
 	* Creates a new node and adds it to the beginning of a linked list.
@@ -140,7 +166,7 @@ public:
 	}
 
 	T Remove()    //removes any order (will be used in phase 1 only)
-	{    
+	{
 		if (!Head)
 			return nullptr;
 
@@ -161,112 +187,6 @@ public:
 		count--;
 		return p->getItem();
 	}
-
-	void DeleteNode(T& item)
-	{
-		if (!Head)
-			return;
-		if (Head->getItem == item)
-		{
-			delete Head;
-			Head = nullptr;
-			count--;
-			return;
-		}
-		Node<T>* p = Head->getNext();
-		Node<T>* prev = Head;
-		while (p)
-		{
-			if (p->getItem() == item)
-			{
-				prev->setNext(p->getNext());
-				delete p;
-				return;
-			}
-			prev = p;
-			p = p->getNext();
-		}
-	}
-
-	void sortCooks()//sorting cooks corresponding to availabilty time
-	{
-		Node<T>* p = Head;
-		Node<T>* temp = Head;
-		while (p)
-		{
-			if (Head->getItem()->getCurrOrd() > p->getItem()->getCurrOrd())
-			{
-				temp = Head;
-				Head->setNext(p->getNext());
-				Head = p;
-				Head->setNext(temp);
-				p = temp->getNext();
-			}
-			else p = p->getNext();
-		}
-		Node<T>* min = Head;
-		Node<T>* prev = Head;
-		p = Head->getNext();
-		while (p)
-		{
-			if (p->getItem()->getCurrOrd() == min->getItem()->getCurrOrd())
-			{
-				if (prev == min)
-				{
-					prev = p;
-					p = p->getNext();
-					min = min->getNext();
-				}
-				else
-				{
-					temp = p;
-					prev->setNext(temp->getNext());
-					temp->setNext(min->getNext());
-					min->setNext(temp);
-					min = min->getNext();
-					p = prev->getNext();
-				}
-			}
-			else
-			{
-				prev = p;
-				p = p->getNext();
-			}
-		}
-		int minCurr = min->getItem()->getCurrOrd() + 1;
-
-		p = min->getNext();
-		while (p)
-		{
-			while (p)
-			{
-				if (p->getItem()->getCurrOrd() == minCurr)
-				{
-					temp = p;
-					prev->setNext(temp->getNext());
-					temp->setNext(min->getNext());
-					min->setNext(temp);
-					min = min->getNext();
-					if (prev->getNext() == p)
-					{
-						prev = p;
-						p = p->getNext();
-					}
-					else
-						p = prev->getNext();
-				}
-				else
-				{
-					prev = p;
-					p = p->getNext();
-				}
-			}
-			minCurr++;
-			prev = min;
-			p = min->getNext();
-		}
-	}
-	////////////////////////////////////////////////////////////////////////
 };
 
 Order* List<Order*>::RemoveFinishedFirst()
@@ -291,9 +211,6 @@ Order* List<Order*>::RemoveFinishedFirst()
 			minFinish = p->getItem();
 		p = p->getNext();
 	}
-	minFinish->setStatus(DONE);
-	return minFinish;
+
 }
-
-
 

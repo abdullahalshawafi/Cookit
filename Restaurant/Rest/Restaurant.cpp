@@ -84,7 +84,6 @@ void Restaurant::FillDrawingList()
 	/// decide the appropriate list type for Orders and Cooks
 
 	//Let's add ALL Cooks to GUI::DrawingList
-	Cook* pCook;
 	int C_size = 0;
 	Cook** CookArr = AvailableCooks.toArray(C_size);
 	for (int i = 0; i < C_size; i++)
@@ -222,7 +221,6 @@ void Restaurant::ReadInputFile(ifstream& InputFile)
 
 	C_count = N + G + V;
 	Cook* pCook;
-	pCook->setBO(BO);
 
 	//Adding the normal cooks the cooks array
 	for (int i = 0; i < N; i++)
@@ -232,6 +230,7 @@ void Restaurant::ReadInputFile(ifstream& InputFile)
 		pCook->setSpeed(SN);
 		pCook->setType(TYPE_NRM);
 		pCook->setBD(BN);
+		pCook->setBO(BO);
 		AvailableCooks.InsertEnd(pCook);
 	}
 	// Adding the vegan cooks the cooks array
@@ -242,6 +241,7 @@ void Restaurant::ReadInputFile(ifstream& InputFile)
 		pCook->setSpeed(SN);
 		pCook->setType(TYPE_VGAN);
 		pCook->setBD(BN);
+		pCook->setBO(BO);
 		AvailableCooks.InsertEnd(pCook);
 	}
 	//Adding the VIP cooks the cooks array
@@ -252,6 +252,7 @@ void Restaurant::ReadInputFile(ifstream& InputFile)
 		pCook->setSpeed(SN);
 		pCook->setType(TYPE_VIP);
 		pCook->setBD(BN);
+		pCook->setBO(BO);
 		AvailableCooks.InsertEnd(pCook);
 	}
 
