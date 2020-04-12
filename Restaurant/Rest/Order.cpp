@@ -88,3 +88,13 @@ void Order::SetFinishTime(int ft)
 {
 	FinishTime = ft;
 }
+
+void Order::SetType(ORD_TYPE O)
+{
+	type = O;
+}
+
+void Order::SetOrderMoney(double M)
+{
+	totalMoney = M;
+}

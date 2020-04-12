@@ -381,7 +381,7 @@ void Restaurant::Interactive_Mode()
 		//c)each 5 timesteps moving order of each type from InService to Finished list
 		if ((CurrentTimeStep + 1) % 5 == 0)
 		{
-			if (InServiceNRM.getcount() != 0)
+			if (InServiceNRM.GetCount() != 0)
 			{
 				pOrd1 = InServiceNRM.Remove();
 				if (pOrd1->GetArrivalTime() == pOrd1->getInServiceTime())
@@ -395,7 +395,7 @@ void Restaurant::Interactive_Mode()
 					InServiceNRM.InsertBeg(pOrd1);*/
 			}
 
-			if (InServiceVGN.getcount() != 0)
+			if (InServiceVGN.GetCount() != 0)
 			{
 				pOrd1 = InServiceVGN.Remove();
 				if (pOrd1->GetArrivalTime() != pOrd1->getInServiceTime())
@@ -409,7 +409,7 @@ void Restaurant::Interactive_Mode()
 					InServiceVGN.InsertBeg(pOrd1);*/
 			}
 
-			if (InServiceVIP.getcount() != 0)
+			if (InServiceVIP.GetCount() != 0)
 			{
 				pOrd1 = InServiceVIP.Remove();
 				if (pOrd1->GetArrivalTime() != pOrd1->getInServiceTime())
@@ -424,7 +424,7 @@ void Restaurant::Interactive_Mode()
 			}
 		}
 
-		notFinished = !EventsQueue.isEmpty() || InServiceVGN.getcount() != 0 || InServiceVIP.getcount() != 0 || InServiceNRM.getcount() != 0 || !WaitingNormal.isEmpty() || !WaitingVegan.isEmpty() || !WaitingVIP.isEmpty();
+		notFinished = !EventsQueue.isEmpty() || InServiceVGN.GetCount() != 0 || InServiceVIP.GetCount() != 0 || InServiceNRM.GetCount() != 0 || !WaitingNormal.isEmpty() || !WaitingVegan.isEmpty() || !WaitingVIP.isEmpty();
 
 		pGUI->UpdateInterface();
 		pGUI->ResetDrawingList();
@@ -487,6 +487,19 @@ void  Restaurant::AddtoVeganQueue(Order* po)
 
 bool  Restaurant::DeleteNormalQueue(int id)
 {
-	bool IsFound = WaitingNormal.SearchForOrder(id);
+	Order* CancellatedOrder;
+	bool IsFound = WaitingNormal.SearchForOrder(id, CancellatedOrder);
 	return IsFound;
+}
+
+Order*& Restaurant::PromotOrder(int id, double Extra)
+{
+	Order* PromotedOrder = NULL;
+	bool IsFound = WaitingNormal.SearchForOrder(id, PromotedOrder);
+	if (IsFound)
+	{
+		PromotedOrder->SetOrderMoney(PromotedOrder->GetOrderMoney() + Extra);
+		PromotedOrder->SetType(TYPE_VIP);
+	}
+	return PromotedOrder;
 }

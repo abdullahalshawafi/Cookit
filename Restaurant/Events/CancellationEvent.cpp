@@ -4,11 +4,11 @@ using namespace std;
 
 CancellationEvent::CancellationEvent(int eTime, int oID) :Event(eTime, oID)
 {
-	id = oID;
+	OrderID = oID;
 }
 //Add more constructors if needed
 
 void CancellationEvent::Execute(Restaurant* pRest)//override execute function
 {
-	pRest->DeleteNormalQueue(id);
+	pRest->DeleteNormalQueue(OrderID);
 }

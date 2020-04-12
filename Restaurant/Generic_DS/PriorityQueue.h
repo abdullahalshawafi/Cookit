@@ -9,11 +9,11 @@ class PriorityQueue
 public:
 	PriorityQueue();
 	bool isEmpty() const;
-	PriorityNode<T>* SearchForOrder(T Ord);
 	bool enqueue(const T& newEntry, int Per);
 	bool dequeue(T& frntEntry);
 	bool peekFront(const T& frntEntry)  const;
-	T* toArray(int& count);	//returns array of T (array if items)
+	T* toArray(int& count);
+	PriorityNode<T>* SearchForOrder(T Ord);
 	~PriorityQueue();
 };
 
@@ -35,10 +35,7 @@ Output: True if the queue is empty; otherwise false.
 template < typename T>
 bool PriorityQueue<T>::isEmpty() const
 {
-	if (frontPtr == nullptr)
-		return true;
-	else
-		return false;
+	return (frontPtr == nullptr);
 }
 /////////////////////////////////////////////////////////////////////////////////////////
 
@@ -54,28 +51,28 @@ bool PriorityQueue<T>::enqueue(const T& newEntry, int pre)
 	PriorityNode<T>* temp = frontPtr;
 	PriorityNode<T>* newNodePtr = new PriorityNode<T>(newEntry, pre);
 	// Insert the new node
-	if (isEmpty())
+	if (isEmpty())// The queue is empty
 	{
-		frontPtr = newNodePtr;// The queue is empty
+		frontPtr = newNodePtr;
 		backPtr = newNodePtr;
+		return true;
 	}
-	else if (newNodePtr->GetPriority() > temp->GetPriority())
+
+	if (newNodePtr->GetPriority() > temp->GetPriority())
 	{
 		frontPtr = newNodePtr;
 		newNodePtr->setNext(temp);
+		return true;
 	}
-	else
-	{
-		while (temp->getNext() && temp->getNext()->GetPriority() > newNodePtr->GetPriority())
-			temp = temp->getNext();
 
-		newNodePtr->setNext(temp->getNext());
-		temp->setNext(newNodePtr);
+	while (temp->getNext() && temp->getNext()->GetPriority() > newNodePtr->GetPriority())
+		temp = temp->getNext();
 
+	newNodePtr->setNext(temp->getNext());
+	temp->setNext(newNodePtr);
 
-		if (!newNodePtr->getNext())
-			backPtr = newNodePtr;
-	}
+	if (!newNodePtr->getNext())
+		backPtr = newNodePtr;
 	return true;
 } // end enqueue
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -152,7 +149,7 @@ T* PriorityQueue<T>::toArray(int& count)
 		count++;
 		p = p->getNext();
 	}
-	
+
 	T* Arr = new T[count];
 	p = frontPtr;
 	for (int i = 0; i < count; i++)

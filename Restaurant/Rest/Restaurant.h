@@ -49,4 +49,5 @@ public:
 	void AddtoNormalQueue(Order* po);
 	void AddtoVeganQueue(Order* po);
 	bool DeleteNormalQueue(int id);
+	Order*& PromotOrder(int id, double Extra);
 };

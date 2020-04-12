@@ -8,10 +8,9 @@ class Event;
 
 class CancellationEvent : public Event
 {
-	int id;
+	int OrderID;
 public:
 	CancellationEvent(int eTime, int oID);
-	//Add more constructors if needed
 	virtual void Execute(Restaurant* pRest);	//override execute function
 };
 

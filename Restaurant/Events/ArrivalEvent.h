@@ -10,11 +10,10 @@ class ArrivalEvent : public Event
 	//info about the order related to arrival event
 	ORD_TYPE OrdType;	//order type: Normal, vegan, VIP	                
 	double OrdMoney;	//Total order money
-	int OrdSize;
-public:
-	ArrivalEvent(int eTime, int oID, ORD_TYPE oType, int OS, double tMoney);
-	//Add more constructors if needed
+	int OrdSize;        //No. of order's dishes
 
+public:
+	ArrivalEvent(int eTime, int oID, ORD_TYPE oType, int oSize, double totalMoney);
 	virtual void Execute(Restaurant* pRest);	//override execute function
 
 };

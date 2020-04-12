@@ -56,9 +56,9 @@ public:
 	bool enqueue(const T& newEntry);
 	bool dequeue(T& frntEntry);
 	bool peekFront(T& frntEntry)  const;
-	T* toArray(int& count);	//returns array of T (array of items)
-	bool SearchForOrder(int id);
-	int GetNumOfTheQueue();
+	T* toArray(int& count);
+	bool SearchForOrder(int id, T& Entry);
+	int GetQueueSize();
 	~Queue();
 };
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -164,16 +164,78 @@ Queue<T>::~Queue()
 /*
 Function: toArray
 returns an array of "T"
-Output: count: the length of the returned array (zero if Queue is empty)
+Output: size: the length of the returned array (zero if Queue is empty)
 returns: The array of T. (nullptr if Queue is empty)
 */
 template <typename T>
-T* Queue<T>::toArray(int& count)
+T* Queue<T>::toArray(int& size)
 {
-	count = 0;
+	int count = GetQueueSize();
+	T* Arr = new T[count];
+	Node<T>* p = frontPtr;
+	for (int i = 0; i < count; i++)
+	{
+		Arr[i] = p->getItem();
+		p = p->getNext();
+	}
+	size = count;
+	return Arr;
+}
+/////////////////////////////////////////////////////////////////////////////////////////
 
-	if (!frontPtr)
-		return nullptr;
+/*
+Function: SearchForOrder
+Searchs for the order with the sent id and deletes it
+Output: the deleted order
+returns: a boolean if the order with the sent id was found and deleted or not
+*/
+template <typename T>
+bool Queue<T>::SearchForOrder(int id, T& Entry)
+{
+	Node<T>* Temp = frontPtr;
+	Node<T>* Nodetodelete = NULL;
+	if (isEmpty())  //the queue is Empty
+		return false;
+
+	if (Temp->getItem()->GetID() == id)  //if the first node have the wanted order
+	{
+		Nodetodelete = Temp;
+		Entry = Temp->getItem();
+		frontPtr = Temp->getNext();
+		delete Nodetodelete;
+		return true;
+	}
+
+	while (Temp && Temp->getNext())
+	{
+		if (Temp->getNext()->getItem()->GetID() == id) //if the next node have the wanted order
+		{
+			Nodetodelete = Temp->getNext();
+			Entry = Temp->getNext()->getItem();
+			Temp->setNext(Temp->getNext()->getNext());
+			delete Nodetodelete;
+			if (!Temp->getNext())
+				backPtr = Temp;
+			return true;
+		}
+		Temp = Temp->getNext();
+	}
+
+	return false;
+}
+/////////////////////////////////////////////////////////////////////////////////////////
+
+/*
+Function: GetQueueSize
+Calculates the size og the queue
+Output: queue size
+returns: integer representing the size of the queue
+*/
+template <typename T>
+int Queue<T>::GetQueueSize()
+{
+	int count = 0;
+
 	//counting the no. of items in the Queue
 	Node<T>* p = frontPtr;
 	while (p)
@@ -181,54 +243,6 @@ T* Queue<T>::toArray(int& count)
 		count++;
 		p = p->getNext();
 	}
-
-	T* Arr = new T[count];
-	p = frontPtr;
-	for (int i = 0; i < count; i++)
-	{
-		Arr[i] = p->getItem();
-		p = p->getNext();
-	}
-	return Arr;
-}
-
-template <typename T>
-bool Queue<T>::SearchForOrder(int id)
-{
-	Node<T>* Temp = frontPtr;
-	Node<T>* Nodetodelete = NULL;
-	if (!Temp)
-		return false;
-	if (Temp->getItem()->GetID() == id)
-	{
-		Nodetodelete = Temp;
-		frontPtr = Temp->getNext();
-		delete Nodetodelete;
-		return true;
-	}
-	while (Temp && Temp->getNext())
-	{
-		if (Temp->getNext()->getItem()->GetID() == id)
-		{
-			Nodetodelete = Temp->getNext();
-			Temp->setNext(Temp->getNext()->getNext());
-			delete Nodetodelete;
-			return true;
-		}
-		Temp = Temp->getNext();
-	}
-	return false;
-}
-
-template <typename T>
-int Queue<T>::GetNumOfTheQueue()
-{
-	int count = 0;
-	Node<T>* Temp = frontPtr;
-	while (!Temp)
-	{
-		count++;
-		Temp = Temp->getNext();
-	}
 	return count;
 }
+/////////////////////////////////////////////////////////////////////////////////////////

@@ -8,7 +8,7 @@ private:
 	Node<T>* next; // Pointer to next node
 public:
 	Node();
-	Node(const T& r_Item);	//passing by const ref.
+	Node(const T& r_Item);
 	Node(const T& r_Item, Node<T>* nextNodePtr);
 	void setItem(const T& r_Item);
 	void setNext(Node<T>* nextNodePtr);
@@ -16,11 +16,9 @@ public:
 	Node<T>* getNext() const;
 }; // end Node
 
-
 template < typename T>
 Node<T>::Node()
 {
-
 	next = nullptr;
 }
 
@@ -37,6 +35,7 @@ Node<T>::Node(const T& r_Item, Node<T>* nextNodePtr)
 	item = r_Item;
 	next = nextNodePtr;
 }
+
 template < typename T>
 void Node<T>::setItem(const T& r_Item)
 {

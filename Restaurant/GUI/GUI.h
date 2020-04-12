@@ -2,14 +2,9 @@
 
 #include "..\CMUgraphicsLib\CMUgraphics.h"
 #include "..\Defs.h"
-
 #include "..\Rest\Order.h"
-
 #include "..\Rest\Cook.h"
-
-
 #include "..\Generic_DS\Queue.h"
-
 #include <string>
 using namespace std;
 
