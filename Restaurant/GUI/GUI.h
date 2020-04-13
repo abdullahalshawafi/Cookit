@@ -58,11 +58,11 @@ private:
 		OrderHeight = FontSize,		//height of the order to be drawn on GUI
 
 
-		MaxHorizOrders = ((WindWidth - RestWidth) / 2) / (OrderWidth + 1),		//The max no. of orders the can be drwan in on Horizontal line in a region
-		MaxVerticalOrders = (DrawingAreaHeight / 2) / (OrderHeight + 1),   //The max no. of orders the can be drwan in on Horizontal line in a region
+		MaxHorizOrders = ((WindWidth - RestWidth) / 2) / (OrderWidth + 1),		//The max no. of orders the can be drawn in on Horizontal line in a region
+		MaxVerticalOrders = (DrawingAreaHeight / 2) / (OrderHeight + 1),   //The max no. of orders the can be drawn in on Horizontal line in a region
 
 
-		//Max no of orders that can be drawn in a single region
+		//Max no. of orders that can be drawn in a single region
 		MaxRegionOrderCount = MaxHorizOrders * MaxVerticalOrders;
 
 
@@ -77,20 +77,8 @@ private:
 	DrawingItem* DrawingList[maxItemCnt];	 //List of items pointers to be drawn every timestep
 	int DrawingItemsCount;	//actual no. of items in the drawing list
 
-	//NOTES: 
-	//Orders are assumed to be sorted by arrival time
-	// At every time step, you should update those pointers 
-	// to point to the current waiting orders only
-
-
-	// 
-	// TODO: Add more members if needed
-	//
-
 	void DrawSingleItem(const DrawingItem* pDitem, int RegionCount) const;		//draws ONE item 
 	void DrawAllItems();		//drwas ALL items in DrawingList
-
-
 
 	void DrawString(const int iX, const int iY, const string Text); // prints a message in the passed coordinates
 	void DrawRestArea() const;	    // draws the restaurant area
@@ -104,21 +92,21 @@ public:
 
 	// Input Functions  ---------------------------
 	void waitForClick() const;	// waits a user click from the user
-	string GetString() const; // reads a string (keyboard input) from the user
+	string GetString() const;	// reads a string (keyboard input) from the user
 
 	// Output Functions  ---------------------------
-	void PrintMessage(string msg) const; // prints a message in the status bar
-	void PrintMessageWithoutClearing(string msg) const; // prints a message in the status bar
-	void PrintWaitingOrders(string msg) const;
-	void PrintAvailableCooks(string msg) const;
-	void PrintAssignedOrders(string msg) const;
-	void PrintFinishedOrders(string msg) const;
+	void PrintMessage(string msg) const;					// prints a message in the status bar
+	void PrintEndProgram(string msg) const;					// prints a message for ending the program
+	void PrintWaitingOrders(string msg) const;				// prints the no. of waiting orders
+	void PrintAvailableCooks(string msg) const;				// prints the no. of available cooks
+	void PrintAssignedOrders(string msg, int count) const;	// prints the information of the cooks and the orders assigned to them
+	void PrintFinishedOrders(string msg) const;				// prints the no. of finished orders
 
 	void UpdateInterface();
 	void AddToDrawingList(Order* pOrd);	//Adds a new order to the drawing queue
 	void AddToDrawingList(Cook* pC);	//Adds a new cook to the drawing queue
-	void ResetDrawingList();		//resets drawing list (should be called every timestep after drawing)
+	void ResetDrawingList();			//resets drawing list (should be called every timestep after drawing)
 
-	PROG_MODE getGUIMode() const;			//returns the mode of the program
+	PROG_MODE getGUIMode() const;		//returns the mode of the program
 
 };

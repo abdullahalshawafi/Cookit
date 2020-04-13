@@ -12,7 +12,7 @@ void ArrivalEvent::Execute(Restaurant* pRest)
 	//This function should create an order and fills its data 
 	// Then adds it to normal, vegan, or VIP order lists
 
-	Order* pOrd = new Order(OrderID, OrdType, OrdMoney, OrdSize);
+	Order* pOrd = new Order(EventTime, OrderID, OrdType, OrdSize, OrdMoney);
 	switch (OrdType)
 	{
 	case TYPE_NRM:

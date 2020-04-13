@@ -1,27 +1,34 @@
 #include"Order.h"
 
-Order::Order(int id, ORD_TYPE r_Type, double OM, int OS)
-{
-	ID = (id > 0 && id < 1000) ? id : 0;	//1<ID<999
-	type = r_Type;
-	status = WAIT;
-	totalMoney = OM;
-	OrderSize = OS;
-}
-
 Order::Order()
 {
-
+	AssignedCook = nullptr;
 }
 
-Order::~Order()
+Order::Order(int arrTime, int id, ORD_TYPE O_Type, int O_Size, double O_Money)
 {
-
+	ArrTime = arrTime;
+	ID = (id > 0 && id < 1000) ? id : 0;	//1<ID<999
+	type = O_Type;
+	status = WAIT;
+	OrderSize = O_Size;
+	totalMoney = O_Money;
+	AssignedCook = nullptr;
 }
 
-int Order::GetID()
+void Order::SetID(int id)
+{
+	ID = (id > 0 && id < 1000) ? id : 0;	//1<ID<999
+}
+
+int Order::GetID() const
 {
 	return ID;
+}
+
+void Order::SetType(ORD_TYPE Order_Type)
+{
+	type = Order_Type;
 }
 
 ORD_TYPE Order::GetType() const
@@ -29,72 +36,77 @@ ORD_TYPE Order::GetType() const
 	return type;
 }
 
-void Order::setStatus(ORD_STATUS s)
+void Order::SetStatus(ORD_STATUS Status)
 {
-	status = s;
+	status = Status;
 }
 
-ORD_STATUS Order::getStatus() const
+ORD_STATUS Order::GetStatus() const
 {
 	return status;
 }
 
-void Order::setSize(int s)
+void Order::SetOrderSize(int size)
 {
-	OrderSize = s;
+	OrderSize = size;
 }
 
-int Order::getSize()
-{
-	return OrderSize;
-}
-
-int Order::GetArrivalTime()
-{
-	return ArrTime;
-}
-
-int Order::GetOrderSize()
+int Order::GetOrderSize() const
 {
 	return OrderSize;
 }
 
-double Order::GetOrderMoney()
+void Order::SetOrderMoney(double Money)
+{
+	totalMoney = Money;
+}
+
+double Order::GetOrderMoney() const
 {
 	return totalMoney;
 }
 
-int Order::getFinishTime()
+void Order::SetArrivalTime(int arrTime)
 {
-	return FinishTime;
+	ArrTime = arrTime;
 }
 
-int Order::getInServiceTime()
+int Order::GetArrivalTime() const
+{
+	return ArrTime;
+}
+
+void Order::SetInServiceTime(int ServiceTime)
+{
+	ServTime = ServiceTime;
+}
+
+int Order::GetInServiceTime() const
 {
 	return ServTime;
 }
 
-void Order::SetArrivalTime(int at)
+void Order::SetFinishTime(int finishTime)
 {
-	ArrTime = at;
+	FinishTime = finishTime;
 }
 
-void Order::SetInServiceTime(int st)
+int Order::GetFinishTime() const
 {
-	ServTime = st;
+	return FinishTime;
 }
 
-void Order::SetFinishTime(int ft)
+void Order::SetAssignedCook(Cook* cook)
 {
-	FinishTime = ft;
+	AssignedCook = cook;
 }
 
-void Order::SetType(ORD_TYPE O)
+Cook* Order::GetAssignedCook() const
 {
-	type = O;
+	return AssignedCook;
 }
 
-void Order::SetOrderMoney(double M)
+Order::~Order()
 {
-	totalMoney = M;
+
 }

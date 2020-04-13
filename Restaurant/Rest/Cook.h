@@ -1,31 +1,45 @@
 #pragma once
 #include "..\Defs.h"
+#include "Order.h"
+
+class Order;
 
 class Cook
 {
-	int ID;
-	ORD_TYPE type;	//for each order type there is a corresponding type (VIP, Normal, Vegan)
-	int speed;		//dishes it can prepare in one clock tick (in one timestep)
-	int BreakDuration;
-	int CurrOrd;
-	bool InBreak;
-	static int OrdToBreak;
+	int ID;				  //Each cook has its own ID
+	ORD_TYPE type;		  //for each order type there is a corresponding type (VIP, Normal, Vegan)
+	int speed;			  //dishes it can prepare in one clock tick (in one timestep)
+	int BreakDuration;    //No. of time steps that a cook stay in break
+	int CurrOrd;		  //No. of the orders that have been assigned to the cook
+	bool InBreak;		  //Is the cook in a break or not
+	Order* AssignedOrder; //Pointer to the assigned order
+	static int OrdToBreak;	//How many orders does a cook serve before a break
 public:
 	Cook();
-	virtual ~Cook();
+
+	void SetID(int);
 	int GetID() const;
+
+	void SetType(ORD_TYPE);
 	ORD_TYPE GetType() const;
+
+	void SetSpeed(int);
 	int GetSpeed() const;
-	void setID(int);
-	void setType(ORD_TYPE);
-	void setSpeed(int);
-	static void setBO(int);
-	void setBD(int);
-	static int getBO();
-	int getBD();
-	void setInBreak(bool);
-	bool getInBreak();
-	void setCurrOrd(int);
-	int getCurrOrd();
-	//e3mly func lel availability
+
+	void SetBreakDuration(int);
+	int GetBreakDuration() const;
+
+	void SetCurrOrd(int);
+	int GetCurrOrd() const;
+
+	void SetInBreak(bool);
+	bool GetInBreak() const;
+
+	void SetAssignedOrder(Order*);
+	Order* GetAssignedOrder() const;
+
+	static void SetOrdToBreak(int);
+	static int GetOrdToBreak();
+
+	virtual ~Cook();
 };

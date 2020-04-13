@@ -64,48 +64,42 @@ void GUI::PrintMessage(string msg) const	//Prints a message on status bar
 
 	pWind->SetPen(DARKRED);
 	pWind->SetFont(18, BOLD, BY_NAME, "Arial");
-	pWind->DrawString(10, WindHeight - (int)(StatusBarHeight / 1.1), msg); // You may need to change these coordinates later 
-																		  // to be able to write multi-line
+	pWind->DrawString(10, WindHeight - (int)(StatusBarHeight / 1.1), msg);
 }
 
-void GUI::PrintMessageWithoutClearing(string msg) const
+void GUI::PrintEndProgram(string msg) const
 {
 	pWind->SetPen(DARKRED);
 	pWind->SetFont(18, BOLD, BY_NAME, "Arial");
-	pWind->DrawString(10, WindHeight - (int)(StatusBarHeight / 4.1), msg); // You may need to change these coordinates later 
-																		  // to be able to write multi-line
+	pWind->DrawString(10, WindHeight - (int)(StatusBarHeight / 4.1), msg);
 }
 
 void GUI::PrintWaitingOrders(string msg) const
 {
 	pWind->SetPen(DARKRED);
 	pWind->SetFont(18, BOLD, BY_NAME, "Arial");
-	pWind->DrawString(10, WindHeight - (int)(StatusBarHeight / 1.29), msg); // You may need to change these coordinates later 
-																		  // to be able to write multi-line
+	pWind->DrawString(10, WindHeight - (int)(StatusBarHeight / 1.29), msg);
 }
 
 void GUI::PrintAvailableCooks(string msg) const
 {
 	pWind->SetPen(DARKRED);
 	pWind->SetFont(18, BOLD, BY_NAME, "Arial");
-	pWind->DrawString(10, WindHeight - (int)(StatusBarHeight / 1.56), msg); // You may need to change these coordinates later 
-																		  // to be able to write multi-line
+	pWind->DrawString(10, WindHeight - (int)(StatusBarHeight / 1.56), msg);
 }
 
-void GUI::PrintAssignedOrders(string msg) const
+void GUI::PrintAssignedOrders(string msg, int count) const
 {
 	pWind->SetPen(DARKRED);
 	pWind->SetFont(18, BOLD, BY_NAME, "Arial");
-	pWind->DrawString(10, WindHeight - (int)(StatusBarHeight / 1.97), msg); // You may need to change these coordinates later 
-																		  // to be able to write multi-line
+	pWind->DrawString(10 + count * 70, WindHeight - (int)(StatusBarHeight / 1.97), msg);
 }
 
 void GUI::PrintFinishedOrders(string msg) const
 {
 	pWind->SetPen(DARKRED);
 	pWind->SetFont(18, BOLD, BY_NAME, "Arial");
-	pWind->DrawString(10, WindHeight - (int)(StatusBarHeight / 2.66), msg); // You may need to change these coordinates later 
-																		  // to be able to write multi-line
+	pWind->DrawString(10, WindHeight - (int)(StatusBarHeight / 2.66), msg);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -154,23 +148,12 @@ void GUI::DrawRestArea() const
 	pWind->DrawLine(WindWidth / 2, YHalfDrawingArea - RestWidth / 2, WindWidth / 2, YHalfDrawingArea + RestWidth / 2);
 	pWind->DrawLine(WindWidth / 2 - RestWidth / 2, YHalfDrawingArea, WindWidth / 2 + RestWidth / 2, YHalfDrawingArea);
 
-	// 4- Drawing the 4 white squares inside the Rest (one for each region)
-	/*pWind->SetPen(WHITE);
-	pWind->SetBrush(WHITE);
-	pWind->DrawRectangle(RestStartX , RestStartY , RestStartX + 2*L/2, RestStartY + 2*L/2);
-	pWind->DrawRectangle(RestStartX + L/3, RestEndY - L/3, RestStartX + 2*L/3, RestEndY - 2*L/3);
-	pWind->DrawRectangle(RestEndX - 2*L/3, RestStartY + L/3, RestEndX - L/3, RestStartY + 2*L/3);
-	pWind->DrawRectangle(RestEndX - 2*L/3, RestEndY - L/3, RestEndX - L/3, RestEndY - 2*L/3);*/
-
-	// 5- Writing regions labels
+	// 4- Writing regions labels
 	pWind->SetPen(WHITE);
 	pWind->SetFont(20, BOLD, BY_NAME, "Arial");
 	pWind->DrawString(RestStartX + (int)(0.1 * L), RestStartY + 5 * L / 12, "WAIT");
-
 	pWind->DrawString(WindWidth / 2 + (int)(0.1 * L), RestStartY + 5 * L / 12, "COOK");
-
 	pWind->DrawString(WindWidth / 2 + (int)(0.1 * L), YHalfDrawingArea + 5 * L / 12, "SRVG");
-
 	pWind->DrawString(RestStartX + (int)(0.1 * L), YHalfDrawingArea + 5 * L / 12, "DONE");
 
 }
@@ -268,7 +251,7 @@ void GUI::AddToDrawingList(Order* pOrd)
 	DrawingItem* pDitem = new DrawingItem;
 	pDitem->ID = pOrd->GetID();
 	pDitem->clr = DrawingColors[pOrd->GetType()];
-	ORD_STATUS order_status = pOrd->getStatus();
+	ORD_STATUS order_status = pOrd->GetStatus();
 	GUI_REGION reg;
 
 	switch (order_status)
@@ -309,9 +292,6 @@ void GUI::ResetDrawingList()
 
 	DrawingItemsCount = 0;
 }
-
-
-
 
 PROG_MODE	GUI::getGUIMode() const
 {

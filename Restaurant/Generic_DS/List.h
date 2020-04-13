@@ -72,7 +72,7 @@ public:
 			return;
 
 		Node<T>* p = Head;
-		if (p->getItem == item)  //if the first node have the wanted item
+		if (p->getItem() == item)  //if the first node have the wanted item
 		{
 			Head = Head->getNext();
 			p->setNext(nullptr);
@@ -172,6 +172,10 @@ public:
 			p = p->getNext();
 		}
 
+		size = count;
+		if (!count)
+			return nullptr;
+
 		T* retArr = new T[count];
 		p = Head;
 		for (int i = 0; i < count; i++)
@@ -179,8 +183,6 @@ public:
 			retArr[i] = p->getItem();
 			p = p->getNext();
 		} // end for loop
-
-		size = count;
 		return retArr;
 	}
 	////////////////////////////////////////////////////////////////////////

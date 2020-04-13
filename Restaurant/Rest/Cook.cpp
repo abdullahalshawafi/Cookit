@@ -6,10 +6,12 @@ Cook::Cook()
 {
 	CurrOrd = 0;
 	InBreak = false;
+	AssignedOrder = nullptr;
 }
 
-Cook::~Cook()
+void Cook::SetID(int id)
 {
+	ID = id;
 }
 
 int Cook::GetID() const
@@ -17,9 +19,19 @@ int Cook::GetID() const
 	return ID;
 }
 
+void Cook::SetType(ORD_TYPE Cook_Type)
+{
+	type = Cook_Type;
+}
+
 ORD_TYPE Cook::GetType() const
 {
 	return type;
+}
+
+void Cook::SetSpeed(int Speed)
+{
+	speed = Speed;
 }
 
 int Cook::GetSpeed() const
@@ -27,57 +39,56 @@ int Cook::GetSpeed() const
 	return speed;
 }
 
-void Cook::setID(int id)
+void Cook::SetBreakDuration(int breakDuration)
 {
-	ID = id;
+	BreakDuration = breakDuration;
 }
 
-void Cook::setType(ORD_TYPE t)
-{
-	type = t;
-}
-
-void Cook::setSpeed(int s)
-{
-	speed = s;
-}
-
-void Cook::setBO(int bo)
-{
-	OrdToBreak = bo;
-}
-
-void Cook::setBD(int bd)
-{
-	BreakDuration = bd;
-}
-
-int Cook::getBO()
-{
-	return OrdToBreak;
-}
-
-int Cook::getBD()
+int Cook::GetBreakDuration() const
 {
 	return BreakDuration;
 }
 
-void Cook::setInBreak(bool in)
+void Cook::SetCurrOrd(int OrderID)
 {
-	InBreak = in;
+	CurrOrd = OrderID;
 }
 
-bool Cook::getInBreak()
+int Cook::GetCurrOrd() const
+{
+	return CurrOrd;
+}
+
+void Cook::SetInBreak(bool inBreak)
+{
+	InBreak = inBreak;
+}
+
+bool Cook::GetInBreak() const
 {
 	return InBreak;
 }
 
-void Cook::setCurrOrd(int x)
+void Cook::SetAssignedOrder(Order* order)
 {
-	CurrOrd = x;
+	AssignedOrder = order;
 }
 
-int Cook::getCurrOrd()
+Order* Cook::GetAssignedOrder() const
 {
-	return CurrOrd;
+	return AssignedOrder;
+}
+
+void Cook::SetOrdToBreak(int OB)
+{
+	OrdToBreak = OB;
+}
+
+int Cook::GetOrdToBreak()
+{
+	return OrdToBreak;
+}
+
+Cook::~Cook()
+{
 }

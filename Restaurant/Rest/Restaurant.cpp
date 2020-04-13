@@ -21,6 +21,10 @@ Restaurant::Restaurant()
 	NRM_FinishedCount = 0;
 	VGN_FinishedCount = 0;
 	VIP_FinishedCount = 0;
+	NRM_C = 0;
+	VIP_C = 0;
+	VGN_C = 0;
+	CurrentTimeStep = 1;
 }
 
 void Restaurant::RunSimulation()
@@ -29,9 +33,8 @@ void Restaurant::RunSimulation()
 	PROG_MODE mode = pGUI->getGUIMode();
 	ifstream in;
 	ReadInputFile(in);
-	int currentstep = 0;
 
-	switch (mode)	//Add a function for each mode in next phases
+	switch (mode)
 	{
 	case MODE_INTR:
 		Interactive_Mode();
@@ -71,23 +74,33 @@ Restaurant::~Restaurant()
 		delete pGUI;
 }
 
+//This function should add ALL orders and Cooks to the drawing list
+//It should get orders from orders lists/queues/stacks/whatever (same for Cooks)
 void Restaurant::FillDrawingList()
 {
-	//This function should be implemented in phase1
-	//It should add ALL orders and Cooks to the drawing list
-	//It should get orders from orders lists/queues/stacks/whatever (same for Cooks)
-	//To add orders it should call function  void GUI::AddToDrawingList(Order* pOrd);
-	//To add Cooks it should call function  void GUI::AddToDrawingList(Cook* pCc);
-	/////////////////////////////////////////////////////////////////////////////////////////
-
-	/// The next code section should be done through function "FillDrawingList()" once you
-	/// decide the appropriate list type for Orders and Cooks
-
 	//Let's add ALL Cooks to GUI::DrawingList
 	int C_size = 0;
+	VIP_C = 0;
+	VGN_C = 0;
+	NRM_C = 0;
 	Cook** CookArr = AvailableCooks.toArray(C_size);
 	for (int i = 0; i < C_size; i++)
 	{
+		switch (CookArr[i]->GetType())
+		{
+		case TYPE_NRM:
+			NRM_C++;
+			break;
+		case TYPE_VGAN:
+			VGN_C++;
+			break;
+		case TYPE_VIP:
+			VIP_C++;
+			break;
+		default:
+			break;
+		}
+
 		pGUI->AddToDrawingList(CookArr[i]);
 	}
 
@@ -194,130 +207,134 @@ void Restaurant::FillDrawingList()
 
 void Restaurant::ReadInputFile(ifstream& InputFile)
 {
-	pGUI->PrintMessage("Please enter the input text file name: ");
-	string FileName = pGUI->GetString();
-	FileName = FileName + ".txt";
-	InputFile.open(FileName, ios::in);
-
-	int N = 0, G = 0, V = 0;
-	int SN = 0, SG = 0, SV = 0;
-	int BO = 0, BN = 0, BG = 0, BV = 0;
-	int AutoP = 0, M = 0;
-	InputFile >> N >> G >> V;
-	cout << N << " " << G << " " << V << endl;
-	InputFile >> SN >> SG >> SV;
-	cout << SN << " " << SG << " " << SV << endl;
-	InputFile >> BO >> BN >> BG >> BV;
-	cout << BO << " " << BN << " " << BG << " " << BV << endl;
-	InputFile >> AutoP;
-	cout << AutoP << endl;
-	InputFile >> M;
-	cout << M << endl;
-
-	int EventCnt = M;
-	Order* pOrd;
-	Event* pEv;
-	srand(time(NULL));
-
-	C_count = N + G + V;
-	Cook* pCook;
-
-	//Adding the normal cooks the cooks array
-	for (int i = 0; i < N; i++)
+	do
 	{
-		pCook = new Cook;
-		pCook->setID(i + 1);
-		pCook->setSpeed(SN);
-		pCook->setType(TYPE_NRM);
-		pCook->setBD(BN);
-		pCook->setBO(BO);
-		AvailableCooks.InsertEnd(pCook);
-	}
-	// Adding the vegan cooks the cooks array
-	for (int i = N; i < C_count - V; i++)
-	{
-		pCook = new Cook;
-		pCook->setID(i + 1);
-		pCook->setSpeed(SN);
-		pCook->setType(TYPE_VGAN);
-		pCook->setBD(BN);
-		pCook->setBO(BO);
-		AvailableCooks.InsertEnd(pCook);
-	}
-	//Adding the VIP cooks the cooks array
-	for (int i = N + G; i < C_count; i++)
-	{
-		pCook = new Cook;
-		pCook->setID(i + 1);
-		pCook->setSpeed(SN);
-		pCook->setType(TYPE_VIP);
-		pCook->setBD(BN);
-		pCook->setBO(BO);
-		AvailableCooks.InsertEnd(pCook);
-	}
-
-	int EvTime = 0;
-
-	int O_id = 0;
-	CancellationEvent* pCE;
-	for (int i = 0; i < EventCnt; i++)
-	{
-		char EventType = ' ';
-		InputFile >> EventType;
-		cout << EventType << " ";
-
-		switch (EventType)
+		pGUI->PrintMessage("Please enter the input text file name: ");
+		string FileName = pGUI->GetString();
+		FileName = FileName + ".txt";
+		InputFile.open(FileName, ios::in);
+		if (InputFile.is_open())
 		{
-		case 'R':
-			char OType;
-			InputFile >> OType;
-			cout << OType << " ";
-			int OrderType;                                          //
-			(OType == 'N') ? OrderType = 0 :                        //These 3 lines convert the order type from char (N, G, V) to ORD_TYPE
-				(OType == 'G') ? OrderType = 1 : OrderType = 2;     //
-			InputFile >> EvTime;
-			cout << EvTime << " ";
-			InputFile >> O_id;
-			cout << O_id << " ";
-			int OrderSize;
-			double OrderCost;
-			InputFile >> OrderSize >> OrderCost;
-			cout << OrderSize << " " << OrderCost << endl;
-			pEv = new ArrivalEvent(EvTime, O_id, (ORD_TYPE)OrderType, OrderSize, OrderCost);
-			EventsQueue.enqueue(pEv);
-			break;
+			int N = 0, G = 0, V = 0;
+			int SN = 0, SG = 0, SV = 0;
+			int BO = 0, BN = 0, BG = 0, BV = 0;
+			int AutoP = 0, M = 0;
+			InputFile >> N >> G >> V;
+			InputFile >> SN >> SG >> SV;
+			InputFile >> BO >> BN >> BG >> BV;
+			InputFile >> AutoP;
+			InputFile >> M;
 
-		case 'X':
-			InputFile >> EvTime;
-			cout << EvTime << " ";
-			InputFile >> O_id;
-			cout << O_id << "\n";
-			pCE = new CancellationEvent(EvTime, O_id);
-			EventsQueue.enqueue(pCE);
-			break;
+			int EventCnt = M;
 
-		case 'P':
-			InputFile >> EvTime;
-			cout << EvTime << " ";
-			InputFile >> O_id;
-			cout << O_id << " ";
-			int ExtMoney;
-			InputFile >> ExtMoney;
-			cout << ExtMoney << endl;
-			pEv = new PromotionEvent(EvTime, O_id, ExtMoney);
-			EventsQueue.enqueue(pEv);
-			break;
+			Order* pOrd;
+			Event* pEv;
 
-		default:
-			break;
+			srand(time(NULL));
+
+			C_count = N + G + V;
+			Cook* pCook;
+
+			//Adding the normal cooks the cooks array
+			for (int i = 0; i < N; i++)
+			{
+				pCook = new Cook;
+				pCook->SetID(i + 1);
+				pCook->SetSpeed(SN);
+				pCook->SetType(TYPE_NRM);
+				pCook->SetBreakDuration(BN);
+				pCook->SetOrdToBreak(BO);
+				AvailableCooks.InsertEnd(pCook);
+			}
+
+			// Adding the vegan cooks the cooks array
+			for (int i = N; i < C_count - V; i++)
+			{
+				pCook = new Cook;
+				pCook->SetID(i + 1);
+				pCook->SetSpeed(SN);
+				pCook->SetType(TYPE_VGAN);
+				pCook->SetBreakDuration(BN);
+				AvailableCooks.InsertEnd(pCook);
+			}
+
+			//Adding the VIP cooks the cooks array
+			for (int i = N + G; i < C_count; i++)
+			{
+				pCook = new Cook;
+				pCook->SetID(i + 1);
+				pCook->SetSpeed(SN);
+				pCook->SetType(TYPE_VIP);
+				pCook->SetBreakDuration(BN);
+				AvailableCooks.InsertEnd(pCook);
+			}
+
+			int EvTime = 0;
+
+			int O_id = 0;
+			CancellationEvent* pCE;
+			for (int i = 0; i < EventCnt; i++)
+			{
+				char EventType = ' ';
+				InputFile >> EventType;
+
+				switch (EventType)
+				{
+				case 'R':
+					char OType;
+					InputFile >> OType;
+					int OrderType;                                          //
+					(OType == 'N') ? OrderType = 0 :                        //These 3 lines convert the order type from char (N, G, V) to ORD_TYPE
+						(OType == 'G') ? OrderType = 1 : OrderType = 2;     //
+					InputFile >> EvTime;
+					InputFile >> O_id;
+					int OrderSize;
+					double OrderCost;
+					InputFile >> OrderSize >> OrderCost;
+					pEv = new ArrivalEvent(EvTime, O_id, (ORD_TYPE)OrderType, OrderSize, OrderCost);
+					EventsQueue.enqueue(pEv);
+					break;
+
+				case 'X':
+					InputFile >> EvTime;
+					InputFile >> O_id;
+					pCE = new CancellationEvent(EvTime, O_id);
+					EventsQueue.enqueue(pCE);
+					break;
+
+				case 'P':
+					InputFile >> EvTime;
+					InputFile >> O_id;
+					int ExtMoney;
+					InputFile >> ExtMoney;
+					pEv = new PromotionEvent(EvTime, O_id, ExtMoney);
+					EventsQueue.enqueue(pEv);
+					break;
+
+				default:
+					break;
+				}
+			}
 		}
-	}
+		else
+		{
+			pGUI->PrintMessage("Couldn't find the file. Click to enter a valid name (Note: don't type .txt)");
+			pGUI->waitForClick();
+		}
+	} while (!InputFile.is_open());
+
 }
 
 void Restaurant::Interactive_Mode()
 {
-	bool notFinished = false;
-	do	//as long as events queue is not empty yet
+	bool notFinished = !EventsQueue.isEmpty() || InServiceVGN.GetCount() != 0 || InServiceVIP.GetCount() != 0 || InServiceNRM.GetCount() != 0 || !WaitingNormal.isEmpty() || !WaitingVegan.isEmpty() || !WaitingVIP.isEmpty();
+
+	Order* pNRMOrd = nullptr;
+	Order* pVGNOrd = nullptr;
+	Order* pVIPOrd = nullptr;
+	Order* pOrd1 = nullptr;
+
+	while (notFinished)	//as long as events queue is not empty yet
 	{
 		//a) Executing Events at this current step 
 		ExecuteEvents(CurrentTimeStep);	//execute all events at current time step
@@ -334,94 +351,114 @@ void Restaurant::Interactive_Mode()
 		string finishedVGN = to_string(VGN_FinishedCount);
 		string finishedVIP = to_string(VIP_FinishedCount);
 
+		string C_NRM = to_string(NRM_C);
+		string C_VGN = to_string(VGN_C);
+		string C_VIP = to_string(VIP_C);
+
 		string timestep = to_string(CurrentTimeStep);
 
 		pGUI->PrintMessage("TS: " + timestep);	//print current timestep
 		pGUI->PrintWaitingOrders("Waiting: (Normal = " + waitingNRM + "), (Vegan = " + waitingVGN + "), (VIP = " + waitingVIP + ")");	//print waiting orders numbers
-		pGUI->PrintAvailableCooks("Cooks: (Normal = 5), (Vegan = 3), (VIP = 1)");
-		pGUI->PrintAssignedOrders("N6(V3)");
+		pGUI->PrintAvailableCooks("Cooks: (Normal = " + C_NRM + "), (Vegan = " + C_VGN + "), (VIP = " + C_VIP + ")");		//Prints the number if cooks
 		pGUI->PrintFinishedOrders("Finished: (Normal = " + finishedNRM + "), (Vegan = " + finishedVGN + "), (VIP = " + finishedVIP + ")");	//print finished orders numbers
 
-		//b) Picking 1 order from each type from Waiting to be InService	
-		Order* pOrd;
-		Order* pOrd1;
 		int csize = 0, i = 0;
 		Cook** C_Arr = AvailableCooks.toArray(csize);
 
-		if (WaitingNormal.dequeue(pOrd))
+		for (int j = 0, count = 0; j < csize; j++)
 		{
-			pOrd->setStatus(SRV);
-			pOrd->SetInServiceTime(CurrentTimeStep);
-			InServiceNRM.InsertBeg(pOrd);
-			AvailableCooks.InsertEnd(AvailableCooks.RemoveFirst()->getItem());
-			/*C_Arr[i]->setCurrOrd(C_Arr[i]->getCurrOrd() + 1);
-			i++;*/
+			if (C_Arr[j]->GetAssignedOrder())
+			{
+				char ctype;
+				if (C_Arr[j]->GetType() == 0) ctype = 'N';
+				else if (C_Arr[j]->GetType() == 1) ctype = 'G';
+				else ctype = 'V';
+
+				char otype;
+				if (C_Arr[j]->GetAssignedOrder()->GetType() == 0) otype = 'N';
+				else if (C_Arr[j]->GetAssignedOrder()->GetType() == 1) otype = 'G';
+				else otype = 'V';
+
+				string C_ID = to_string(C_Arr[j]->GetID());
+				string O_ID = to_string(C_Arr[j]->GetAssignedOrder()->GetID());
+
+				pGUI->PrintAssignedOrders(ctype + C_ID + "(" + otype + O_ID + ")", count);
+				count++;
+				//i++;
+			}
 		}
 
-		if (WaitingVegan.dequeue(pOrd))
+		pNRMOrd = nullptr;
+		pVGNOrd = nullptr;
+		pVIPOrd = nullptr;
+
+		//b) Picking 1 order from each type from Waiting to be InService		
+		if (WaitingNormal.dequeue(pNRMOrd))
 		{
-			pOrd->setStatus(SRV);
-			pOrd->SetInServiceTime(CurrentTimeStep);
-			InServiceVGN.InsertBeg(pOrd);
+			pNRMOrd->SetStatus(SRV);
+			pNRMOrd->SetInServiceTime(CurrentTimeStep + 1);
+			pNRMOrd->SetAssignedCook(C_Arr[i]);
+			InServiceNRM.InsertBeg(pNRMOrd);
+			C_Arr[i]->SetAssignedOrder(pNRMOrd);
+			C_Arr[i]->SetCurrOrd(C_Arr[i]->GetCurrOrd() + 1);
 			AvailableCooks.InsertEnd(AvailableCooks.RemoveFirst()->getItem());
-			/*C_Arr[i]->setCurrOrd(C_Arr[i]->getCurrOrd() + 1);
-			i++;*/
+			i++;
 		}
 
-		if (WaitingVIP.dequeue(pOrd))
+		if (WaitingVegan.dequeue(pVGNOrd))
 		{
-			pOrd->setStatus(SRV);
-			pOrd->SetInServiceTime(CurrentTimeStep);
-			InServiceVIP.InsertBeg(pOrd);
+			pVGNOrd->SetStatus(SRV);
+			pVGNOrd->SetInServiceTime(CurrentTimeStep + 1);
+			pVGNOrd->SetAssignedCook(C_Arr[i]);
+			InServiceVGN.InsertBeg(pVGNOrd);
+			C_Arr[i]->SetAssignedOrder(pVGNOrd);
+			C_Arr[i]->SetCurrOrd(C_Arr[i]->GetCurrOrd() + 1);
 			AvailableCooks.InsertEnd(AvailableCooks.RemoveFirst()->getItem());
-			/*C_Arr[i]->setCurrOrd(C_Arr[i]->getCurrOrd() + 1);
-			i++;*/
+			i++;
+		}
+
+		if (WaitingVIP.dequeue(pVIPOrd))
+		{
+			pVIPOrd->SetStatus(SRV);
+			pVIPOrd->SetInServiceTime(CurrentTimeStep + 1);
+			pVIPOrd->SetAssignedCook(C_Arr[i]);
+			InServiceVIP.InsertBeg(pVIPOrd);
+			C_Arr[i]->SetAssignedOrder(pVIPOrd);
+			C_Arr[i]->SetCurrOrd(C_Arr[i]->GetCurrOrd() + 1);
+			AvailableCooks.InsertEnd(AvailableCooks.RemoveFirst()->getItem());
+			i++;
 		}
 
 		//c)each 5 timesteps moving order of each type from InService to Finished list
 		if ((CurrentTimeStep + 1) % 5 == 0)
 		{
-			if (InServiceNRM.GetCount() != 0)
+			pOrd1 = InServiceNRM.Remove();
+			if (pOrd1)
 			{
-				pOrd1 = InServiceNRM.Remove();
-				if (pOrd1->GetArrivalTime() == pOrd1->getInServiceTime())
-					InServiceNRM.InsertEnd(pOrd1);
-				else
-				{
-					pOrd1->setStatus(DONE);
-					FinishedNRM.enqueue(pOrd1);
-				}
-				/*else
-					InServiceNRM.InsertBeg(pOrd1);*/
+				pOrd1->SetStatus(DONE);
+				FinishedNRM.enqueue(pOrd1);
+				pOrd1->GetAssignedCook()->SetAssignedOrder(nullptr);
+				pOrd1->SetAssignedCook(nullptr);
 			}
 
-			if (InServiceVGN.GetCount() != 0)
+			pOrd1 = InServiceVGN.Remove();
+			if (pOrd1)
 			{
-				pOrd1 = InServiceVGN.Remove();
-				if (pOrd1->GetArrivalTime() != pOrd1->getInServiceTime())
-				{
-					pOrd1->setStatus(DONE);
-					FinishedVGN.enqueue(pOrd1);
-				}
-				else
-					InServiceVGN.InsertEnd(pOrd1);
-				/*else
-					InServiceVGN.InsertBeg(pOrd1);*/
+				pOrd1->SetStatus(DONE);
+				FinishedVGN.enqueue(pOrd1);
+				pOrd1->GetAssignedCook()->SetAssignedOrder(nullptr);
+				pOrd1->SetAssignedCook(nullptr);
 			}
 
-			if (InServiceVIP.GetCount() != 0)
+			pOrd1 = InServiceVIP.Remove();
+			if (pOrd1)
 			{
-				pOrd1 = InServiceVIP.Remove();
-				if (pOrd1->GetArrivalTime() != pOrd1->getInServiceTime())
-				{
-					pOrd1->setStatus(DONE);
-					FinishedVIP.enqueue(pOrd1);
-				}
-				else
-					InServiceVIP.InsertEnd(pOrd1);
-				///*else
-				//	InServiceVIP.InsertBeg(pOrd1);
+				pOrd1->SetStatus(DONE);
+				FinishedVIP.enqueue(pOrd1);
+				pOrd1->GetAssignedCook()->SetAssignedOrder(nullptr);
+				pOrd1->SetAssignedCook(nullptr);
 			}
+
 		}
 
 		notFinished = !EventsQueue.isEmpty() || InServiceVGN.GetCount() != 0 || InServiceVIP.GetCount() != 0 || InServiceNRM.GetCount() != 0 || !WaitingNormal.isEmpty() || !WaitingVegan.isEmpty() || !WaitingVIP.isEmpty();
@@ -431,61 +468,147 @@ void Restaurant::Interactive_Mode()
 		pGUI->waitForClick();
 		CurrentTimeStep++;	//advance timestep
 
-	} while (notFinished);
+	}
 
 	FillDrawingList();
 	pGUI->UpdateInterface();
-	pGUI->PrintMessageWithoutClearing("generation done, click to END program");
+	pGUI->PrintEndProgram("generation done, click to END program");
 	pGUI->waitForClick();
 }
 
 void Restaurant::StepByStep_Mode()
 {
+	bool notFinished = !EventsQueue.isEmpty() || InServiceVGN.GetCount() != 0 || InServiceVIP.GetCount() != 0 || InServiceNRM.GetCount() != 0 || !WaitingNormal.isEmpty() || !WaitingVegan.isEmpty() || !WaitingVIP.isEmpty();
 
-	int CurrentTimeStep = 1;
+	Order* pOrd = nullptr;
+	Order* pOrd1 = nullptr;
 
-
-	//as long as events queue is not empty yet
-	while (!EventsQueue.isEmpty())
+	while (notFinished)	//as long as events queue is not empty yet
 	{
-		//print current timestep
-		char timestep[10];
-		itoa(CurrentTimeStep, timestep, 10);
-		pGUI->PrintMessage(timestep);
-
-
+		//a) Executing Events at this current step 
 		ExecuteEvents(CurrentTimeStep);	//execute all events at current time step
+
+		FillDrawingList();
 
 		/////////////////////////////////////////////////////////////////////////////////////////
 
+		int csize = 0, i = 0;
+		Cook** C_Arr = AvailableCooks.toArray(csize);
+
+		string waitingNRM = to_string(NRM_OrdCount);
+		string waitingVGN = to_string(VGN_OrdCount);
+		string waitingVIP = to_string(VIP_OrdCount);
+
+		string finishedNRM = to_string(NRM_FinishedCount);
+		string finishedVGN = to_string(VGN_FinishedCount);
+		string finishedVIP = to_string(VIP_FinishedCount);
+
+		string C_NRM = to_string(NRM_C);
+		string C_VGN = to_string(VGN_C);
+		string C_VIP = to_string(VIP_C);
+
+		string timestep = to_string(CurrentTimeStep);
+
+		pGUI->PrintMessage("TS: " + timestep);	//print current timestep
+		pGUI->PrintWaitingOrders("Waiting: (Normal = " + waitingNRM + "), (Vegan = " + waitingVGN + "), (VIP = " + waitingVIP + ")");	//print waiting orders numbers
+		pGUI->PrintAvailableCooks("Cooks: (Normal = " + C_NRM + "), (Vegan = " + C_VGN + "), (VIP = " + C_VIP + ")");
+		pGUI->PrintFinishedOrders("Finished: (Normal = " + finishedNRM + "), (Vegan = " + finishedVGN + "), (VIP = " + finishedVIP + ")");	//print finished orders numbers
+
+		//b) Picking 1 order from each type from Waiting to be InService
+		if (WaitingNormal.dequeue(pOrd))
+		{
+			pOrd->SetStatus(SRV);
+			pOrd->SetInServiceTime(CurrentTimeStep);
+			pOrd->SetAssignedCook(C_Arr[i]);
+			InServiceNRM.InsertBeg(pOrd);
+			C_Arr[i]->SetAssignedOrder(pOrd);
+			C_Arr[i]->SetCurrOrd(C_Arr[i]->GetCurrOrd() + 1);
+			AvailableCooks.InsertEnd(AvailableCooks.RemoveFirst()->getItem());
+			i++;
+		}
+
+		if (WaitingVegan.dequeue(pOrd))
+		{
+			pOrd->SetStatus(SRV);
+			pOrd->SetInServiceTime(CurrentTimeStep);
+			pOrd->SetAssignedCook(C_Arr[i]);
+			InServiceVGN.InsertBeg(pOrd);
+			C_Arr[i]->SetAssignedOrder(pOrd);
+			C_Arr[i]->SetCurrOrd(C_Arr[i]->GetCurrOrd() + 1);
+			AvailableCooks.InsertEnd(AvailableCooks.RemoveFirst()->getItem());
+			i++;
+		}
+
+		if (WaitingVIP.dequeue(pOrd))
+		{
+			pOrd->SetStatus(SRV);
+			pOrd->SetInServiceTime(CurrentTimeStep);
+			pOrd->SetAssignedCook(C_Arr[i]);
+			InServiceVIP.InsertBeg(pOrd);
+			C_Arr[i]->SetAssignedOrder(pOrd);
+			C_Arr[i]->SetCurrOrd(C_Arr[i]->GetCurrOrd() + 1);
+			AvailableCooks.InsertEnd(AvailableCooks.RemoveFirst()->getItem());
+			i++;
+		}
+
+		//c)each 5 timesteps moving order of each type from InService to Finished list
+		if ((CurrentTimeStep + 1) % 5 == 0)
+		{
+			pOrd1 = InServiceNRM.Remove();
+			if (pOrd1)
+			{
+				pOrd1->SetStatus(DONE);
+				FinishedNRM.enqueue(pOrd1);
+			}
+
+			pOrd1 = InServiceVGN.Remove();
+			if (pOrd1)
+			{
+				pOrd1->SetStatus(DONE);
+				FinishedVGN.enqueue(pOrd1);
+			}
+
+			pOrd1 = InServiceVIP.Remove();
+			if (pOrd1)
+			{
+				pOrd1->SetStatus(DONE);
+				FinishedVIP.enqueue(pOrd1);
+			}
+
+		}
+
+		notFinished = !EventsQueue.isEmpty() || InServiceVGN.GetCount() != 0 || InServiceVIP.GetCount() != 0 || InServiceNRM.GetCount() != 0 || !WaitingNormal.isEmpty() || !WaitingVegan.isEmpty() || !WaitingVIP.isEmpty();
+
 		pGUI->UpdateInterface();
-		Sleep(1000);
-		CurrentTimeStep++;
 		pGUI->ResetDrawingList();
+		Sleep(1000);
+		CurrentTimeStep++;	//advance timestep
+
 	}
 
-
-	pGUI->PrintMessage("generation done, click to END program");
+	FillDrawingList();
+	pGUI->UpdateInterface();
+	pGUI->PrintEndProgram("generation done, click to END program");
 	pGUI->waitForClick();
 }
 
-void  Restaurant::AddtoVIPQueue(Order* po)	//adds an order to the demo queue
-{	// To Calculate The Periority Of The Order
+void  Restaurant::AddtoVIPQueue(Order* po)	//adds an order to the vip orders queue
+{	// To calculate the Priority of the order
 	int p = po->GetOrderMoney() + po->GetOrderSize() + 2 * po->GetArrivalTime();
 	WaitingVIP.enqueue(po, p);
 }
 
-void  Restaurant::AddtoNormalQueue(Order* po)
+void  Restaurant::AddtoNormalQueue(Order* po) //adds an order to the normal orders queue
 {
 	WaitingNormal.enqueue(po);
 }
 
-void  Restaurant::AddtoVeganQueue(Order* po)
+void  Restaurant::AddtoVeganQueue(Order* po) //adds an order to the vegan orders queue
 {
 	WaitingVegan.enqueue(po);
 }
 
-bool  Restaurant::DeleteNormalQueue(int id)
+bool  Restaurant::DeleteNormalQueue(int id) // Removes order from normal queue if cancelled
 {
 	Order* CancellatedOrder;
 	bool IsFound = WaitingNormal.SearchForOrder(id, CancellatedOrder);

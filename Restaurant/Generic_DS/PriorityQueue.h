@@ -142,6 +142,7 @@ T* PriorityQueue<T>::toArray(int& count)
 
 	if (!frontPtr)
 		return nullptr;
+
 	//counting the no. of items in the Queue
 	PriorityNode<T>* p = frontPtr;
 	while (p)

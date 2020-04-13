@@ -158,6 +158,8 @@ bool Queue<T>::peekFront(T& frntEntry) const
 template <typename T>
 Queue<T>::~Queue()
 {
+	T ptr;
+	while (dequeue(ptr));
 }
 /////////////////////////////////////////////////////////////////////////////////////////
 
@@ -171,6 +173,11 @@ template <typename T>
 T* Queue<T>::toArray(int& size)
 {
 	int count = GetQueueSize();
+	size = count;
+
+	if (!count)
+		return nullptr;
+
 	T* Arr = new T[count];
 	Node<T>* p = frontPtr;
 	for (int i = 0; i < count; i++)
@@ -178,7 +185,6 @@ T* Queue<T>::toArray(int& size)
 		Arr[i] = p->getItem();
 		p = p->getNext();
 	}
-	size = count;
 	return Arr;
 }
 /////////////////////////////////////////////////////////////////////////////////////////
