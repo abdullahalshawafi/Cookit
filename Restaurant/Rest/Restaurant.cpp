@@ -24,7 +24,11 @@ Restaurant::Restaurant()
 	NRM_C = 0;
 	VIP_C = 0;
 	VGN_C = 0;
+	ordertotal = 0;
+	cooks = 0;
+	autopromoted = 0;
 	CurrentTimeStep = 1;
+	count = 0;
 }
 
 void Restaurant::RunSimulation()
@@ -84,6 +88,7 @@ void Restaurant::FillDrawingList()
 	VGN_C = 0;
 	NRM_C = 0;
 	Cook** CookArr = AvailableCooks.toArray(C_size);
+	cooks = C_size;
 	for (int i = 0; i < C_size; i++)
 	{
 		switch (CookArr[i]->GetType())
@@ -203,7 +208,9 @@ void Restaurant::FillDrawingList()
 		pFinishedOrd = FinishedVIP_Orders_Array[i];
 		pGUI->AddToDrawingList(pFinishedOrd);
 	}
+	ordertotal = VIP_FinishedCount + NRM_FinishedCount + VGN_FinishedCount;
 }
+
 
 void Restaurant::ReadInputFile(ifstream& InputFile)
 {
@@ -309,6 +316,7 @@ void Restaurant::ReadInputFile(ifstream& InputFile)
 					InputFile >> ExtMoney;
 					pEv = new PromotionEvent(EvTime, O_id, ExtMoney);
 					EventsQueue.enqueue(pEv);
+					autopromoted++;
 					break;
 
 				default:
@@ -325,15 +333,26 @@ void Restaurant::ReadInputFile(ifstream& InputFile)
 
 }
 
-void Restaurant::Interactive_Mode()
+void Restaurant::OutputFile(ofstream& OutputFile)
 {
-	bool notFinished = !EventsQueue.isEmpty() || InServiceVGN.GetCount() != 0 || InServiceVIP.GetCount() != 0 || InServiceNRM.GetCount() != 0 || !WaitingNormal.isEmpty() || !WaitingVegan.isEmpty() || !WaitingVIP.isEmpty();
+	
+}
 
+void Restaurant::Interactive_Mode()
+{	
+	bool notFinished = !EventsQueue.isEmpty() || InServiceVGN.GetCount() != 0 || InServiceVIP.GetCount() != 0 || InServiceNRM.GetCount() != 0 || !WaitingNormal.isEmpty() || !WaitingVegan.isEmpty() || !WaitingVIP.isEmpty();
+	ofstream OutputFile;
+	pGUI->PrintMessage("Please enter the output text file name: ");
+	string FileName = pGUI->GetString();
+	FileName = FileName + ".txt";
+	OutputFile.open(FileName);
 	Order* pNRMOrd = nullptr;
 	Order* pVGNOrd = nullptr;
 	Order* pVIPOrd = nullptr;
 	Order* pOrd1 = nullptr;
-
+	float servingnum = 0.0;
+	OutputFile <<"FT  ID  AT  WT  ST"<<endl;
+	float waitnum = 0.0;
 	while (notFinished)	//as long as events queue is not empty yet
 	{
 		//a) Executing Events at this current step 
@@ -356,12 +375,11 @@ void Restaurant::Interactive_Mode()
 		string C_VIP = to_string(VIP_C);
 
 		string timestep = to_string(CurrentTimeStep);
-
+		
 		pGUI->PrintMessage("TS: " + timestep);	//print current timestep
 		pGUI->PrintWaitingOrders("Waiting: (Normal = " + waitingNRM + "), (Vegan = " + waitingVGN + "), (VIP = " + waitingVIP + ")");	//print waiting orders numbers
 		pGUI->PrintAvailableCooks("Cooks: (Normal = " + C_NRM + "), (Vegan = " + C_VGN + "), (VIP = " + C_VIP + ")");		//Prints the number if cooks
 		pGUI->PrintFinishedOrders("Finished: (Normal = " + finishedNRM + "), (Vegan = " + finishedVGN + "), (VIP = " + finishedVIP + ")");	//print finished orders numbers
-
 		int csize = 0, i = 0;
 		Cook** C_Arr = AvailableCooks.toArray(csize);
 
@@ -439,24 +457,36 @@ void Restaurant::Interactive_Mode()
 				FinishedNRM.enqueue(pOrd1);
 				pOrd1->GetAssignedCook()->SetAssignedOrder(nullptr);
 				pOrd1->SetAssignedCook(nullptr);
+				servingnum += CurrentTimeStep + 1 - pOrd1->GetInServiceTime();
+				waitnum += pOrd1->GetInServiceTime() - pOrd1->GetArrivalTime();
+				OutputFile << CurrentTimeStep + 1 <<"  " << pOrd1->GetID()<<"   "<< pOrd1->GetArrivalTime()<<"   "<< pOrd1->GetInServiceTime() - pOrd1->GetArrivalTime() <<"  "<<CurrentTimeStep + 1 - pOrd1->GetInServiceTime() <<endl;
+				count++;
 			}
 
 			pOrd1 = InServiceVGN.Remove();
 			if (pOrd1)
 			{
+				count++;
 				pOrd1->SetStatus(DONE);
 				FinishedVGN.enqueue(pOrd1);
 				pOrd1->GetAssignedCook()->SetAssignedOrder(nullptr);
 				pOrd1->SetAssignedCook(nullptr);
+				servingnum += CurrentTimeStep + 1 - pOrd1->GetInServiceTime(); 
+				waitnum += pOrd1->GetInServiceTime() - pOrd1->GetArrivalTime();
+				OutputFile << CurrentTimeStep + 1 << "  " << pOrd1->GetID() << "   " << pOrd1->GetArrivalTime() << "   " << pOrd1->GetInServiceTime() - pOrd1->GetArrivalTime() << "  " << CurrentTimeStep + 1 - pOrd1->GetInServiceTime() << endl;
 			}
 
 			pOrd1 = InServiceVIP.Remove();
 			if (pOrd1)
 			{
+				count++;
 				pOrd1->SetStatus(DONE);
 				FinishedVIP.enqueue(pOrd1);
 				pOrd1->GetAssignedCook()->SetAssignedOrder(nullptr);
 				pOrd1->SetAssignedCook(nullptr);
+				servingnum += CurrentTimeStep + 1 - pOrd1->GetInServiceTime();
+				waitnum += pOrd1->GetInServiceTime() - pOrd1->GetArrivalTime();
+				OutputFile << CurrentTimeStep + 1 << "  " << pOrd1->GetID() << "   " << pOrd1->GetArrivalTime() << "   " << pOrd1->GetInServiceTime() - pOrd1->GetArrivalTime() << "  " << CurrentTimeStep + 1 - pOrd1->GetInServiceTime() << endl;
 			}
 
 		}
@@ -469,7 +499,10 @@ void Restaurant::Interactive_Mode()
 		CurrentTimeStep++;	//advance timestep
 
 	}
-
+	OutputFile << "Avg Wait = " << waitnum/count<< ",  Avg Serv = " << servingnum/count  << endl;
+	OutputFile << "Orders : " << ordertotal << "[ " << "Norm:" << NRM_FinishedCount << ", Veg:" << VGN_FinishedCount << ", VIP:" << VIP_FinishedCount << "]" << endl;
+	OutputFile << "Cooks : " << cooks << "[ " << "Norm:" << NRM_C << ", Veg:" << VGN_C << ", VIP:" << VIP_C <<"]"<< endl;
+	OutputFile << "Auto-Promoted: " << autopromoted << endl;
 	FillDrawingList();
 	pGUI->UpdateInterface();
 	pGUI->PrintEndProgram("generation done, click to END program");

@@ -9,6 +9,7 @@ class List
 {
 private:
 	Node<T>* Head;	//Pointer to the head of the list
+	int Num;
 public:
 	List()
 	{
@@ -47,6 +48,14 @@ public:
 	* Function: DeleteAll.
 	* Deletes all nodes of the list.
 	*/
+	void setnum(int num)
+	{
+		Num = num;
+	}
+	int getnum()
+	{
+		return Num;
+	}
 	void DeleteAll()
 	{
 		Node<T>* P = Head;

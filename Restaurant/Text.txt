@@ -1,0 +1,3 @@
+Orders : 6[ Norm:3, Veg:2, VIP:1
+Cooks : 9[ Norm:5, Veg:3, VIP:1
+Auto-Promoted: 1

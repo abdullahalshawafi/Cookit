@@ -36,6 +36,8 @@ class Restaurant
 	int NRM_SRVCount, VGN_SRVCount, VIP_SRVCount;					//No. of served orders
 	int NRM_FinishedCount, VGN_FinishedCount, VIP_FinishedCount;	//No. of finished orders
 	int CurrentTimeStep;
+	int ordertotal, cooks, autopromoted;
+	int count;
 
 public:
 
@@ -48,6 +50,7 @@ public:
 	void Interactive_Mode();
 	void StepByStep_Mode();
 	void ReadInputFile(ifstream& InputFile);
+	void OutputFile(ofstream& OutputFile);
 	void PrintAssigned(Cook**, Order*);
 	void AddtoVIPQueue(Order* po);
 	void AddtoNormalQueue(Order* po);

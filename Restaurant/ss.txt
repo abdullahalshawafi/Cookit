@@ -1,0 +1,11 @@
+FT  ID  AT  WT  ST
+10  1   7   1  2
+10  3   9   1  0
+15  2   9   1  5
+15  4   12   1  2
+20  5   19   1  0
+30  6   25   1  4
+35  9   26   1  8
+Orders : 6[ Norm:3, Veg:2, VIP:1]
+Cooks : 9[ Norm:5, Veg:3, VIP:1]
+Auto-Promoted: 1
