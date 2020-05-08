@@ -7,6 +7,7 @@ Cook::Cook()
 	CurrOrd = 0;
 	InBreak = false;
 	AssignedOrder = nullptr;
+	TimeToBeFree = 0; //We considered that if TimeToBeFree = 0 this means "the cook is available"
 }
 
 void Cook::SetID(int id)
@@ -59,6 +60,29 @@ int Cook::GetCurrOrd() const
 	return CurrOrd;
 }
 
+void Cook::SetAvailable(bool Av)
+{
+	Available = Av;
+}
+
+bool Cook::GetAvailable()
+{
+	return Available;
+}
+
+void  Cook::SetTimeToBeFree(int A)
+{
+	if (!A)
+		TimeToBeFree = 0;
+	else
+		TimeToBeFree = A + speed * AssignedOrder->GetOrderSize(); //To Calculate When The Cook Finish The Order
+}
+
+int  Cook::GetTimeToBeFree()
+{
+	return TimeToBeFree;
+}
+
 void Cook::SetInBreak(bool inBreak)
 {
 	InBreak = inBreak;
@@ -87,6 +111,16 @@ void Cook::SetOrdToBreak(int OB)
 int Cook::GetOrdToBreak()
 {
 	return OrdToBreak;
+}
+
+void Cook::SetBreakTS(int TS)
+{
+	BreakTimestep = TS;
+}
+
+int Cook::GetBreakTS()
+{
+	return BreakTimestep;
 }
 
 Cook::~Cook()

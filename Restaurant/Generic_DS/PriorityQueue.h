@@ -11,7 +11,7 @@ public:
 	bool isEmpty() const;
 	bool enqueue(const T& newEntry, int Per);
 	bool dequeue(T& frntEntry);
-	bool peekFront(const T& frntEntry)  const;
+	bool peekFront(T& frntEntry)  const;
 	T* toArray(int& count);
 	PriorityNode<T>* SearchForOrder(T Ord);
 	~PriorityQueue();
@@ -58,14 +58,14 @@ bool PriorityQueue<T>::enqueue(const T& newEntry, int pre)
 		return true;
 	}
 
-	if (newNodePtr->GetPriority() > temp->GetPriority())
+	if (newNodePtr->GetPriority() >= temp->GetPriority())
 	{
 		frontPtr = newNodePtr;
 		newNodePtr->setNext(temp);
 		return true;
 	}
 
-	while (temp->getNext() && temp->getNext()->GetPriority() > newNodePtr->GetPriority())
+	while (temp->getNext() && temp->getNext()->GetPriority() >= newNodePtr->GetPriority())
 		temp = temp->getNext();
 
 	newNodePtr->setNext(temp->getNext());
@@ -112,7 +112,7 @@ Output: The front of the queue.
 return: flase if Queue is empty
 */
 template < typename T>
-bool PriorityQueue<T>::peekFront(const T& frntEntry) const
+bool PriorityQueue<T>::peekFront(T& frntEntry) const
 {
 	if (isEmpty())
 		return false;

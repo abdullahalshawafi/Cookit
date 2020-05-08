@@ -251,4 +251,213 @@ public:
 		return item;
 	}
 	////////////////////////////////////////////////////////////////////////
+
+	void InsertSorted(Node<T>* Cook) //For Cooks
+	{
+		if (!Head)
+		{
+			Head = Cook;
+			return;
+		}
+
+		if (Head->getItem()->GetTimeToBeFree() >= Cook->getItem()->GetTimeToBeFree())
+		{
+			Cook->setNext(Head);
+			Head = Cook;
+			return;
+		}
+
+		Node<T>* p = Head;
+		Node<T>* After = Head->getNext();
+
+		while (After && After->getItem()->GetTimeToBeFree() < Cook->getItem()->GetTimeToBeFree())
+		{
+			p = p->getNext();
+			After = After->getNext();
+		}
+
+		if (After)
+		{
+			Cook->setNext(p->getNext());
+			p->setNext(Cook);
+			return;
+		}
+
+		p->setNext(Cook);
+		return;
+	}
+	////////////////////////////////////////////////////////////////////////
+
+	Node<T>* GetTheFirstNRMCook() //To Get First NRMCook in The list Of Cooks not in break
+	{
+		Node<T>* p = Head;
+		if (!Head) return nullptr;
+
+		if (Head->getItem()->GetType() == TYPE_NRM)
+		{
+			if (Head->getItem()->GetTimeToBeFree() == 0)
+			{
+				Head = Head->getNext();
+				p->setNext(nullptr);
+				return p;
+			}
+			return nullptr;
+		}
+
+		Node<T>* After = Head->getNext();
+
+		while (After && After->getItem()->GetType() != TYPE_NRM)
+		{
+			p = p->getNext();
+			After = After->getNext();
+		}
+
+		if (!After) return nullptr;
+
+		if (After->getItem()->GetTimeToBeFree() == 0)
+		{
+			p->setNext(After->getNext());
+			After->setNext(nullptr);
+			return After;
+		}
+
+		return nullptr;
+	}
+	////////////////////////////////////////////////////////////////////////
+
+	Node<T>* GetTheFirstVGNCook()//To Get First VGNCook in The list Of Cooks not in break
+	{
+		Node<T>* p = Head;
+		if (!Head) return nullptr;
+
+		if (Head->getItem()->GetType() == TYPE_VGAN)
+		{
+			if (Head->getItem()->GetTimeToBeFree() == 0)
+			{
+				Head = Head->getNext();
+				p->setNext(nullptr);
+				return p;
+			}
+			return nullptr;
+		}
+
+		Node<T>* After = Head->getNext();
+
+		while (After && After->getItem()->GetType() != TYPE_VGAN)
+		{
+			p = p->getNext();
+			After = After->getNext();
+		}
+
+		if (!After) return nullptr;
+
+		if (After->getItem()->GetTimeToBeFree() == 0)
+		{
+			p->setNext(After->getNext());
+			After->setNext(nullptr);
+			return After;
+		}
+
+		return nullptr;
+	}
+	////////////////////////////////////////////////////////////////////////
+
+	Node<T>* GetTheFirstVIPCook()//To Get First VIPCook in The list Of Cooks not in break
+	{
+		Node<T>* p = Head;
+		if (!Head) return nullptr;
+
+		if (Head->getItem()->GetType() == TYPE_VIP)
+		{
+			if (Head->getItem()->GetTimeToBeFree() == 0)
+			{
+				Head = Head->getNext();
+				p->setNext(nullptr);
+				return p;
+			}
+			return nullptr;
+		}
+
+		Node<T>* After = Head->getNext();
+
+		while (After && After->getItem()->GetType() != TYPE_VIP)
+		{
+			p = p->getNext();
+			After = After->getNext();
+		}
+
+		if (!After) return nullptr;
+
+		if (After->getItem()->GetTimeToBeFree() == 0)
+		{
+			p->setNext(After->getNext());
+			After->setNext(nullptr);
+			return After;
+		}
+
+		return nullptr;
+	}
+	////////////////////////////////////////////////////////////////////////
+
+	Node<T>* GetTheFirstUnAvailableCook()//To Get the first unavailable Cook
+	{
+		Node<T>* p = Head;
+		if (!Head) return Head;
+
+		if (Head->getItem()->GetTimeToBeFree() != 0)
+		{
+			Head = Head->getNext();
+			p->setNext(nullptr);
+			return p;
+		}
+
+		Node<T>* After = Head->getNext();
+
+		while (After && After->getItem()->GetTimeToBeFree() == 0)
+		{
+			p = p->getNext();
+			After = After->getNext();
+		}
+
+		if (!After) return After;
+
+		p->setNext(After->getNext());
+		After->setNext(nullptr);
+
+		return After;
+	}
+	////////////////////////////////////////////////////////////////////////
+
+	bool SearchForOrder(int id, T& Entry)
+	{
+		Node<T>* Temp = Head;
+		Node<T>* Nodetodelete = nullptr;
+		if (!Head)  //the queue is Empty
+			return false;
+
+		if (Temp->getItem()->GetID() == id)  //if the first node have the wanted order
+		{
+			Nodetodelete = Temp;
+			Entry = Temp->getItem();
+			Head = Temp->getNext();
+			delete Nodetodelete;
+			return true;
+		}
+
+		while (Temp && Temp->getNext())
+		{
+			if (Temp->getNext()->getItem()->GetID() == id) //if the next node have the wanted order
+			{
+				Nodetodelete = Temp->getNext();
+				Entry = Temp->getNext()->getItem();
+				Temp->setNext(Temp->getNext()->getNext());
+				delete Nodetodelete;
+				return true;
+			}
+			Temp = Temp->getNext();
+		}
+
+		return false;
+	}
+	////////////////////////////////////////////////////////////////////////
 };
