@@ -15,7 +15,38 @@ public:
 	T* toArray(int& count);
 	PriorityNode<T>* SearchForOrder(T Ord);
 	~PriorityQueue();
+	void DeleteNode(const int& item);
 };
+
+template < typename T>
+void PriorityQueue<T>::DeleteNode(const int& item)
+{
+	if (!Head)
+		return;
+
+	Node<T>* p = Head;
+	if (p->getItem() == item)  //if the first node have the wanted item
+	{
+		Head = Head->getNext();
+		p->setNext(nullptr);
+		delete p;
+		return;
+	}
+
+	p = Head->getNext();
+	Node<T>* prev = Head;
+	while (p)
+	{
+		if (p->getItem() == item)
+		{
+			prev->setNext(p->getNext());
+			delete p;
+			return;
+		}
+		prev = p;
+		p = p->getNext();
+	}
+}
 
 template < typename T>
 PriorityQueue<T>::PriorityQueue<T>()

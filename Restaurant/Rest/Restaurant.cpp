@@ -608,9 +608,37 @@ void Restaurant::Assigning()
 	Order* pOrd;
 	int C_size = 0;
 	Cook** CookArr = AvailableCooks.toArray(C_size);
+	int VIP_size=0;
+	Order** VIP_Order = WaitingVIP.toArray(VIP_size);
 	///////////////////////////////////Assigning VIP orders///////////////////////////////////
 	while (WaitingVIP.peekFront(pOrd) && pOrd->GetArrivalTime() <= CurrentTimeStep)//while there is VIP orders in waiting list till this current time step
 	{
+		for (int i = 0; i < VIP_size; i++)
+		{
+			if ((CurrentTimeStep - (VIP_Order[i]->GetArrivalTime()) > VIP_WT))
+			{
+				pOrd = VIP_Order[i];
+				WaitingVIP.DeleteNode(VIP_Order[i]->GetID());
+				UrgentOrders.enqueue(pOrd);
+			}
+		}
+		if((UrgentOrders.peekFront(pOrd)))
+		for (int i = 0; i < C_size; i++)//Searching for available VIP cook.
+		{
+			if ((UrgentOrders.peekFront(pOrd))&&(CookArr[i]->GetType() == TYPE_VIP) && ((CookArr[i]->GetInBreak()) || !CookArr[i]->GetAssignedOrder()))
+			{
+				UrgentOrders.dequeue(pOrd);
+				CookArr[i]->SetAssignedOrder(pOrd);
+				CookArr[i]->SetCurrOrd(CookArr[i]->GetCurrOrd() + 1);
+				pOrd->SetAssignedCook(CookArr[i]);
+				pOrd->SetInServiceTime(CurrentTimeStep);
+				pOrd->SetFinishTime(CurrentTimeStep + ceil(pOrd->GetOrderSize() / CookArr[i]->GetSpeed()));
+				pOrd->SetStatus(SRV);
+				InService.InsertEnd(pOrd);
+				break;
+			}
+		}
+
 		if (!C_size) return;
 
 		for (int i = 0; i < C_size; i++)//Searching for available VIP cook.

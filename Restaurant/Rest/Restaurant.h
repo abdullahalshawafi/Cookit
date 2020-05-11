@@ -20,6 +20,7 @@ class Restaurant
 	Queue<Order*> WaitingNormal;		//Queue of all waiting orders of type normal
 	Queue<Order*> WaitingVegan;			//Queue of all waiting orders of type Vegan
 	PriorityQueue<Order*> WaitingVIP;   //Queue of all waiting orders of type VIP
+	Queue<Order*> UrgentOrders;			//Queue of all waiting Urgent of type VIP
 	Queue<Order*>Finished;				//Queue of all Finished orders
 	List<Order*> InService;				//List of all In-service orders
 	PriorityQueue<Cook*> AvailableCooks;//List of available cooks of all types
@@ -28,6 +29,7 @@ class Restaurant
 	int NRM_C;			//No. of available normal cooks
 	int VGN_C;			//No. of available vegan cooks 
 	int VIP_C;			//No. of available vip cooks
+	int VIP_WT;			//number of allowed time to wait
 	int AutoPromoted;	//No. of auto promoted orders
 	int NRM_OrdCount, VGN_OrdCount, VIP_OrdCount;					//No. of waiting orders
 	int NRM_SRVCount, VGN_SRVCount, VIP_SRVCount;					//No. of served orders
