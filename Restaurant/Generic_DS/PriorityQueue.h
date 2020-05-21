@@ -21,23 +21,23 @@ public:
 template < typename T>
 void PriorityQueue<T>::DeleteNode(const int& item)
 {
-	if (!Head)
+	if (!frontPtr)
 		return;
 
-	Node<T>* p = Head;
-	if (p->getItem() == item)  //if the first node have the wanted item
+	PriorityNode<T>* p = frontPtr;
+	if (p->getItem()->GetID() == item)  //if the first node have the wanted item
 	{
-		Head = Head->getNext();
+		frontPtr = frontPtr->getNext();
 		p->setNext(nullptr);
 		delete p;
 		return;
 	}
 
-	p = Head->getNext();
-	Node<T>* prev = Head;
+	p = frontPtr->getNext();
+	PriorityNode<T>* prev = frontPtr;
 	while (p)
 	{
-		if (p->getItem() == item)
+		if (p->getItem()->GetID() == item)
 		{
 			prev->setNext(p->getNext());
 			delete p;
@@ -89,7 +89,7 @@ bool PriorityQueue<T>::enqueue(const T& newEntry, int pre)
 		return true;
 	}
 
-	if (newNodePtr->GetPriority() >= temp->GetPriority())
+	if (newNodePtr->GetPriority() >= temp->GetPriority() || newNodePtr->getItem()->GetUrgent())
 	{
 		frontPtr = newNodePtr;
 		newNodePtr->setNext(temp);

@@ -1,6 +1,8 @@
 #include "Cook.h"
 
 int Cook::OrdToBreak = 0;
+float Cook::injurypro = 0;
+int Cook::restperiod = 0;
 
 Cook::Cook()
 {
@@ -8,6 +10,8 @@ Cook::Cook()
 	InBreak = false;
 	AssignedOrder = nullptr;
 	TimeToBeFree = 0; //We considered that if TimeToBeFree = 0 this means "the cook is available"
+	ToBackFromRest = 0;
+	Injured = false;
 }
 
 void Cook::SetID(int id)
@@ -103,13 +107,15 @@ Order* Cook::GetAssignedOrder() const
 	return AssignedOrder;
 }
 
-void Cook::SetOrdToBreak(int OB)
+void Cook::SetOrdToBreakANDRest(int OB ,int restd)
 {
 	OrdToBreak = OB;
+	restperiod = restd;
 }
 
-int Cook::GetOrdToBreak()
+int Cook::GetOrdToBreakANDRest(int &restd)
 {
+	restd = restperiod;
 	return OrdToBreak;
 }
 
@@ -121,6 +127,39 @@ void Cook::SetBreakTS(int TS)
 int Cook::GetBreakTS()
 {
 	return BreakTimestep;
+}
+void Cook::ResetSpeed()
+{
+	speed = originalspeed;
+}
+void Cook::SetToBackFromRest(int F)
+{
+	ToBackFromRest = F;
+}
+int Cook::GetToBackFromRest()
+{
+return ToBackFromRest;
+
+}
+void Cook::SetInjured(bool i)
+{
+	Injured = i;
+}
+bool Cook::GetInjured()
+{
+	return Injured;
+}
+void Cook::SetOriginalSpeed(int s)
+{
+	originalspeed = s;
+}
+void Cook::SetInjProp(float i)
+{
+	injurypro = i;
+}
+float Cook::GetInjProp()
+{
+	return injurypro;
 }
 
 Cook::~Cook()

@@ -83,7 +83,7 @@ void Restaurant::FillDrawingList()
 	VIP_C = 0;
 	VGN_C = 0;
 	NRM_C = 0;
-	Cook** CookArr = AvailableCooks.toArray(C_size);
+	Cook** CookArr = AVAILABLECOOKS.toArray(C_size);
 	for (int i = 0; i < C_size; i++)
 	{
 		switch (CookArr[i]->GetType())
@@ -189,46 +189,61 @@ void Restaurant::ReadInputFile(ifstream& InputFile)
 		if (InputFile.is_open())
 		{
 			int N = 0, G = 0, V = 0;
+			int MaxSN = 0, MaxSG = 0, MaxSV = 0;
+			int MinSN = 0, MinSG = 0, MinSV = 0;
+			int MinBN = 0, MaxBN = 0, MinBG = 0, MaxBG = 0, MinBV = 0, MaxBV = 0;
+			int BO = 0;// , BN = 0, BG = 0, BV = 0;
 			int SN = 0, SG = 0, SV = 0;
-			int BO = 0, BN = 0, BG = 0, BV = 0;
-			int AutoP = 0, M = 0;
+			int autop = 0, vip_wt = 0, M = 0;
+			float InjP = 0;
+			int RP = 0;
 			InputFile >> N >> G >> V;
-			InputFile >> SN >> SG >> SV;
-			InputFile >> BO >> BN >> BG >> BV;
-			InputFile >> AutoP;
+			InputFile >> MinSN >> MaxSN >> MinSG >> MaxSG >> MinSV >> MaxSV;
+			InputFile >> BO >> MinBN >> MaxBN >> MinBG >> MaxBG >> MinBV >> MaxBV;
+			InputFile >> InjP >> RP;
+			InputFile >> autop >> vip_wt;
 			InputFile >> M;
-
 			int EventCnt = M;
-
 			Order* pOrd;
+			pOrd->SetVIP_WAITANDNRM_WAIT(vip_wt, autop);
 			Event* pEv;
-
 			srand(time(NULL));
 
 			C_count = N + G + V;
 			Cook* pCook;
-
+			int S;//the speed of the cook
+			int B;//the break duration 
 			//Adding the normal cooks the cooks array
 			for (int i = 0; i < N; i++)
 			{
 				pCook = new Cook;
 				pCook->SetID(i + 1);
-				pCook->SetSpeed(SN);
+				S = MinSN + rand() % (MaxSN - MinSN + 1);
+				pCook->SetSpeed(S);
+				pCook->SetOriginalSpeed(S);
+				cout << "speed of the Normal cook of" << i << "   " << S << endl;
 				pCook->SetType(TYPE_NRM);
-				pCook->SetBreakDuration(BN);
-				pCook->SetOrdToBreak(BO);
-				AvailableCooks.enqueue(pCook, pCook->GetCurrOrd());
+				B = MinBN + rand() % (MaxBN - MinBN + 1);
+				cout << "break duration of the Normal cook of" << i << "   " << B << endl;
+				pCook->SetBreakDuration(B);
+				AVAILABLECOOKS.InsertSorted(pCook);
 			}
-
+			pCook->SetOrdToBreakANDRest(BO, RP);
+			pCook->SetInjProp(InjP);
 			// Adding the vegan cooks the cooks array
 			for (int i = N; i < C_count - V; i++)
 			{
 				pCook = new Cook;
 				pCook->SetID(i + 1);
-				pCook->SetSpeed(SN);
+				S = MinSG + rand() % (MaxSG - MinSG + 1);
+				cout << "speed of the Vegan cook of" << i << "   " << S << endl;
+				pCook->SetSpeed(S);
+				pCook->SetOriginalSpeed(S);
 				pCook->SetType(TYPE_VGAN);
-				pCook->SetBreakDuration(BN);
-				AvailableCooks.enqueue(pCook, pCook->GetCurrOrd());
+				B = MinBG + rand() % (MaxBG - MinBG + 1);
+				cout << "break duration of the Vegan cook of" << i << "   " << B << endl;
+				pCook->SetBreakDuration(B);
+				AVAILABLECOOKS.InsertSorted(pCook);
 			}
 
 			//Adding the VIP cooks the cooks array
@@ -236,12 +251,17 @@ void Restaurant::ReadInputFile(ifstream& InputFile)
 			{
 				pCook = new Cook;
 				pCook->SetID(i + 1);
-				pCook->SetSpeed(SN);
-				pCook->SetType(TYPE_VIP);
-				pCook->SetBreakDuration(BN);
-				AvailableCooks.enqueue(pCook, pCook->GetCurrOrd());
-			}
 
+				S = MinSV + rand() % (MaxSV - MinSV + 1);
+				pCook->SetSpeed(S);
+				pCook->SetOriginalSpeed(S);
+				cout << "speed of the VIP cook of" << i << "   " << S << endl;
+				pCook->SetType(TYPE_VIP);
+				B = MinBV + rand() % (MaxBV - MinBV + 1);
+				cout << "break duration of the VIP cook of" << i << "   " << B << endl;
+				pCook->SetBreakDuration(B);
+				AVAILABLECOOKS.InsertSorted(pCook);
+			}
 			int EvTime = 0;
 
 			int O_id = 0;
@@ -340,6 +360,7 @@ void Restaurant::Interactive_Mode()
 		UpdateInServiceOrders();
 		UpdateCooks();
 		Assigning();
+		UpdateWaiting();
 		FillDrawingList();
 		pGUI->UpdateInterface();
 		PrintData();
@@ -506,6 +527,7 @@ void Restaurant::Interactive_Mode()
 void  Restaurant::AddtoVIPQueue(Order* po)	//adds an order to the vip orders queue
 {	// To calculate the Priority of the order
 	int p = po->GetOrderMoney() + po->GetOrderSize() + 2 * po->GetArrivalTime();
+	po->SetType(TYPE_VIP);
 	WaitingVIP.enqueue(po, p);
 }
 
@@ -540,46 +562,102 @@ Order*& Restaurant::PromotOrder(int id, double Extra)
 
 void Restaurant::UpdateCooks()
 {
+	int demo = 0;
 	int C_size = 0;
-	Cook** CookArr = AvailableCooks.toArray(C_size);
+	Cook** CookArr = AVAILABLECOOKS.toArray(C_size);
 	////////////////////////////////UBDATE SERVING COOKS////////////////////////////////
 	for (int i = 0; i < C_size; i++)
-		if (CookArr[i] && CookArr[i]->GetAssignedOrder() && !CookArr[i]->GetInBreak())
+		if (CookArr[i]->GetAssignedOrder() && !CookArr[i]->GetInBreak())
 		{
-			if (CookArr[i]->GetOrdToBreak() == CookArr[i]->GetCurrOrd() && CookArr[i]->GetAssignedOrder()->GetStatus() == DONE)
-			{   //Check for cooks that should be in break
-				CookArr[i]->SetInBreak(true);
-				CookArr[i]->SetCurrOrd(0);
-				CookArr[i]->SetBreakTS(CurrentTimeStep);
+			if (!CookArr[i]->GetInjured())
+			{
+				if ((CookArr[i]->GetOrdToBreakANDRest(demo) > CookArr[i]->GetCurrOrd()) && (CookArr[i]->GetAssignedOrder()->GetStatus() == DONE))
+				{  //Check for cooks should be not assigned
+					CookArr[i]->SetAssignedOrder(NULL);
+					CookArr[i]->SetCurrOrd(CookArr[i]->GetCurrOrd() + 1);
+					AVAILABLECOOKS.DeleteNode(CookArr[i]);
+					AVAILABLECOOKS.InsertSorted(CookArr[i]);  //resorting available cooks list
+				}
+				if (CookArr[i]->GetOrdToBreakANDRest(demo) == CookArr[i]->GetCurrOrd())
+				{   //Check for cooks that should be in break
+					CookArr[i]->SetInBreak(true);
+					CookArr[i]->SetCurrOrd(0);
+					CookArr[i]->SetBreakTS(CurrentTimeStep);
+					CookArr[i]->ResetSpeed();
+					if (CookArr[i]->GetType() == TYPE_NRM) NRM_C--;
+					else if (CookArr[i]->GetType() == TYPE_VGAN) VGN_C--;
+					else VIP_C--;
+					AVAILABLECOOKS.DeleteNode(CookArr[i]);
+					InBreakCooks.InsertBeg(CookArr[i]); // Removing in break cooks from available list& adding them to in break list
+				}
+			}
+			else if (CookArr[i]->GetAssignedOrder()->GetStatus() == DONE)
+			{
 				CookArr[i]->SetAssignedOrder(NULL);
+				AVAILABLECOOKS.DeleteNode(CookArr[i]);
+				CookArr[i]->SetCurrOrd(CookArr[i]->GetCurrOrd() + 1);
+				InjuredCooks.InsertEnd(CookArr[i]);
+				CookArr[i]->SetInjured(false);
 				if (CookArr[i]->GetType() == TYPE_NRM) NRM_C--;
 				else if (CookArr[i]->GetType() == TYPE_VGAN) VGN_C--;
 				else VIP_C--;
 			}
-			else if ((CookArr[i]->GetOrdToBreak() > CookArr[i]->GetCurrOrd()) && CookArr[i]->GetAssignedOrder() && (CookArr[i]->GetAssignedOrder()->GetStatus() == DONE))
-			{	//Check for cooks should be not assigned
-				CookArr[i]->SetAssignedOrder(NULL);
-			}
-		}
 
-	Cook* pCook;
-	while (AvailableCooks.dequeue(pCook));
-	for (int i = 0; i < C_size; i++)//Removing in break cooks from available list & adding them to in break list
-	{                               //resorting available cooks list
-		if (!CookArr[i]->GetInBreak())
-			AvailableCooks.enqueue(CookArr[i], CookArr[i]->GetCurrOrd());
-		else InBreakCooks.InsertBeg(CookArr[i]);
-	}
+		}
 	////////////////////////////////UBDATE INBREAK COOKS////////////////////////////////
-	Cook** CookinBreak = InBreakCooks.toArray(C_size);
-	for (int i = 0; i < C_size; i++)//Check for cooks should go back to available list
+	int breaksize;
+	Cook** CookinBreak = InBreakCooks.toArray(breaksize);
+	for (int i = 0; i < breaksize; i++)//Check for cooks should go back to available list
 		if (CurrentTimeStep - CookinBreak[i]->GetBreakTS() == CookinBreak[i]->GetBreakDuration())
 		{
 			InBreakCooks.DeleteNode(CookinBreak[i]);
 			CookinBreak[i]->SetInBreak(false);
-			AvailableCooks.enqueue(CookinBreak[i], CookinBreak[i]->GetCurrOrd());
-			if (CookArr[i]->GetType() == TYPE_NRM) NRM_C++;
-			else if (CookArr[i]->GetType() == TYPE_VGAN) VGN_C++;
+			AVAILABLECOOKS.InsertBeg(CookinBreak[i]);
+			if (CookinBreak[i]->GetType() == TYPE_NRM) NRM_C++;
+			else if (CookinBreak[i]->GetType() == TYPE_VGAN) VGN_C++;
+			else VIP_C++;
+		}
+	///////////////////////////////To Make Cook injured///////////////////////////////
+	int Random = rand();
+	float inj = CookArr[0]->GetInjProp();
+	int rp;
+	CookArr[0]->GetOrdToBreakANDRest(rp);
+	int newFinishedTime = 0;
+	if (100 <= inj * 100)
+	{
+		for (int i = 0; i < C_size; i++)  //searching for the first busy Cook To Make him injured
+		{
+			if (CookArr[i]->GetAssignedOrder())
+			{
+				newFinishedTime = CurrentTimeStep + ((CookArr[i]->GetAssignedOrder()->GetOrderSize() - ((CurrentTimeStep - CookArr[i]->GetAssignedOrder()->GetInServiceTime()) * CookArr[i]->GetSpeed())) * (CookArr[i]->GetSpeed() / 2));
+				CookArr[i]->SetSpeed(CookArr[i]->GetSpeed() / 2);
+				CookArr[i]->GetAssignedOrder()->SetFinishTime(newFinishedTime);
+				CookArr[i]->SetToBackFromRest(newFinishedTime + rp);
+				CookArr[i]->SetInjured(true);
+				break;
+			}
+			////else
+			////{
+			//	AVAILABLECOOKS.DeleteNode(CookArr[i]);
+			//	CookArr[i]->SetSpeed(CookArr[i]->GetSpeed() / 2);
+			//	CookArr[i]->SetToBackFromRest(rp);
+			//	InjuredCooks.InsertEnd(CookArr[i]);
+			//	if (CookArr[i]->GetType() == TYPE_NRM) NRM_C--;
+			//	else if (CookArr[i]->GetType() == TYPE_VGAN) VGN_C--;
+			//	else VIP_C--;
+			////}
+		}
+	}
+	/////////////////////////////UBDATE INJURED COOKS//////////////////////////////////
+	Cook** Cookinjured = InjuredCooks.toArray(C_size);
+	for (int i = 0; i < C_size; i++)//Check for cooks should go back to available list
+		if (CurrentTimeStep == Cookinjured[i]->GetToBackFromRest())
+		{
+			InjuredCooks.DeleteNode(Cookinjured[i]);
+			Cookinjured[i]->ResetSpeed();
+			AVAILABLECOOKS.InsertSorted(Cookinjured[i]);
+			if (Cookinjured[i]->GetType() == TYPE_NRM) NRM_C++;
+			else if (Cookinjured[i]->GetType() == TYPE_VGAN) VGN_C++;
 			else VIP_C++;
 		}
 }
@@ -593,7 +671,6 @@ void Restaurant::UpdateInServiceOrders()
 		if (CurrentTimeStep == pOrd[i]->GetFinishTime())
 		{
 			pOrd[i]->SetStatus(DONE);
-			pOrd[i]->SetAssignedCook(NULL);
 			InService.DeleteNode(pOrd[i]);
 			Finished.enqueue(pOrd[i]);
 			if (pOrd[i]->GetType() == TYPE_NRM) NRM_FinishedCount++;
@@ -603,159 +680,138 @@ void Restaurant::UpdateInServiceOrders()
 	}
 }
 
+
 void Restaurant::Assigning()
 {
-	Order* pOrd;
 	int C_size = 0;
-	Cook** CookArr = AvailableCooks.toArray(C_size);
-	int VIP_size=0;
-	Order** VIP_Order = WaitingVIP.toArray(VIP_size);
+	Cook** CookArr = AVAILABLECOOKS.toArray(C_size);
+	Cook* pCook;
+	Order* pOrd;
+	///////////////////////////////Seperating free cooks of each type///////////////////////////////
+	List<Cook*> FreeNormal;
+	List<Cook*> FreeVegan;
+	List<Cook*> FreeVIP;
+	if (!(WaitingVIP.peekFront(pOrd) && pOrd->GetArrivalTime() <= CurrentTimeStep))
+		if (!(WaitingVegan.peekFront(pOrd) && pOrd->GetArrivalTime() <= CurrentTimeStep))
+			if (!(WaitingNormal.peekFront(pOrd) && pOrd->GetArrivalTime() <= CurrentTimeStep))
+				return;
+	for (int i = 0; i < C_size; i++)
+	{
+		if (!CookArr[i]->GetAssignedOrder())
+		{
+			AVAILABLECOOKS.DeleteNode(CookArr[i]);
+			if (CookArr[i]->GetType() == TYPE_VIP)  FreeVIP.InsertEnd(CookArr[i]);
+			else if (CookArr[i]->GetType() == TYPE_VGAN) FreeVegan.InsertEnd(CookArr[i]);
+			else FreeNormal.InsertEnd(CookArr[i]);
+		}
+	}
+
 	///////////////////////////////////Assigning VIP orders///////////////////////////////////
 	while (WaitingVIP.peekFront(pOrd) && pOrd->GetArrivalTime() <= CurrentTimeStep)//while there is VIP orders in waiting list till this current time step
 	{
-		for (int i = 0; i < VIP_size; i++)
+		pCook = !FreeVIP.IsEmpty() ? FreeVIP.RemoveFirst() : //Looks first for a VIP cook then Vegan then Normal
+			(!FreeVegan.IsEmpty() ? FreeVegan.RemoveFirst() :
+			(!FreeNormal.IsEmpty() ? FreeNormal.RemoveFirst() : NULL));
+		if (pCook)
 		{
-			if ((CurrentTimeStep - (VIP_Order[i]->GetArrivalTime()) > VIP_WT))
-			{
-				pOrd = VIP_Order[i];
-				WaitingVIP.DeleteNode(VIP_Order[i]->GetID());
-				UrgentOrders.enqueue(pOrd);
-			}
+			WaitingVIP.dequeue(pOrd);
+			pCook->SetAssignedOrder(pOrd);
+			pOrd->SetInServiceTime(CurrentTimeStep);
+			pOrd->SetFinishTime(CurrentTimeStep + ceil(float(pOrd->GetOrderSize()) / pCook->GetSpeed()));
+			pOrd->SetStatus(SRV);
+			InService.InsertEnd(pOrd);
+			AVAILABLECOOKS.InsertSorted(pCook);
+			continue;
 		}
-		if((UrgentOrders.peekFront(pOrd)))
-		for (int i = 0; i < C_size; i++)//Searching for available VIP cook.
+		else if (pOrd->GetUrgent())//if there are no cooks except for injured and in break
 		{
-			if ((UrgentOrders.peekFront(pOrd))&&(CookArr[i]->GetType() == TYPE_VIP) && ((CookArr[i]->GetInBreak()) || !CookArr[i]->GetAssignedOrder()))
-			{
-				UrgentOrders.dequeue(pOrd);
-				CookArr[i]->SetAssignedOrder(pOrd);
-				CookArr[i]->SetCurrOrd(CookArr[i]->GetCurrOrd() + 1);
-				pOrd->SetAssignedCook(CookArr[i]);
-				pOrd->SetInServiceTime(CurrentTimeStep);
-				pOrd->SetFinishTime(CurrentTimeStep + ceil(pOrd->GetOrderSize() / CookArr[i]->GetSpeed()));
-				pOrd->SetStatus(SRV);
-				InService.InsertEnd(pOrd);
-				break;
-			}
-		}
-
-		if (!C_size) return;
-
-		for (int i = 0; i < C_size; i++)//Searching for available VIP cook.
-		{
-			if ((CookArr[i]) && (CookArr[i]->GetType() == TYPE_VIP) && (!CookArr[i]->GetAssignedOrder()))
+			if (InBreakCooks.GetCount())  pCook = InBreakCooks.Remove(); //if there are cooks in break
+			else if (InjuredCooks.GetCount()) pCook = InjuredCooks.Remove();//if there are cooks in rest
+			if (pCook)
 			{
 				WaitingVIP.dequeue(pOrd);
-				CookArr[i]->SetAssignedOrder(pOrd);
-				CookArr[i]->SetCurrOrd(CookArr[i]->GetCurrOrd() + 1);
-				pOrd->SetAssignedCook(CookArr[i]);
+				pCook->SetAssignedOrder(pOrd);
 				pOrd->SetInServiceTime(CurrentTimeStep);
-				pOrd->SetFinishTime(CurrentTimeStep + ceil(pOrd->GetOrderSize() / CookArr[i]->GetSpeed()));
+				pOrd->SetFinishTime(CurrentTimeStep + ceil(float(pOrd->GetOrderSize()) / pCook->GetSpeed()));
 				pOrd->SetStatus(SRV);
 				InService.InsertEnd(pOrd);
-				break;
+				AVAILABLECOOKS.InsertSorted(pCook);
+				if (pCook->GetType() == TYPE_NRM) NRM_C++;
+				else if (pCook->GetType() == TYPE_VGAN) VGN_C++;
+				else VIP_C++;
 			}
 		}
-
-		if (pOrd->GetAssignedCook()) continue;
-
-		for (int i = 0; i < C_size; i++)//Searching for available Normal cook.
-		{
-			if (CookArr[i] && CookArr[i]->GetType() == TYPE_NRM && !CookArr[i]->GetAssignedOrder())
-			{
-				WaitingVIP.dequeue(pOrd);
-				CookArr[i]->SetAssignedOrder(pOrd);
-				CookArr[i]->SetCurrOrd(CookArr[i]->GetCurrOrd() + 1);
-				pOrd->SetAssignedCook(CookArr[i]);
-				pOrd->SetInServiceTime(CurrentTimeStep);
-				pOrd->SetFinishTime(CurrentTimeStep + ceil(pOrd->GetOrderSize() / CookArr[i]->GetSpeed()));
-				pOrd->SetStatus(SRV);
-				InService.InsertEnd(pOrd);
-				break;
-			}
-		}
-
-		if (pOrd->GetAssignedCook()) continue;
-
-		for (int i = 0; i < C_size; i++)//Searching for available Vegan cook.
-		{
-			if (CookArr[i] && CookArr[0]->GetType() == TYPE_VGAN && !CookArr[i]->GetAssignedOrder())
-			{
-				WaitingVIP.dequeue(pOrd);
-				CookArr[i]->SetAssignedOrder(pOrd);
-				CookArr[i]->SetCurrOrd(CookArr[i]->GetCurrOrd() + 1);
-				pOrd->SetAssignedCook(CookArr[i]);
-				pOrd->SetInServiceTime(CurrentTimeStep);
-				pOrd->SetFinishTime(CurrentTimeStep + ceil(pOrd->GetOrderSize() / CookArr[0]->GetSpeed()));
-				pOrd->SetStatus(SRV);
-				InService.InsertEnd(pOrd);
-				break;
-			}
-		}
+		else return;
 	}
-
 	///////////////////////////////////Assigning Vegan Orders///////////////////////////////////
 	while (WaitingVegan.peekFront(pOrd) && pOrd->GetArrivalTime() <= CurrentTimeStep)//while there is vegan orders in waiting list till this current time step
 	{
-		if (!C_size) return;
-		for (int i = 0; i < C_size; i++)//Searching for available Vegan cook.
+		pCook = !FreeVegan.IsEmpty() ? FreeVegan.RemoveFirst() : NULL; //Looks first for a Vegan cook
+		if (pCook)
 		{
-			if (CookArr[i] && CookArr[i]->GetType() == TYPE_VGAN && !CookArr[i]->GetAssignedOrder())
-			{
-				WaitingVegan.dequeue(pOrd);
-				CookArr[i]->SetAssignedOrder(pOrd);
-				CookArr[i]->SetCurrOrd(CookArr[i]->GetCurrOrd() + 1);
-				pOrd->SetAssignedCook(CookArr[i]);
-				pOrd->SetInServiceTime(CurrentTimeStep);
-				pOrd->SetFinishTime(CurrentTimeStep + ceil(pOrd->GetOrderSize() / CookArr[0]->GetSpeed()));
-				pOrd->SetStatus(SRV);
-				InService.InsertEnd(pOrd);
-				break;
-			}
+			WaitingVegan.dequeue(pOrd);
+			pCook->SetAssignedOrder(pOrd);
+			pOrd->SetInServiceTime(CurrentTimeStep);
+			pOrd->SetFinishTime(CurrentTimeStep + ceil(float(pOrd->GetOrderSize()) / pCook->GetSpeed()));
+			pOrd->SetStatus(SRV);
+			InService.InsertEnd(pOrd);
+			AVAILABLECOOKS.InsertSorted(pCook);
+			continue;
 		}
+		else break;
 	}
-
 	///////////////////////////////////Assigning Normal Orders///////////////////////////////////
 	while (WaitingNormal.peekFront(pOrd) && pOrd->GetArrivalTime() <= CurrentTimeStep)//while there is more normal orders in waiting list till this current time step
 	{
-		if (!C_size)return;
-		for (int i = 0; i < C_size; i++)//Searching for available Normal cook.
+		pCook = !FreeNormal.IsEmpty() ? FreeNormal.RemoveFirst() : //Looks first for a Normal cook then VIP 
+			(!FreeVIP.IsEmpty() ? FreeVIP.RemoveFirst() : NULL);
+		if (pCook)
 		{
-			if (CookArr[i] && CookArr[0]->GetType() == TYPE_NRM && !CookArr[i]->GetAssignedOrder())
-			{
-				WaitingNormal.dequeue(pOrd);
-				CookArr[i]->SetAssignedOrder(pOrd);
-				CookArr[i]->SetCurrOrd(CookArr[i]->GetCurrOrd() + 1);
-				pOrd->SetAssignedCook(CookArr[i]);
-				pOrd->SetInServiceTime(CurrentTimeStep);
-				pOrd->SetFinishTime(CurrentTimeStep + ceil(pOrd->GetOrderSize() / CookArr[0]->GetSpeed()));
-				pOrd->SetStatus(SRV);
-				InService.InsertEnd(pOrd);
-				break;
-			}
+			WaitingNormal.dequeue(pOrd);
+			pCook->SetAssignedOrder(pOrd);
+			pOrd->SetInServiceTime(CurrentTimeStep);
+			pOrd->SetFinishTime(CurrentTimeStep + ceil(float(pOrd->GetOrderSize()) / pCook->GetSpeed()));
+			pOrd->SetStatus(SRV);
+			InService.InsertEnd(pOrd);
+			AVAILABLECOOKS.InsertSorted(pCook);
+			continue;
 		}
+		else break;
+	}
+	while (!FreeVIP.IsEmpty()) AVAILABLECOOKS.InsertSorted(FreeVIP.RemoveFirst());
+	while (!FreeVegan.IsEmpty()) AVAILABLECOOKS.InsertSorted(FreeVegan.RemoveFirst());
+	while (!FreeNormal.IsEmpty()) AVAILABLECOOKS.InsertSorted(FreeNormal.RemoveFirst());
+}
 
-		if (pOrd->GetAssignedCook()) continue;
-
-		for (int i = 0; i < C_size; i++)//Searching for available VIP cook.
+void Restaurant::UpdateWaiting() //auto promote waiting nomral to vip & waiting vip to urgent
+{
+	int VIP_size = 0;
+	Order** VIP_Order = WaitingVIP.toArray(VIP_size);
+	Order* pOrd;
+	WaitingNormal.peekFront(pOrd);
+	int vip_wt, autop;
+	vip_wt = pOrd->GetVIP_WAITANDNRM_WAIT(autop);
+	///////////////////////////////Update Urgent vip orders of this time step//////////////////
+	for (int i = 0; i < VIP_size; i++)
+	{
+		if ((CurrentTimeStep - (VIP_Order[i]->GetArrivalTime()) > vip_wt))
 		{
-			if (CookArr[i] && CookArr[i]->GetType() == TYPE_VIP && !CookArr[i]->GetAssignedOrder())
-			{
-				WaitingNormal.dequeue(pOrd);
-				CookArr[i]->SetAssignedOrder(pOrd);
-				CookArr[i]->SetCurrOrd(CookArr[i]->GetCurrOrd() + 1);
-				pOrd->SetAssignedCook(CookArr[i]);
-				pOrd->SetInServiceTime(CurrentTimeStep);
-				pOrd->SetFinishTime(CurrentTimeStep + ceil(pOrd->GetOrderSize() / CookArr[i]->GetSpeed()));
-				pOrd->SetStatus(SRV);
-				InService.InsertEnd(pOrd);
-				break;
-			}
+			pOrd = VIP_Order[i];
+			WaitingVIP.DeleteNode(VIP_Order[i]->GetID());
+			pOrd->SetUrgent(true);
+			WaitingVIP.enqueue(pOrd, pOrd->GetArrivalTime());//make urgent orders at the first of the queue
 		}
+	}
+	////////////////////////////////////Automatically promoted for Normal/////////////////////////////////////
+	while (WaitingNormal.peekFront(pOrd) && (CurrentTimeStep - (pOrd->GetArrivalTime()) > autop))
+	{
+		WaitingNormal.dequeue(pOrd);
+		pOrd->SetType(TYPE_VIP);
+		WaitingVIP.enqueue(pOrd, pOrd->GetArrivalTime() + pOrd->GetOrderMoney() + pOrd->GetOrderSize());
+		AutoPromoted++;
 	}
 
 }
-
 void Restaurant::PrintData()
 {
 	string waitingNRM = to_string(NRM_OrdCount);
@@ -778,7 +834,7 @@ void Restaurant::PrintData()
 	pGUI->PrintFinishedOrders("Finished: (Normal = " + finishedNRM + "), (Vegan = " + finishedVGN + "), (VIP = " + finishedVIP + ")");	//print finished orders numbers
 
 	int csize = 0, i = 0;
-	Cook** C_Arr = AvailableCooks.toArray(csize);
+	Cook** C_Arr = AVAILABLECOOKS.toArray(csize);
 
 	for (int j = 0, count = 0; j < csize; j++)
 	{

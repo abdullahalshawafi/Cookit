@@ -1,8 +1,9 @@
 #include"Order.h"
+int Order::VIP_Wait = 0;
+int Order::AutoPro = 0;
 
 Order::Order()
 {
-	AssignedCook = nullptr;
 }
 
 Order::Order(int arrTime, int id, ORD_TYPE O_Type, int O_Size, double O_Money)
@@ -13,7 +14,6 @@ Order::Order(int arrTime, int id, ORD_TYPE O_Type, int O_Size, double O_Money)
 	status = WAIT;
 	OrderSize = O_Size;
 	totalMoney = O_Money;
-	AssignedCook = nullptr;
 }
 
 void Order::SetID(int id)
@@ -96,16 +96,25 @@ int Order::GetFinishTime() const
 	return FinishTime;
 }
 
-void Order::SetAssignedCook(Cook* cook)
+void Order::SetUrgent(bool ans)
 {
-	AssignedCook = cook;
+	if(type==TYPE_VIP)
+		Urgent = ans;
 }
-
-Cook* Order::GetAssignedCook() const
+bool Order::GetUrgent()const
 {
-	return AssignedCook;
+	return Urgent;
 }
-
+void Order::SetVIP_WAITANDNRM_WAIT(int v, int n)
+{
+	VIP_Wait = v;
+	AutoPro = n;
+}
+int Order::GetVIP_WAITANDNRM_WAIT(int& n)
+{
+	n = AutoPro;
+	return VIP_Wait;
+}
 Order::~Order()
 {
 

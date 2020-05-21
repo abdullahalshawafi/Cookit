@@ -15,7 +15,9 @@ protected:
 	int OrderSize;		//No. of order's dishes
 	double totalMoney;	//Total order money
 	int ArrTime, ServTime, FinishTime;	//arrival, service start, and finish times
-	Cook* AssignedCook; //Pointer to the cook assigned for the order
+	bool Urgent;
+	static int VIP_Wait;	//number of allowed time to wait
+	static int AutoPro;  //number of allowed time to remain normal
 
 public:
 	Order();
@@ -36,6 +38,10 @@ public:
 	void SetOrderMoney(double Money);
 	double GetOrderMoney() const;
 
+
+	void SetUrgent(bool ans);
+    bool GetUrgent() const;
+
 	void SetArrivalTime(int arrTime);
 	int GetArrivalTime() const;
 
@@ -44,9 +50,10 @@ public:
 
 	void SetFinishTime(int finishTime);
 	int GetFinishTime() const;
+	static void SetVIP_WAITANDNRM_WAIT( int ,int);//First parameter is VIP_wait & second one is for Normal wait to be promoted
+	static int GetVIP_WAITANDNRM_WAIT(int &); //returns VIP_wait and setes the parameter by Normal wait to be promoted
 
-	void SetAssignedCook(Cook* cook);
-	Cook* GetAssignedCook() const;
+
 
 	virtual ~Order();
 };

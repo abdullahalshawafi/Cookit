@@ -29,6 +29,11 @@ public:
 	*Output: linked list size
 	*returns: integer representing the size of the linked list
 	*/
+	bool IsEmpty()
+	{
+		if (Head) return false;
+		else return true;
+	}
 	int GetCount()
 	{
 		int count = 0;
@@ -141,15 +146,15 @@ public:
 	* Function: RemoveFirst
 	* removes and returns the first node in the linked list.
 	*/
-	Node<T>* RemoveFirst()
+	T RemoveFirst()
 	{
+		if (IsEmpty()) return nullptr;
 		Node<T>* p = Head;
-		if (Head)
-		{
-			Head = Head->getNext();
-			p->setNext(nullptr);
-		}
-		return p;
+		Head = Head->getNext();
+		T item = p->getItem();
+		p->setNext(nullptr);
+		delete p;
+		return item;
 	}
 	////////////////////////////////////////////////////////////////////////
 
@@ -252,25 +257,25 @@ public:
 	}
 	////////////////////////////////////////////////////////////////////////
 
-	void InsertSorted(Node<T>* Cook) //For Cooks
+	void InsertSorted(T data) //For Cooks
 	{
+		Node<T>* p = Head;
+		Node<T>* pCook = new Node<T>(data);
 		if (!Head)
 		{
-			Head = Cook;
+			Head = pCook;
 			return;
 		}
-
-		if (Head->getItem()->GetTimeToBeFree() >= Cook->getItem()->GetTimeToBeFree())
-		{
-			Cook->setNext(Head);
-			Head = Cook;
-			return;
-		}
-
-		Node<T>* p = Head;
 		Node<T>* After = Head->getNext();
+		
+		if (Head->getItem()->GetCurrOrd() >= pCook->getItem()->GetCurrOrd())
+		{
+			pCook->setNext(Head);
+			Head = pCook;
+			return;
+		}
 
-		while (After && After->getItem()->GetTimeToBeFree() < Cook->getItem()->GetTimeToBeFree())
+		while (After && After->getItem()->GetCurrOrd() >= pCook->getItem()->GetCurrOrd())
 		{
 			p = p->getNext();
 			After = After->getNext();
@@ -278,12 +283,12 @@ public:
 
 		if (After)
 		{
-			Cook->setNext(p->getNext());
-			p->setNext(Cook);
+			pCook->setNext(p->getNext());
+			p->setNext(pCook);
 			return;
 		}
 
-		p->setNext(Cook);
+		p->setNext(pCook);
 		return;
 	}
 	////////////////////////////////////////////////////////////////////////

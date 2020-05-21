@@ -23,18 +23,20 @@ class Restaurant
 	Queue<Order*> UrgentOrders;			//Queue of all waiting Urgent of type VIP
 	Queue<Order*>Finished;				//Queue of all Finished orders
 	List<Order*> InService;				//List of all In-service orders
-	PriorityQueue<Cook*> AvailableCooks;//List of available cooks of all types
+	//PriorityQueue<Cook*> AvailableCooks;//List of available cooks of all types
+	List<Cook*> AVAILABLECOOKS;
 	List<Cook*> InBreakCooks;			//List of unavailable cooks of all types
+	List<Cook*> InjuredCooks;
 	int C_count;		//No. of total cooks
 	int NRM_C;			//No. of available normal cooks
 	int VGN_C;			//No. of available vegan cooks 
 	int VIP_C;			//No. of available vip cooks
-	int VIP_WT;			//number of allowed time to wait
 	int AutoPromoted;	//No. of auto promoted orders
 	int NRM_OrdCount, VGN_OrdCount, VIP_OrdCount;					//No. of waiting orders
 	int NRM_SRVCount, VGN_SRVCount, VIP_SRVCount;					//No. of served orders
 	int NRM_FinishedCount, VGN_FinishedCount, VIP_FinishedCount;	//No. of finished orders
 	int CurrentTimeStep;
+	//int AssignedCooks;
 
 public:
 
@@ -56,5 +58,6 @@ public:
 	void PrintData();
 	void UpdateCooks();
 	void UpdateInServiceOrders();
+	void UpdateWaiting();
 	void Assigning();
 };
