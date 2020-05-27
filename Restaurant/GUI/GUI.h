@@ -94,13 +94,8 @@ public:
 	void waitForClick() const;	// waits a user click from the user
 	string GetString() const;	// reads a string (keyboard input) from the user
 
-	// Output Functions  ---------------------------
-	void PrintMessage(string msg) const;					// prints a message in the status bar
-	void PrintEndProgram(string msg) const;					// prints a message for ending the program
-	void PrintWaitingOrders(string msg) const;				// prints the no. of waiting orders
-	void PrintAvailableCooks(string msg) const;				// prints the no. of available cooks
-	void PrintAssignedOrders(string msg, int count) const;	// prints the information of the cooks and the orders assigned to them
-	void PrintFinishedOrders(string msg) const;				// prints the no. of finished orders
+	// Output Function  ---------------------------
+	void PrintMessage(string msg, int level, int horizontalAlign) const; // prints a message in the status bar in a different lines
 
 	void UpdateInterface();
 	void AddToDrawingList(Order* pOrd);	//Adds a new order to the drawing queue

@@ -20,23 +20,21 @@ class Restaurant
 	Queue<Order*> WaitingNormal;		//Queue of all waiting orders of type normal
 	Queue<Order*> WaitingVegan;			//Queue of all waiting orders of type Vegan
 	PriorityQueue<Order*> WaitingVIP;   //Queue of all waiting orders of type VIP
-	Queue<Order*> UrgentOrders;			//Queue of all waiting Urgent of type VIP
 	Queue<Order*>Finished;				//Queue of all Finished orders
 	List<Order*> InService;				//List of all In-service orders
-	//PriorityQueue<Cook*> AvailableCooks;//List of available cooks of all types
-	List<Cook*> AVAILABLECOOKS;
+	List<Cook*> AVAILABLECOOKS;			//List of available cooks of all types
 	List<Cook*> InBreakCooks;			//List of unavailable cooks of all types
-	List<Cook*> InjuredCooks;
+	List<Cook*> InjuredCooks;			//List of injured cooks of all types
 	int C_count;		//No. of total cooks
 	int NRM_C;			//No. of available normal cooks
 	int VGN_C;			//No. of available vegan cooks 
 	int VIP_C;			//No. of available vip cooks
 	int AutoPromoted;	//No. of auto promoted orders
+	int UrgentOrders;	//No. of urgent orders
 	int NRM_OrdCount, VGN_OrdCount, VIP_OrdCount;					//No. of waiting orders
 	int NRM_SRVCount, VGN_SRVCount, VIP_SRVCount;					//No. of served orders
 	int NRM_FinishedCount, VGN_FinishedCount, VIP_FinishedCount;	//No. of finished orders
 	int CurrentTimeStep;
-	//int AssignedCooks;
 
 public:
 
@@ -47,7 +45,8 @@ public:
 	void RunSimulation();
 	void FillDrawingList();
 	void Interactive_Mode();
-	//void StepByStep_Mode();
+	void StepByStep_Mode();
+	void Silent_Mode();
 	void ReadInputFile(ifstream& InputFile);
 	void WritingOutputFile();
 	void AddtoVIPQueue(Order* po);

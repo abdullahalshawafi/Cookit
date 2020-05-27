@@ -50,7 +50,7 @@ string GUI::GetString() const
 		else
 			Label += Key;
 
-		PrintMessage(Label);
+		PrintMessage(Label, 1, 0);
 	}
 }
 
@@ -58,48 +58,33 @@ string GUI::GetString() const
 // ================================== OUTPUT FUNCTIONS ===================================
 //////////////////////////////////////////////////////////////////////////////////////////
 
-void GUI::PrintMessage(string msg) const	//Prints a message on status bar
-{
-	ClearStatusBar();	//First clear the status bar
-
-	pWind->SetPen(DARKRED);
-	pWind->SetFont(18, BOLD, BY_NAME, "Arial");
-	pWind->DrawString(10, WindHeight - (int)(StatusBarHeight / 1.1), msg);
-}
-
-void GUI::PrintEndProgram(string msg) const
+void GUI::PrintMessage(string msg, int level, int horizonalAlign) const	//Prints a message on status bar in different lines
 {
 	pWind->SetPen(DARKRED);
 	pWind->SetFont(18, BOLD, BY_NAME, "Arial");
-	pWind->DrawString(10, WindHeight - (int)(StatusBarHeight / 4.1), msg);
-}
 
-void GUI::PrintWaitingOrders(string msg) const
-{
-	pWind->SetPen(DARKRED);
-	pWind->SetFont(18, BOLD, BY_NAME, "Arial");
-	pWind->DrawString(10, WindHeight - (int)(StatusBarHeight / 1.29), msg);
-}
-
-void GUI::PrintAvailableCooks(string msg) const
-{
-	pWind->SetPen(DARKRED);
-	pWind->SetFont(18, BOLD, BY_NAME, "Arial");
-	pWind->DrawString(10, WindHeight - (int)(StatusBarHeight / 1.56), msg);
-}
-
-void GUI::PrintAssignedOrders(string msg, int count) const
-{
-	pWind->SetPen(DARKRED);
-	pWind->SetFont(18, BOLD, BY_NAME, "Arial");
-	pWind->DrawString(10 + count * 70, WindHeight - (int)(StatusBarHeight / 1.97), msg);
-}
-
-void GUI::PrintFinishedOrders(string msg) const
-{
-	pWind->SetPen(DARKRED);
-	pWind->SetFont(18, BOLD, BY_NAME, "Arial");
-	pWind->DrawString(10, WindHeight - (int)(StatusBarHeight / 2.66), msg);
+	switch (level)
+	{
+	case 1:
+		ClearStatusBar();	//First clear the status bar
+		pWind->DrawString(10, WindHeight - (int)(StatusBarHeight / 1.1), msg);
+		break;
+	case 2:
+		pWind->DrawString(10, WindHeight - (int)(StatusBarHeight / 1.29), msg);
+		break;
+	case 3:
+		pWind->DrawString(10, WindHeight - (int)(StatusBarHeight / 1.56), msg);
+		break;
+	case 4:
+		pWind->DrawString(10 + horizonalAlign * 70, WindHeight - (int)(StatusBarHeight / 1.97), msg);
+		break;
+	case 5:
+		pWind->DrawString(10, WindHeight - (int)(StatusBarHeight / 2.66), msg);
+		break;
+	case 6:
+		pWind->DrawString(10, WindHeight - (int)(StatusBarHeight / 4.1), msg);
+		break;
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -298,7 +283,7 @@ PROG_MODE	GUI::getGUIMode() const
 	PROG_MODE Mode;
 	do
 	{
-		PrintMessage("Please select GUI mode: (1)Interactive, (2)StepByStep, (3)Silent");
+		PrintMessage("Please select GUI mode: (1) Interactive, (2) StepByStep, (3) Silent", 1, 0);
 		string S = GetString();
 		Mode = (PROG_MODE)(atoi(S.c_str()) - 1);
 	} while (Mode < 0 || Mode >= MODE_CNT);
