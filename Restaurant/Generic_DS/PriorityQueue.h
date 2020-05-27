@@ -8,6 +8,7 @@ class PriorityQueue
 	PriorityNode<T>* frontPtr;
 public:
 	PriorityQueue();
+	void DeleteNode(const int& item);
 	bool isEmpty() const;
 	bool enqueue(const T& newEntry, int Per);
 	bool dequeue(T& frntEntry);
@@ -15,7 +16,6 @@ public:
 	T* toArray(int& count);
 	PriorityNode<T>* SearchForOrder(T Ord);
 	~PriorityQueue();
-	void DeleteNode(const int& item);
 };
 
 template < typename T>

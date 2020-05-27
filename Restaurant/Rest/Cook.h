@@ -17,8 +17,8 @@ class Cook
 	Order* AssignedOrder;   //Pointer to the assigned order
 	static int OrdToBreak;	//How many orders does a cook serve before a break
 	int BreakTimestep;		//The timestep at which cook had break
-	int originalspeed;          // original speed before the cook injured
-	int ToBackFromRest;      //time when the cook should back from rest
+	int originalspeed;      // original speed before the cook injured
+	int ToBackFromRest;     //time when the cook should back from rest
 	bool Injured;
 	static float injurypro;
 	static int restperiod;
@@ -53,17 +53,20 @@ public:
 	Order* GetAssignedOrder() const;
 
 	static void SetOrdToBreakANDRest(int ,int); //first parameter for OrderToBreak ,second for Rest duration 
-	static int GetOrdToBreakANDRest(int &); //returns OrderToBreak ,and sets the parameter by Rest duration
+	static int GetOrdToBreakANDRest(int &);		//returns OrderToBreak ,and sets the parameter by Rest duration
 
 	void SetBreakTS(int TS);
 	int GetBreakTS();
 
-	void ResetSpeed();
-	void SetToBackFromRest(int );
+	void SetToBackFromRest(int);
 	int GetToBackFromRest();
+
 	void SetInjured(bool);
 	bool GetInjured();
-	void SetOriginalSpeed(int );
+
+	void SetOriginalSpeed(int);
+	void ResetSpeed();
+
 	static void SetInjProp(float);
 	static float GetInjProp();
 

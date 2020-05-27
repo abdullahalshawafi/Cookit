@@ -34,6 +34,7 @@ public:
 		if (Head) return false;
 		else return true;
 	}
+
 	int GetCount()
 	{
 		int count = 0;
@@ -193,37 +194,6 @@ public:
 	////////////////////////////////////////////////////////////////////////
 
 	/*
-	* Function: RemoveFinishedFirst.
-	* Finds and returns the node having the minimum finish time and deletes it.
-	*/
-	T RemoveFinishedFirst() {
-		if (!Head)
-			return nullptr;
-
-		T minFinish;
-		Node<T>* p = Head;
-		if (!p->getNext()) // only one node
-		{
-			minFinish = p->getItem();
-			delete p;
-			return minFinish;
-		}
-
-		minFinish = Head->getItem();
-		p = p->getNext();
-		while (p)   //getting order of minimum finish time 
-		{
-			if (p->getItem()->getFinishTime() < minFinish->getFinishTime())
-				minFinish = p->getItem();
-			p = p->getNext();
-		}
-
-		DeleteNode(minFinish); //removing fisrt finished order from its list
-		return minFinish;
-	}
-	////////////////////////////////////////////////////////////////////////
-
-	/*
 	* Function: Remove.
 	* Deletes and returns the last item in the linked list.
 	*/
@@ -267,7 +237,7 @@ public:
 			return;
 		}
 		Node<T>* After = Head->getNext();
-		
+
 		if (Head->getItem()->GetCurrOrd() >= pCook->getItem()->GetCurrOrd())
 		{
 			pCook->setNext(Head);
@@ -290,146 +260,6 @@ public:
 
 		p->setNext(pCook);
 		return;
-	}
-	////////////////////////////////////////////////////////////////////////
-
-	Node<T>* GetTheFirstNRMCook() //To Get First NRMCook in The list Of Cooks not in break
-	{
-		Node<T>* p = Head;
-		if (!Head) return nullptr;
-
-		if (Head->getItem()->GetType() == TYPE_NRM)
-		{
-			if (Head->getItem()->GetTimeToBeFree() == 0)
-			{
-				Head = Head->getNext();
-				p->setNext(nullptr);
-				return p;
-			}
-			return nullptr;
-		}
-
-		Node<T>* After = Head->getNext();
-
-		while (After && After->getItem()->GetType() != TYPE_NRM)
-		{
-			p = p->getNext();
-			After = After->getNext();
-		}
-
-		if (!After) return nullptr;
-
-		if (After->getItem()->GetTimeToBeFree() == 0)
-		{
-			p->setNext(After->getNext());
-			After->setNext(nullptr);
-			return After;
-		}
-
-		return nullptr;
-	}
-	////////////////////////////////////////////////////////////////////////
-
-	Node<T>* GetTheFirstVGNCook()//To Get First VGNCook in The list Of Cooks not in break
-	{
-		Node<T>* p = Head;
-		if (!Head) return nullptr;
-
-		if (Head->getItem()->GetType() == TYPE_VGAN)
-		{
-			if (Head->getItem()->GetTimeToBeFree() == 0)
-			{
-				Head = Head->getNext();
-				p->setNext(nullptr);
-				return p;
-			}
-			return nullptr;
-		}
-
-		Node<T>* After = Head->getNext();
-
-		while (After && After->getItem()->GetType() != TYPE_VGAN)
-		{
-			p = p->getNext();
-			After = After->getNext();
-		}
-
-		if (!After) return nullptr;
-
-		if (After->getItem()->GetTimeToBeFree() == 0)
-		{
-			p->setNext(After->getNext());
-			After->setNext(nullptr);
-			return After;
-		}
-
-		return nullptr;
-	}
-	////////////////////////////////////////////////////////////////////////
-
-	Node<T>* GetTheFirstVIPCook()//To Get First VIPCook in The list Of Cooks not in break
-	{
-		Node<T>* p = Head;
-		if (!Head) return nullptr;
-
-		if (Head->getItem()->GetType() == TYPE_VIP)
-		{
-			if (Head->getItem()->GetTimeToBeFree() == 0)
-			{
-				Head = Head->getNext();
-				p->setNext(nullptr);
-				return p;
-			}
-			return nullptr;
-		}
-
-		Node<T>* After = Head->getNext();
-
-		while (After && After->getItem()->GetType() != TYPE_VIP)
-		{
-			p = p->getNext();
-			After = After->getNext();
-		}
-
-		if (!After) return nullptr;
-
-		if (After->getItem()->GetTimeToBeFree() == 0)
-		{
-			p->setNext(After->getNext());
-			After->setNext(nullptr);
-			return After;
-		}
-
-		return nullptr;
-	}
-	////////////////////////////////////////////////////////////////////////
-
-	Node<T>* GetTheFirstUnAvailableCook()//To Get the first unavailable Cook
-	{
-		Node<T>* p = Head;
-		if (!Head) return Head;
-
-		if (Head->getItem()->GetTimeToBeFree() != 0)
-		{
-			Head = Head->getNext();
-			p->setNext(nullptr);
-			return p;
-		}
-
-		Node<T>* After = Head->getNext();
-
-		while (After && After->getItem()->GetTimeToBeFree() == 0)
-		{
-			p = p->getNext();
-			After = After->getNext();
-		}
-
-		if (!After) return After;
-
-		p->setNext(After->getNext());
-		After->setNext(nullptr);
-
-		return After;
 	}
 	////////////////////////////////////////////////////////////////////////
 
