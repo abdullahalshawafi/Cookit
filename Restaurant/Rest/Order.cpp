@@ -4,6 +4,8 @@ int Order::AutoPro = 0;
 
 Order::Order()
 {
+	if (type == TYPE_VIP)
+		Urgent = false;
 }
 
 Order::Order(int arrTime, int id, ORD_TYPE O_Type, int O_Size, double O_Money)
@@ -14,6 +16,8 @@ Order::Order(int arrTime, int id, ORD_TYPE O_Type, int O_Size, double O_Money)
 	status = WAIT;
 	OrderSize = O_Size;
 	totalMoney = O_Money;
+	if (type == TYPE_VIP)
+		Urgent = false;
 }
 
 void Order::SetID(int id)
@@ -98,7 +102,7 @@ int Order::GetFinishTime() const
 
 void Order::SetUrgent(bool ans)
 {
-	if(type==TYPE_VIP)
+	if (type == TYPE_VIP)
 		Urgent = ans;
 }
 bool Order::GetUrgent()const

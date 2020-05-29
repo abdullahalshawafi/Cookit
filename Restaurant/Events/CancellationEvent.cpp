@@ -10,5 +10,7 @@ CancellationEvent::CancellationEvent(int eTime, int oID) :Event(eTime, oID)
 
 void CancellationEvent::Execute(Restaurant* pRest)//override execute function
 {
-	pRest->DeleteNormalQueue(OrderID);
+	bool cancelled = pRest->DeleteNormalQueue(OrderID);
+	if (cancelled)
+		cout << "\nOrder " << OrderID << " has been cancelled" << endl;
 }

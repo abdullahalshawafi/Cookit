@@ -18,12 +18,14 @@ Restaurant::Restaurant()
 	NRM_SRVCount = 0;
 	VGN_SRVCount = 0;
 	VIP_SRVCount = 0;
+	TotalNRMOrders = 0;
 	NRM_FinishedCount = 0;
 	VGN_FinishedCount = 0;
 	VIP_FinishedCount = 0;
 	NRM_C = 0;
 	VIP_C = 0;
 	VGN_C = 0;
+	injured = 0;
 	AutoPromoted = 0;
 	UrgentOrders = 0;
 	CurrentTimeStep = 1;
@@ -45,19 +47,19 @@ void Restaurant::RunSimulation()
 		UpdateCooks();
 		Assigning();
 		UpdateWaiting();
+		FillDrawingList();
 		if (mode != MODE_SLNT)
 		{
-			FillDrawingList();
 			pGUI->UpdateInterface();
 			PrintData();
-			pGUI->ResetDrawingList();
-			if (mode == MODE_INTR)
-				pGUI->waitForClick();
-			else if (mode = MODE_STEP)
-				Sleep(1000);
 		}
+		pGUI->ResetDrawingList();
+		if (mode == MODE_INTR)
+			pGUI->waitForClick();
+		else if (mode == MODE_STEP)
+			Sleep(1000);
 		CurrentTimeStep++;	//advance timestep
-		notFinished = !EventsQueue.isEmpty() || InService.GetCount() != 0 || !WaitingNormal.isEmpty() || !WaitingVegan.isEmpty() || !WaitingVIP.isEmpty();
+		notFinished = !EventsQueue.isEmpty() || InService.GetCount() != 0 || !WaitingNormal.isEmpty() || !WaitingVegan.isEmpty() || !WaitingVIP.isEmpty() || !InBreakCooks.IsEmpty() || !InjuredCooks.IsEmpty();
 	}
 	if (mode == MODE_SLNT)
 		pGUI->PrintMessage("generation done, click to save the information in the output text file.", 1, 0);
@@ -243,7 +245,7 @@ void Restaurant::ReadInputFile(ifstream& InputFile)
 				B = MinBN + rand() % (MaxBN - MinBN + 1);
 				pCook->SetBreakDuration(B);
 				AVAILABLECOOKS.InsertEnd(pCook);
-				cout << "Cook " << pCook->GetID() << " : Speed = " << pCook->GetSpeed() << " , Break Duration = " << pCook->GetBreakDuration() << endl;
+				cout << "\nCook " << pCook->GetID() << " : Speed = " << pCook->GetSpeed() << " , Break Duration = " << pCook->GetBreakDuration() << endl;
 			}
 			pCook->SetOrdToBreakANDRest(BO, RP);
 			pCook->SetInjProp(InjP);
@@ -260,7 +262,7 @@ void Restaurant::ReadInputFile(ifstream& InputFile)
 				B = MinBG + rand() % (MaxBG - MinBG + 1);
 				pCook->SetBreakDuration(B);
 				AVAILABLECOOKS.InsertEnd(pCook);
-				cout << "Cook " << pCook->GetID() << " : Speed = " << pCook->GetSpeed() << " , Break Duration = " << pCook->GetBreakDuration() << endl;
+				cout << "\nCook " << pCook->GetID() << " : Speed = " << pCook->GetSpeed() << " , Break Duration = " << pCook->GetBreakDuration() << endl;
 			}
 
 			//Adding the VIP cooks the cooks array
@@ -275,7 +277,7 @@ void Restaurant::ReadInputFile(ifstream& InputFile)
 				B = MinBV + rand() % (MaxBV - MinBV + 1);
 				pCook->SetBreakDuration(B);
 				AVAILABLECOOKS.InsertEnd(pCook);
-				cout << "Cook " << pCook->GetID() << " : Speed = " << pCook->GetSpeed() << " , Break Duration = " << pCook->GetBreakDuration() << endl;
+				cout << "\nCook " << pCook->GetID() << " : Speed = " << pCook->GetSpeed() << " , Break Duration = " << pCook->GetBreakDuration() << endl;
 			}
 
 			int EvTime = 0;
@@ -292,9 +294,22 @@ void Restaurant::ReadInputFile(ifstream& InputFile)
 				case 'R':
 					char OType;
 					InputFile >> OType;
-					int OrderType;                                          //
-					(OType == 'N') ? OrderType = 0 :                        //These 3 lines convert the order type from char (N, G, V) to ORD_TYPE
-						(OType == 'G') ? OrderType = 1 : OrderType = 2;     //
+					int OrderType;
+					switch (OType)
+					{
+					case 'N':
+						TotalNRMOrders++;
+						OrderType = 0;
+						break;
+					case 'G':
+						OrderType = 1;
+						break;
+					case 'V':
+						OrderType = 2;
+						break;
+					default:
+						break;
+					}
 					InputFile >> EvTime;
 					InputFile >> O_id;
 					int OrderSize;
@@ -357,10 +372,10 @@ void Restaurant::WritingOutputFile()
 	}
 
 	outputFile << "Orders: " << NRM_FinishedCount + VGN_FinishedCount + VIP_FinishedCount << " [Norm: "
-		<< NRM_FinishedCount << ", Veg: " << VGN_FinishedCount << ", VIP: " << VIP_FinishedCount << "]\n";
+		<< NRM_FinishedCount << ", Veg: " << VGN_FinishedCount << ", VIP: " << VIP_FinishedCount << ", injured: " << injured << "]\n";
 	outputFile << "Cooks: " << NRM_C + VGN_C + VIP_C << " [Norm: " << NRM_C << ", Veg: " << VGN_C << ", VIP: " << VIP_C << "]\n";
 	outputFile << "Avg Wait = " << TotalWaitingTime / finishedOrders_Size << ",  Avg Serv = " << TotalServingTime / finishedOrders_Size << endl;
-	outputFile << "Urgent orders: " << UrgentOrders << ",  Auto-promoted: " << (float(AutoPromoted) / float(NRM_FinishedCount)) * 100.0 << "%\n";
+	outputFile << "Urgent orders: " << UrgentOrders << ",  Auto-promoted: " << (float(AutoPromoted) / float(TotalNRMOrders)) * 100.0 << "%\n";
 
 	pGUI->PrintMessage("Output text file is generated, click to END the program.", 1, 0);
 	pGUI->waitForClick();
@@ -369,7 +384,6 @@ void Restaurant::WritingOutputFile()
 void  Restaurant::AddtoVIPQueue(Order* po)	//adds an order to the vip orders queue
 {	// To calculate the Priority of the order
 	int p = po->GetOrderMoney() + po->GetOrderSize() + 2 * po->GetArrivalTime();
-	po->SetType(TYPE_VIP);
 	WaitingVIP.enqueue(po, p);
 }
 
@@ -398,6 +412,7 @@ Order*& Restaurant::PromotOrder(int id, double Extra)
 	{
 		PromotedOrder->SetOrderMoney(PromotedOrder->GetOrderMoney() + Extra);
 		PromotedOrder->SetType(TYPE_VIP);
+		cout << "\nOrder " << PromotedOrder->GetID() << " has been promoted to VIP with extra money = " << Extra << endl;
 	}
 	return PromotedOrder;
 }
@@ -461,7 +476,7 @@ void Restaurant::UpdateCooks()
 			if (CookinBreak[i]->GetType() == TYPE_NRM) NRM_C++;
 			else if (CookinBreak[i]->GetType() == TYPE_VGAN) VGN_C++;
 			else VIP_C++;
-			cout << "Cook " << CookinBreak[i]->GetID() << " finished his break at " << CurrentTimeStep << endl;
+			cout << "\nCook " << CookinBreak[i]->GetID() << " finished his break at " << CurrentTimeStep << endl;
 		}
 
 	///////////////////////////////To Make Cook injured///////////////////////////////
@@ -471,19 +486,27 @@ void Restaurant::UpdateCooks()
 	int rp;
 	CookArr[0]->GetOrdToBreakANDRest(rp);
 	int newFinishedTime = 0;
-	cout << "\nR = " << R << endl;
+	//cout << "\nR = " << R << endl;
 	if (R <= inj)
 	{
 		for (int i = 0; i < C_size; i++)  //searching for the first busy Cook To Make him injured
 		{
 			if (CookArr[i]->GetAssignedOrder() && !CookArr[i]->GetInjured())
 			{
-				newFinishedTime = CurrentTimeStep + ((CookArr[i]->GetAssignedOrder()->GetOrderSize() - ((CurrentTimeStep - CookArr[i]->GetAssignedOrder()->GetInServiceTime()) * CookArr[i]->GetSpeed())) / (CookArr[i]->GetSpeed() / 2));
-				CookArr[i]->SetSpeed(CookArr[i]->GetSpeed() / 2);
+				if (CookArr[i]->GetSpeed() > 1)
+				{
+					newFinishedTime = CurrentTimeStep + ((CookArr[i]->GetAssignedOrder()->GetOrderSize() - ((CurrentTimeStep - CookArr[i]->GetAssignedOrder()->GetInServiceTime()) * CookArr[i]->GetSpeed())) / (CookArr[i]->GetSpeed() / 2));
+					CookArr[i]->SetSpeed(CookArr[i]->GetSpeed() / 2);
+				}
+				else
+				{
+					newFinishedTime = CurrentTimeStep + ((CookArr[i]->GetAssignedOrder()->GetOrderSize() - ((CurrentTimeStep - CookArr[i]->GetAssignedOrder()->GetInServiceTime()) * CookArr[i]->GetSpeed())));
+					CookArr[i]->SetSpeed(1);
+				}
 				CookArr[i]->GetAssignedOrder()->SetFinishTime(newFinishedTime);
 				CookArr[i]->SetToBackFromRest(newFinishedTime + rp);
 				CookArr[i]->SetInjured(true);
-				cout << "Cook " << CookArr[i]->GetID() << " got injured at TS " << CurrentTimeStep << " and will finish his order and go te rest at TS " << newFinishedTime << endl;
+				cout << "\nCook " << CookArr[i]->GetID() << " got injured at TS " << CurrentTimeStep << " and will finish his order and go te rest at TS " << newFinishedTime << endl;
 				break;
 			}
 			////else
@@ -509,7 +532,7 @@ void Restaurant::UpdateCooks()
 			if (Cookinjured[i]->GetType() == TYPE_NRM) NRM_C++;
 			else if (Cookinjured[i]->GetType() == TYPE_VGAN) VGN_C++;
 			else VIP_C++;
-			cout << "Cook " << Cookinjured[i]->GetID() << " finished his rest at TS " << CurrentTimeStep << endl;
+			cout << "\nCook " << Cookinjured[i]->GetID() << " finished his rest at TS " << CurrentTimeStep << endl;
 		}
 }
 
@@ -527,7 +550,7 @@ void Restaurant::UpdateInServiceOrders()
 			if (pOrd[i]->GetType() == TYPE_NRM) NRM_FinishedCount++;
 			else if (pOrd[i]->GetType() == TYPE_VGAN) VGN_FinishedCount++;
 			else VIP_FinishedCount++;
-			cout << "Order " << pOrd[i]->GetID() << " is finished at TS " << CurrentTimeStep << endl;
+			cout << "\nOrder " << pOrd[i]->GetID() << " is finished at TS " << CurrentTimeStep << endl;
 		}
 	}
 }
@@ -576,7 +599,7 @@ void Restaurant::Assigning()
 			InService.InsertEnd(pOrd);
 			AVAILABLECOOKS.InsertSorted(pCook);
 			FreeAll.DeleteNode(pCook);
-			cout << "Order " << pOrd->GetID() << " of size " << pOrd->GetOrderSize() << " is assigned to cook " << pCook->GetID() << " with speed " << pCook->GetSpeed() << " and should be finished at TS " << pOrd->GetFinishTime() << endl;
+			cout << "\nOrder " << pOrd->GetID() << " of size " << pOrd->GetOrderSize() << " is assigned to cook " << pCook->GetID() << " with speed " << pCook->GetSpeed() << " and should be finished at TS " << pOrd->GetFinishTime() << endl;
 			continue;
 		}
 		else if (pOrd->GetUrgent())//if there are no cooks except for injured and in break
@@ -604,7 +627,7 @@ void Restaurant::Assigning()
 				if (pCook->GetType() == TYPE_NRM) NRM_C++;
 				else if (pCook->GetType() == TYPE_VGAN) VGN_C++;
 				else VIP_C++;
-				cout << "Order " << pOrd->GetID() << " of size " << pOrd->GetOrderSize() << " is assigned to cook " << pCook->GetID() << " with speed " << pCook->GetSpeed() << " and should be finished at TS " << pOrd->GetFinishTime() << endl;
+				cout << "\nOrder " << pOrd->GetID() << " of size " << pOrd->GetOrderSize() << " is assigned to cook " << pCook->GetID() << " with speed " << pCook->GetSpeed() << " and should be finished at TS " << pOrd->GetFinishTime() << endl;
 			}
 			else return;
 		}
@@ -624,7 +647,7 @@ void Restaurant::Assigning()
 			InService.InsertEnd(pOrd);
 			AVAILABLECOOKS.InsertSorted(pCook);
 			FreeAll.DeleteNode(pCook);
-			cout << "Order " << pOrd->GetID() << " of size " << pOrd->GetOrderSize() << " is assigned to cook " << pCook->GetID() << " with speed " << pCook->GetSpeed() << " and should be finished at TS " << pOrd->GetFinishTime() << endl;
+			cout << "\nOrder " << pOrd->GetID() << " of size " << pOrd->GetOrderSize() << " is assigned to cook " << pCook->GetID() << " with speed " << pCook->GetSpeed() << " and should be finished at TS " << pOrd->GetFinishTime() << endl;
 			continue;
 		}
 		else break;
@@ -644,7 +667,7 @@ void Restaurant::Assigning()
 			InService.InsertEnd(pOrd);
 			AVAILABLECOOKS.InsertSorted(pCook);
 			FreeAll.DeleteNode(pCook);
-			cout << "Order " << pOrd->GetID() << " of size " << pOrd->GetOrderSize() << " is assigned to cook " << pCook->GetID() << " with speed " << pCook->GetSpeed() << " and should be finished at TS " << pOrd->GetFinishTime() << endl;
+			cout << "\nOrder " << pOrd->GetID() << " of size " << pOrd->GetOrderSize() << " is assigned to cook " << pCook->GetID() << " with speed " << pCook->GetSpeed() << " and should be finished at TS " << pOrd->GetFinishTime() << endl;
 			continue;
 		}
 		else break;
@@ -667,13 +690,14 @@ void Restaurant::UpdateWaiting() //auto promote waiting nomral to vip & waiting 
 	///////////////////////////////Update Urgent vip orders of this time step//////////////////
 	for (int i = 0; i < VIP_size; i++)
 	{
-		if (CurrentTimeStep - VIP_Order[i]->GetArrivalTime() > vip_wt)
+		if (CurrentTimeStep - VIP_Order[i]->GetArrivalTime() > vip_wt && !VIP_Order[i]->GetUrgent())
 		{
 			pOrd = VIP_Order[i];
 			WaitingVIP.DeleteNode(VIP_Order[i]->GetID());
 			pOrd->SetUrgent(true);
 			WaitingVIP.enqueue(pOrd, pOrd->GetArrivalTime());	//make urgent orders at the first of the queue
 			UrgentOrders++;
+			cout << "\nOrder " << pOrd->GetID() << " turned urgent with total " << UrgentOrders << " urgent orders\n";
 		}
 	}
 	////////////////////////////////////Automatically promoted for Normal/////////////////////////////////////
@@ -683,6 +707,7 @@ void Restaurant::UpdateWaiting() //auto promote waiting nomral to vip & waiting 
 		pOrd->SetType(TYPE_VIP);
 		WaitingVIP.enqueue(pOrd, pOrd->GetArrivalTime() + pOrd->GetOrderMoney() + pOrd->GetOrderSize());
 		AutoPromoted++;
+		cout << "\nOrder " << pOrd->GetID() << " is autopromoted to VIP with total " << AutoPromoted << " autopromoted orders\n";
 	}
 }
 

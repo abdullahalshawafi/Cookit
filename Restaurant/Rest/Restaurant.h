@@ -29,8 +29,10 @@ class Restaurant
 	int NRM_C;			//No. of available normal cooks
 	int VGN_C;			//No. of available vegan cooks 
 	int VIP_C;			//No. of available vip cooks
+	int injured;		//No. of injured cooks
 	int AutoPromoted;	//No. of auto promoted orders
 	int UrgentOrders;	//No. of urgent orders
+	int TotalNRMOrders;	//Original number or normal orders
 	int NRM_OrdCount, VGN_OrdCount, VIP_OrdCount;					//No. of waiting orders
 	int NRM_SRVCount, VGN_SRVCount, VIP_SRVCount;					//No. of served orders
 	int NRM_FinishedCount, VGN_FinishedCount, VIP_FinishedCount;	//No. of finished orders

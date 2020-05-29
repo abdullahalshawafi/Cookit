@@ -59,7 +59,6 @@ PriorityQueue<T>::PriorityQueue<T>()
 /*
 Function: isEmpty
 Sees whether this queue is empty.
-
 Input: None.
 Output: True if the queue is empty; otherwise false.
 */
