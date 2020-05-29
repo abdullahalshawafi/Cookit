@@ -44,9 +44,6 @@ public:
 	void ExecuteEvents(int TimeStep);	//executes all events at current timestep
 	void RunSimulation();
 	void FillDrawingList();
-	void Interactive_Mode();
-	void StepByStep_Mode();
-	void Silent_Mode();
 	void ReadInputFile(ifstream& InputFile);
 	void WritingOutputFile();
 	void AddtoVIPQueue(Order* po);

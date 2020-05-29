@@ -36,21 +36,35 @@ void Restaurant::RunSimulation()
 	ifstream inputFile;
 	ReadInputFile(inputFile);
 
-	switch (mode)
-	{
-	case MODE_INTR:
-		Interactive_Mode();
-		break;
-	case MODE_STEP:
-		StepByStep_Mode();
-		break;
-	case MODE_SLNT:
-		Silent_Mode();
-		break;
-	default:
-		break;
-	};
+	bool notFinished = true;
 
+	while (notFinished)	//as long as events queue is not empty yet
+	{
+		ExecuteEvents(CurrentTimeStep);	//execute all events at current time step
+		UpdateInServiceOrders();
+		UpdateCooks();
+		Assigning();
+		UpdateWaiting();
+		if (mode != MODE_SLNT)
+		{
+			FillDrawingList();
+			pGUI->UpdateInterface();
+			PrintData();
+			pGUI->ResetDrawingList();
+			if (mode == MODE_INTR)
+				pGUI->waitForClick();
+			else if (mode = MODE_STEP)
+				Sleep(1000);
+		}
+		CurrentTimeStep++;	//advance timestep
+		notFinished = !EventsQueue.isEmpty() || InService.GetCount() != 0 || !WaitingNormal.isEmpty() || !WaitingVegan.isEmpty() || !WaitingVIP.isEmpty();
+	}
+	if (mode == MODE_SLNT)
+		pGUI->PrintMessage("generation done, click to save the information in the output text file.", 1, 0);
+	else
+		pGUI->PrintMessage("generation done, click to save the information in the output text file.", 6, 0);
+	pGUI->waitForClick();
+	WritingOutputFile();
 }
 
 //////////////////////////////////  Event handling functions   /////////////////////////////
@@ -229,7 +243,7 @@ void Restaurant::ReadInputFile(ifstream& InputFile)
 				B = MinBN + rand() % (MaxBN - MinBN + 1);
 				pCook->SetBreakDuration(B);
 				AVAILABLECOOKS.InsertEnd(pCook);
-				//cout << "Cook " << pCook->GetID() << " : Speed = " << pCook->GetSpeed() << " , Break Duration = " << pCook->GetBreakDuration() << endl;
+				cout << "Cook " << pCook->GetID() << " : Speed = " << pCook->GetSpeed() << " , Break Duration = " << pCook->GetBreakDuration() << endl;
 			}
 			pCook->SetOrdToBreakANDRest(BO, RP);
 			pCook->SetInjProp(InjP);
@@ -246,7 +260,7 @@ void Restaurant::ReadInputFile(ifstream& InputFile)
 				B = MinBG + rand() % (MaxBG - MinBG + 1);
 				pCook->SetBreakDuration(B);
 				AVAILABLECOOKS.InsertEnd(pCook);
-				//cout << "Cook " << pCook->GetID() << " : Speed = " << pCook->GetSpeed() << " , Break Duration = " << pCook->GetBreakDuration() << endl;
+				cout << "Cook " << pCook->GetID() << " : Speed = " << pCook->GetSpeed() << " , Break Duration = " << pCook->GetBreakDuration() << endl;
 			}
 
 			//Adding the VIP cooks the cooks array
@@ -261,7 +275,7 @@ void Restaurant::ReadInputFile(ifstream& InputFile)
 				B = MinBV + rand() % (MaxBV - MinBV + 1);
 				pCook->SetBreakDuration(B);
 				AVAILABLECOOKS.InsertEnd(pCook);
-				//cout << "Cook " << pCook->GetID() << " : Speed = " << pCook->GetSpeed() << " , Break Duration = " << pCook->GetBreakDuration() << endl;
+				cout << "Cook " << pCook->GetID() << " : Speed = " << pCook->GetSpeed() << " , Break Duration = " << pCook->GetBreakDuration() << endl;
 			}
 
 			int EvTime = 0;
@@ -352,73 +366,6 @@ void Restaurant::WritingOutputFile()
 	pGUI->waitForClick();
 }
 
-void Restaurant::Interactive_Mode()
-{
-	bool notFinished = true;
-
-	while (notFinished)	//as long as events queue is not empty yet
-	{
-		ExecuteEvents(CurrentTimeStep);	//execute all events at current time step
-		UpdateInServiceOrders();
-		UpdateCooks();
-		Assigning();
-		UpdateWaiting();
-		FillDrawingList();
-		pGUI->UpdateInterface();
-		PrintData();
-		pGUI->ResetDrawingList();
-		pGUI->waitForClick();
-		CurrentTimeStep++;	//advance timestep
-		notFinished = !EventsQueue.isEmpty() || InService.GetCount() != 0 || !WaitingNormal.isEmpty() || !WaitingVegan.isEmpty() || !WaitingVIP.isEmpty();
-	}
-	pGUI->PrintMessage("generation done, click to save the information in the output text file.", 6, 0);
-	pGUI->waitForClick();
-	WritingOutputFile();
-}
-
-void Restaurant::StepByStep_Mode()
-{
-	bool notFinished = true;
-
-	while (notFinished)	//as long as events queue is not empty yet
-	{
-		ExecuteEvents(CurrentTimeStep);	//execute all events at current time step
-		UpdateInServiceOrders();
-		UpdateCooks();
-		Assigning();
-		UpdateWaiting();
-		FillDrawingList();
-		pGUI->UpdateInterface();
-		PrintData();
-		pGUI->ResetDrawingList();
-		Sleep(1000);
-		CurrentTimeStep++;	//advance timestep
-		notFinished = !EventsQueue.isEmpty() || InService.GetCount() != 0 || !WaitingNormal.isEmpty() || !WaitingVegan.isEmpty() || !WaitingVIP.isEmpty();
-	}
-	pGUI->PrintMessage("generation done, click to save the information in the output text file.", 6, 0);
-	pGUI->waitForClick();
-	WritingOutputFile();
-}
-
-void Restaurant::Silent_Mode()
-{
-	bool notFinished = true;
-
-	while (notFinished)	//as long as events queue is not empty yet
-	{
-		ExecuteEvents(CurrentTimeStep);	//execute all events at current time step
-		UpdateInServiceOrders();
-		UpdateCooks();
-		Assigning();
-		UpdateWaiting();
-		CurrentTimeStep++;	//advance timestep
-		notFinished = !EventsQueue.isEmpty() || InService.GetCount() != 0 || !WaitingNormal.isEmpty() || !WaitingVegan.isEmpty() || !WaitingVIP.isEmpty();
-	}
-	pGUI->PrintMessage("generation done, click to save the information in the output text file.", 1, 0);
-	pGUI->waitForClick();
-	WritingOutputFile();
-}
-
 void  Restaurant::AddtoVIPQueue(Order* po)	//adds an order to the vip orders queue
 {	// To calculate the Priority of the order
 	int p = po->GetOrderMoney() + po->GetOrderSize() + 2 * po->GetArrivalTime();
@@ -470,7 +417,6 @@ void Restaurant::UpdateCooks()
 				if ((CookArr[i]->GetOrdToBreakANDRest(demo) > CookArr[i]->GetCurrOrd()) && (CookArr[i]->GetAssignedOrder()->GetStatus() == DONE))
 				{	//Check for cooks should be not assigned
 					CookArr[i]->SetCurrOrd(CookArr[i]->GetCurrOrd() + 1);
-					//cout << "Cook " << CookArr[i]->GetID() << " finihshed order " << CookArr[i]->GetAssignedOrder()->GetID() << " with " << CookArr[i]->GetCurrOrd() << " finished orders\n";
 					CookArr[i]->SetAssignedOrder(NULL);
 					AVAILABLECOOKS.DeleteNode(CookArr[i]);
 					AVAILABLECOOKS.InsertEnd(CookArr[i]);  //resorting available cooks list
@@ -486,14 +432,13 @@ void Restaurant::UpdateCooks()
 					else VIP_C--;
 					AVAILABLECOOKS.DeleteNode(CookArr[i]);
 					InBreakCooks.InsertBeg(CookArr[i]); // Removing in break cooks from available list& adding them to in break list
-					//cout << "Cook " << CookArr[i]->GetID() << " finihshed order " << CookArr[i]->GetAssignedOrder()->GetID() << " and went to break at TS " << CookArr[i]->GetBreakTS() << endl;
 				}
 			}
 			else if (CookArr[i]->GetAssignedOrder()->GetStatus() == DONE)
 			{
 				CookArr[i]->SetCurrOrd(CookArr[i]->GetCurrOrd() + 1);
-				//cout << "Cook " << CookArr[i]->GetID() << " finihshed order " << CookArr[i]->GetAssignedOrder()->GetID() << " with " << CookArr[i]->GetCurrOrd() << " finished orders\n";
 				CookArr[i]->SetAssignedOrder(NULL);
+				CookArr[i]->SetCurrOrd(0);
 				AVAILABLECOOKS.DeleteNode(CookArr[i]);
 				InjuredCooks.InsertEnd(CookArr[i]);
 				CookArr[i]->SetInjured(false);
@@ -516,7 +461,7 @@ void Restaurant::UpdateCooks()
 			if (CookinBreak[i]->GetType() == TYPE_NRM) NRM_C++;
 			else if (CookinBreak[i]->GetType() == TYPE_VGAN) VGN_C++;
 			else VIP_C++;
-			//cout << "Cook " << CookinBreak[i]->GetID() << " finished his break at " << CurrentTimeStep << endl;
+			cout << "Cook " << CookinBreak[i]->GetID() << " finished his break at " << CurrentTimeStep << endl;
 		}
 
 	///////////////////////////////To Make Cook injured///////////////////////////////
@@ -526,6 +471,7 @@ void Restaurant::UpdateCooks()
 	int rp;
 	CookArr[0]->GetOrdToBreakANDRest(rp);
 	int newFinishedTime = 0;
+	cout << "\nR = " << R << endl;
 	if (R <= inj)
 	{
 		for (int i = 0; i < C_size; i++)  //searching for the first busy Cook To Make him injured
@@ -537,7 +483,7 @@ void Restaurant::UpdateCooks()
 				CookArr[i]->GetAssignedOrder()->SetFinishTime(newFinishedTime);
 				CookArr[i]->SetToBackFromRest(newFinishedTime + rp);
 				CookArr[i]->SetInjured(true);
-				//cout << "Cook " << CookArr[i]->GetID() << " got injured at TS " << CurrentTimeStep << " and will finish his order and go te rest at TS " << newFinishedTime << endl;
+				cout << "Cook " << CookArr[i]->GetID() << " got injured at TS " << CurrentTimeStep << " and will finish his order and go te rest at TS " << newFinishedTime << endl;
 				break;
 			}
 			////else
@@ -563,7 +509,7 @@ void Restaurant::UpdateCooks()
 			if (Cookinjured[i]->GetType() == TYPE_NRM) NRM_C++;
 			else if (Cookinjured[i]->GetType() == TYPE_VGAN) VGN_C++;
 			else VIP_C++;
-			//cout << "Cook " << Cookinjured[i]->GetID() << " finished his rest at TS " << CurrentTimeStep << endl;
+			cout << "Cook " << Cookinjured[i]->GetID() << " finished his rest at TS " << CurrentTimeStep << endl;
 		}
 }
 
@@ -581,7 +527,7 @@ void Restaurant::UpdateInServiceOrders()
 			if (pOrd[i]->GetType() == TYPE_NRM) NRM_FinishedCount++;
 			else if (pOrd[i]->GetType() == TYPE_VGAN) VGN_FinishedCount++;
 			else VIP_FinishedCount++;
-			//cout << "Order " << pOrd[i]->GetID() << " is finished at TS " << CurrentTimeStep << endl;
+			cout << "Order " << pOrd[i]->GetID() << " is finished at TS " << CurrentTimeStep << endl;
 		}
 	}
 }
@@ -596,6 +542,8 @@ void Restaurant::Assigning()
 	List<Cook*> FreeNormal;
 	List<Cook*> FreeVegan;
 	List<Cook*> FreeVIP;
+	List<Cook*> FreeAll;
+	bool nrm = true, vip = true, vgn = true;
 	if (!(WaitingVIP.peekFront(pOrd) && pOrd->GetArrivalTime() <= CurrentTimeStep))
 		if (!(WaitingVegan.peekFront(pOrd) && pOrd->GetArrivalTime() <= CurrentTimeStep))
 			if (!(WaitingNormal.peekFront(pOrd) && pOrd->GetArrivalTime() <= CurrentTimeStep))
@@ -608,33 +556,9 @@ void Restaurant::Assigning()
 			if (CookArr[i]->GetType() == TYPE_VIP)  FreeVIP.InsertEnd(CookArr[i]);
 			else if (CookArr[i]->GetType() == TYPE_VGAN) FreeVegan.InsertEnd(CookArr[i]);
 			else FreeNormal.InsertEnd(CookArr[i]);
+			FreeAll.InsertEnd(CookArr[i]);
 		}
 	}
-
-	/*int n = 0;
-	Cook** FreeN = FreeNormal.toArray(n);
-	//cout << "Free Normal Cooks : ";
-	for (int i = 0; i < n; i++)
-	{
-		//cout << FreeN[i]->GetID() << " ";
-	}
-	//cout << endl;
-
-	Cook** FreeG = FreeVegan.toArray(n);
-	//cout << "Free Vegan Cooks : ";
-	for (int i = 0; i < n; i++)
-	{
-		//cout << FreeG[i]->GetID() << " ";
-	}
-	//cout << endl;
-
-	Cook** FreeV = FreeVIP.toArray(n);
-	//cout << "Free Normal Cooks : ";
-	for (int i = 0; i < n; i++)
-	{
-		//cout << FreeV[i]->GetID() << " ";
-	}
-	//cout << endl;*/
 
 	///////////////////////////////////Assigning VIP orders///////////////////////////////////
 	while (WaitingVIP.peekFront(pOrd) && pOrd->GetArrivalTime() <= CurrentTimeStep)//while there is VIP orders in waiting list till this current time step
@@ -642,7 +566,6 @@ void Restaurant::Assigning()
 		pCook = !FreeVIP.IsEmpty() ? FreeVIP.RemoveFirst() : //Looks first for a VIP cook then Vegan then Normal
 			(!FreeVegan.IsEmpty() ? FreeVegan.RemoveFirst() :
 			(!FreeNormal.IsEmpty() ? FreeNormal.RemoveFirst() : NULL));
-
 		if (pCook)
 		{
 			WaitingVIP.dequeue(pOrd);
@@ -652,14 +575,23 @@ void Restaurant::Assigning()
 			pOrd->SetStatus(SRV);
 			InService.InsertEnd(pOrd);
 			AVAILABLECOOKS.InsertSorted(pCook);
-			//cout << "Order " << pOrd->GetID() << " of size " << pOrd->GetOrderSize() << " is assigned to cook " << pCook->GetID() << " of speed " << pCook->GetSpeed() << " at TS " << CurrentTimeStep << " and should finish at TS " << pOrd->GetFinishTime() << endl;
+			FreeAll.DeleteNode(pCook);
+			cout << "Order " << pOrd->GetID() << " of size " << pOrd->GetOrderSize() << " is assigned to cook " << pCook->GetID() << " with speed " << pCook->GetSpeed() << " and should be finished at TS " << pOrd->GetFinishTime() << endl;
 			continue;
 		}
 		else if (pOrd->GetUrgent())//if there are no cooks except for injured and in break
 		{
-			if (InBreakCooks.GetCount())  pCook = InBreakCooks.Remove(); //if there are cooks in break
-			else if (InjuredCooks.GetCount()) pCook = InjuredCooks.Remove();//if there are cooks in rest
-			
+			if (InBreakCooks.GetCount())
+			{//if there are cooks in break
+				pCook = InBreakCooks.Remove();
+				pCook->SetInBreak(false);
+			}
+			else if (InjuredCooks.GetCount())
+			{//if there are cooks in rest
+				pCook = InjuredCooks.Remove();
+				pCook->SetInjured(false);
+			}
+
 			if (pCook)
 			{
 				WaitingVIP.dequeue(pOrd);
@@ -672,8 +604,7 @@ void Restaurant::Assigning()
 				if (pCook->GetType() == TYPE_NRM) NRM_C++;
 				else if (pCook->GetType() == TYPE_VGAN) VGN_C++;
 				else VIP_C++;
-				//cout << "Order " << pOrd->GetID() << " of size " << pOrd->GetOrderSize() << " is assigned to cook " << pCook->GetID() << " of speed " << pCook->GetSpeed() << " at TS " << CurrentTimeStep << " and should finish at TS " << pOrd->GetFinishTime() << endl;
-				continue;
+				cout << "Order " << pOrd->GetID() << " of size " << pOrd->GetOrderSize() << " is assigned to cook " << pCook->GetID() << " with speed " << pCook->GetSpeed() << " and should be finished at TS " << pOrd->GetFinishTime() << endl;
 			}
 			else return;
 		}
@@ -692,7 +623,8 @@ void Restaurant::Assigning()
 			pOrd->SetStatus(SRV);
 			InService.InsertEnd(pOrd);
 			AVAILABLECOOKS.InsertSorted(pCook);
-			//cout << "Order " << pOrd->GetID() << " of size " << pOrd->GetOrderSize() << " is assigned to cook " << pCook->GetID() << " of speed " << pCook->GetSpeed() << " at TS " << CurrentTimeStep << " and should finish at TS " << pOrd->GetFinishTime() << endl;
+			FreeAll.DeleteNode(pCook);
+			cout << "Order " << pOrd->GetID() << " of size " << pOrd->GetOrderSize() << " is assigned to cook " << pCook->GetID() << " with speed " << pCook->GetSpeed() << " and should be finished at TS " << pOrd->GetFinishTime() << endl;
 			continue;
 		}
 		else break;
@@ -711,14 +643,17 @@ void Restaurant::Assigning()
 			pOrd->SetStatus(SRV);
 			InService.InsertEnd(pOrd);
 			AVAILABLECOOKS.InsertSorted(pCook);
-			//cout << "Order " << pOrd->GetID() << " of size " << pOrd->GetOrderSize() << " is assigned to cook " << pCook->GetID() << " of speed " << pCook->GetSpeed() << " at TS " << CurrentTimeStep << " and should finish at TS " << pOrd->GetFinishTime() << endl;
+			FreeAll.DeleteNode(pCook);
+			cout << "Order " << pOrd->GetID() << " of size " << pOrd->GetOrderSize() << " is assigned to cook " << pCook->GetID() << " with speed " << pCook->GetSpeed() << " and should be finished at TS " << pOrd->GetFinishTime() << endl;
 			continue;
 		}
 		else break;
 	}
-	while (!FreeVIP.IsEmpty()) AVAILABLECOOKS.InsertSorted(FreeVIP.RemoveFirst());
-	while (!FreeVegan.IsEmpty()) AVAILABLECOOKS.InsertSorted(FreeVegan.RemoveFirst());
-	while (!FreeNormal.IsEmpty()) AVAILABLECOOKS.InsertSorted(FreeNormal.RemoveFirst());
+	//while (!FreeVIP.IsEmpty()) AVAILABLECOOKS.InsertSorted(FreeVIP.RemoveFirst());
+	//while (!FreeVegan.IsEmpty()) AVAILABLECOOKS.InsertSorted(FreeVegan.RemoveFirst());
+	//while (!FreeNormal.IsEmpty()) AVAILABLECOOKS.InsertSorted(FreeNormal.RemoveFirst());
+
+	while (!FreeAll.IsEmpty()) AVAILABLECOOKS.InsertSorted(FreeAll.Remove());
 }
 
 void Restaurant::UpdateWaiting() //auto promote waiting nomral to vip & waiting vip to urgent
