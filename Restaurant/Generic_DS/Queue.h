@@ -40,14 +40,12 @@ Single Node Case:
 
 */
 
-#include <iostream>
 #include "Node.h"
 #include "../Events/Event.h"
 
 template <typename T>
 class Queue
 {
-private:
 	Node<T>* backPtr;
 	Node<T>* frontPtr;
 public:
@@ -56,9 +54,9 @@ public:
 	bool enqueue(const T& newEntry);
 	bool dequeue(T& frntEntry);
 	bool peekFront(T& frntEntry)  const;
+	int GetQueueSize();
 	T* toArray(int& count);
 	bool SearchForOrder(int id, T& Entry);
-	int GetQueueSize();
 	~Queue();
 };
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -66,7 +64,6 @@ public:
 /*
 Function: Queue()
 The constructor of the Queue class.
-
 */
 template <typename T>
 Queue<T>::Queue()
@@ -142,7 +139,7 @@ gets the front of this queue. The operation does not modify the queue.
 
 Input: None.
 Output: The front of the queue.
-return: flase if Queue is empty
+return: false if Queue is empty
 */
 template <typename T>
 bool Queue<T>::peekFront(T& frntEntry) const
@@ -155,11 +152,25 @@ bool Queue<T>::peekFront(T& frntEntry) const
 }
 ///////////////////////////////////////////////////////////////////////////////////
 
+/*
+Function: GetQueueSize
+Calculates the size og the queue
+Output: queue size
+returns: integer representing the size of the queue
+*/
 template <typename T>
-Queue<T>::~Queue()
+int Queue<T>::GetQueueSize()
 {
-	T ptr;
-	while (dequeue(ptr));
+	int count = 0;
+
+	//counting the no. of items in the Queue
+	Node<T>* p = frontPtr;
+	while (p)
+	{
+		count++;
+		p = p->getNext();
+	}
+	return count;
 }
 /////////////////////////////////////////////////////////////////////////////////////////
 
@@ -232,23 +243,13 @@ bool Queue<T>::SearchForOrder(int id, T& Entry)
 /////////////////////////////////////////////////////////////////////////////////////////
 
 /*
-Function: GetQueueSize
-Calculates the size og the queue
-Output: queue size
-returns: integer representing the size of the queue
+Function: ~Queue()
+The destructor of the Queue class.
 */
 template <typename T>
-int Queue<T>::GetQueueSize()
+Queue<T>::~Queue()
 {
-	int count = 0;
-
-	//counting the no. of items in the Queue
-	Node<T>* p = frontPtr;
-	while (p)
-	{
-		count++;
-		p = p->getNext();
-	}
-	return count;
+	T ptr;
+	while (dequeue(ptr));
 }
 /////////////////////////////////////////////////////////////////////////////////////////

@@ -4,8 +4,7 @@ int Order::AutoPro = 0;
 
 Order::Order()
 {
-	if (type == TYPE_VIP)
-		Urgent = false;
+	Urgent = false;
 }
 
 Order::Order(int arrTime, int id, ORD_TYPE O_Type, int O_Size, double O_Money)
@@ -16,8 +15,7 @@ Order::Order(int arrTime, int id, ORD_TYPE O_Type, int O_Size, double O_Money)
 	status = WAIT;
 	OrderSize = O_Size;
 	totalMoney = O_Money;
-	if (type == TYPE_VIP)
-		Urgent = false;
+	Urgent = false;
 }
 
 void Order::SetID(int id)
@@ -50,26 +48,6 @@ ORD_STATUS Order::GetStatus() const
 	return status;
 }
 
-void Order::SetOrderSize(int size)
-{
-	OrderSize = size;
-}
-
-int Order::GetOrderSize() const
-{
-	return OrderSize;
-}
-
-void Order::SetOrderMoney(double Money)
-{
-	totalMoney = Money;
-}
-
-double Order::GetOrderMoney() const
-{
-	return totalMoney;
-}
-
 void Order::SetArrivalTime(int arrTime)
 {
 	ArrTime = arrTime;
@@ -100,25 +78,49 @@ int Order::GetFinishTime() const
 	return FinishTime;
 }
 
+void Order::SetOrderSize(int size)
+{
+	OrderSize = size;
+}
+
+int Order::GetOrderSize() const
+{
+	return OrderSize;
+}
+
+void Order::SetOrderMoney(double Money)
+{
+	totalMoney = Money;
+}
+
+double Order::GetOrderMoney() const
+{
+	return totalMoney;
+}
+
 void Order::SetUrgent(bool ans)
 {
 	if (type == TYPE_VIP)
 		Urgent = ans;
 }
+
 bool Order::GetUrgent()const
 {
 	return Urgent;
 }
+
 void Order::SetVIP_WAITANDNRM_WAIT(int v, int n)
 {
 	VIP_Wait = v;
 	AutoPro = n;
 }
+
 int Order::GetVIP_WAITANDNRM_WAIT(int& n)
 {
 	n = AutoPro;
 	return VIP_Wait;
 }
+
 Order::~Order()
 {
 

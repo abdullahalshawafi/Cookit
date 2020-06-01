@@ -1,14 +1,13 @@
 #pragma once
-#include"../Rest/Restaurant.h"
+#include "../Rest/Restaurant.h"
 #include "../GUI/GUI.h"
-#include"Event.h"
+#include "Event.h"
 
 class Restaurant;
 class Event;
 
 class CancellationEvent : public Event
 {
-	int OrderID;
 public:
 	CancellationEvent(int eTime, int oID);
 	virtual void Execute(Restaurant* pRest);	//override execute function

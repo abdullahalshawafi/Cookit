@@ -8,46 +8,20 @@ class PriorityQueue
 	PriorityNode<T>* frontPtr;
 public:
 	PriorityQueue();
-	void DeleteNode(const int& item);
 	bool isEmpty() const;
-	bool enqueue(const T& newEntry, int Per);
+	bool enqueue(const T& newEntry, float Per);
 	bool dequeue(T& frntEntry);
 	bool peekFront(T& frntEntry)  const;
+	void DeleteNode(const int& item);
 	T* toArray(int& count);
 	PriorityNode<T>* SearchForOrder(T Ord);
 	~PriorityQueue();
 };
 
-template < typename T>
-void PriorityQueue<T>::DeleteNode(const int& item)
-{
-	if (!frontPtr)
-		return;
-
-	PriorityNode<T>* p = frontPtr;
-	if (p->getItem()->GetID() == item)  //if the first node have the wanted item
-	{
-		frontPtr = frontPtr->getNext();
-		p->setNext(nullptr);
-		delete p;
-		return;
-	}
-
-	p = frontPtr->getNext();
-	PriorityNode<T>* prev = frontPtr;
-	while (p)
-	{
-		if (p->getItem()->GetID() == item)
-		{
-			prev->setNext(p->getNext());
-			delete p;
-			return;
-		}
-		prev = p;
-		p = p->getNext();
-	}
-}
-
+/*
+Function: PriorityQueue()
+The constructor of the PriorityQueue class.
+*/
 template < typename T>
 PriorityQueue<T>::PriorityQueue<T>()
 {
@@ -59,6 +33,7 @@ PriorityQueue<T>::PriorityQueue<T>()
 /*
 Function: isEmpty
 Sees whether this queue is empty.
+
 Input: None.
 Output: True if the queue is empty; otherwise false.
 */
@@ -76,7 +51,7 @@ Input: newEntry .
 Output: True if the operation is successful; otherwise false.
 */
 template < typename T>
-bool PriorityQueue<T>::enqueue(const T& newEntry, int pre)
+bool PriorityQueue<T>::enqueue(const T& newEntry, float pre)
 {
 	PriorityNode<T>* temp = frontPtr;
 	PriorityNode<T>* newNodePtr = new PriorityNode<T>(newEntry, pre);
@@ -88,14 +63,14 @@ bool PriorityQueue<T>::enqueue(const T& newEntry, int pre)
 		return true;
 	}
 
-	if (newNodePtr->GetPriority() >= temp->GetPriority() || newNodePtr->getItem()->GetUrgent())
+	if (newNodePtr->getPriority() > temp->getPriority() || newNodePtr->getItem()->GetUrgent())
 	{
 		frontPtr = newNodePtr;
 		newNodePtr->setNext(temp);
 		return true;
 	}
 
-	while (temp->getNext() && temp->getNext()->GetPriority() >= newNodePtr->GetPriority())
+	while (temp->getNext() && temp->getNext()->getPriority() >= newNodePtr->getPriority())
 		temp = temp->getNext();
 
 	newNodePtr->setNext(temp->getNext());
@@ -139,7 +114,7 @@ gets the front of this queue. The operation does not modify the queue.
 
 Input: None.
 Output: The front of the queue.
-return: flase if Queue is empty
+return: false if Queue is empty
 */
 template < typename T>
 bool PriorityQueue<T>::peekFront(T& frntEntry) const
@@ -152,10 +127,40 @@ bool PriorityQueue<T>::peekFront(T& frntEntry) const
 }
 ///////////////////////////////////////////////////////////////////////////////////
 
+/*
+Function: DeleteNode.
+Deletes a node from the Queue that have that wanted item.
+Parameters:
+- item : The item to be deleted from the Queue.
+*/
 template < typename T>
-PriorityQueue<T>::~PriorityQueue<T>()
+void PriorityQueue<T>::DeleteNode(const int& item)
 {
+	if (!frontPtr)
+		return;
 
+	PriorityNode<T>* p = frontPtr;
+	if (p->getItem()->GetID() == item)  //if the first node have the wanted item
+	{
+		frontPtr = frontPtr->getNext();
+		p->setNext(nullptr);
+		delete p;
+		return;
+	}
+
+	p = frontPtr->getNext();
+	PriorityNode<T>* prev = frontPtr;
+	while (p)
+	{
+		if (p->getItem()->GetID() == item)
+		{
+			prev->setNext(p->getNext());
+			delete p;
+			return;
+		}
+		prev = p;
+		p = p->getNext();
+	}
 }
 /////////////////////////////////////////////////////////////////////////////////////////
 
@@ -190,7 +195,14 @@ T* PriorityQueue<T>::toArray(int& count)
 	}
 	return Arr;
 }
+/////////////////////////////////////////////////////////////////////////////////////////
 
+/*
+Function: SearchForOrder
+Searchs for the order with the sent id and deletes it
+Output: the deleted order
+returns: a boolean if the order with the sent id was found and deleted or not
+*/
 template < typename T>
 PriorityNode<T>* PriorityQueue<T>::SearchForOrder(T Ord)
 {
@@ -203,3 +215,16 @@ PriorityNode<T>* PriorityQueue<T>::SearchForOrder(T Ord)
 	}
 	return Temp;
 }
+/////////////////////////////////////////////////////////////////////////////////////////
+
+/*
+Function: ~PriorityQueue()
+The destructor of the PriorityQueue class.
+*/
+template < typename T>
+PriorityQueue<T>::~PriorityQueue<T>()
+{
+	T ptr;
+	while (dequeue(ptr));
+}
+/////////////////////////////////////////////////////////////////////////////////////////

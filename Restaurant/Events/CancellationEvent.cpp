@@ -2,15 +2,13 @@
 #include <iostream>
 using namespace std;
 
-CancellationEvent::CancellationEvent(int eTime, int oID) :Event(eTime, oID)
+CancellationEvent::CancellationEvent(int eTime, int oID) : Event(eTime, oID)
 {
-	OrderID = oID;
 }
-//Add more constructors if needed
 
-void CancellationEvent::Execute(Restaurant* pRest)//override execute function
+//This function excutes the cancelation event 
+//and deletes a Normal order from normal orders list
+void CancellationEvent::Execute(Restaurant* pRest)
 {
-	bool cancelled = pRest->DeleteNormalQueue(OrderID);
-	if (cancelled)
-		cout << "\nOrder " << OrderID << " has been cancelled" << endl;
+	bool cancelled = pRest->DeletefromNormalQueue(getOrderID());
 }

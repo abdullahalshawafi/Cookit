@@ -1,8 +1,5 @@
 #pragma once
 #include "Node.h"
-#include <iostream>
-#include <time.h>
-using namespace std;
 
 template <typename T>
 class List
@@ -24,17 +21,21 @@ public:
 	////////////////////////////////////////////////////////////////////////
 
 	/*
+	*Function: IsEmpty
+	*returns: boolean representing the linked list is empty or not
+	*/
+	bool IsEmpty()
+	{
+		return (!Head);
+	}
+	////////////////////////////////////////////////////////////////////////
+
+	/*
 	*Function: GetCount
 	*Calculates the size og the linked list
 	*Output: linked list size
 	*returns: integer representing the size of the linked list
 	*/
-	bool IsEmpty()
-	{
-		if (Head) return false;
-		else return true;
-	}
-
 	int GetCount()
 	{
 		int count = 0;
@@ -48,6 +49,7 @@ public:
 		}
 		return count;
 	}
+	////////////////////////////////////////////////////////////////////////
 
 	/*
 	* Function: DeleteAll.
@@ -103,23 +105,24 @@ public:
 	////////////////////////////////////////////////////////////////////////
 
 	/*
-	* Function: InsertBeg.
-	* Creates a new node and adds it to the beginning of a linked list.
-	*
-	* Parameters:
-	*	- data : The value to be stored in the new node.
+	* Function: RemoveFirst
+	* removes and returns the first node in the linked list.
 	*/
-	void InsertBeg(const T& data)
+	T RemoveFirst()
 	{
-		Node<T>* R = new Node<T>(data);
-		R->setNext(Head);
-		Head = R;
+		if (IsEmpty()) return nullptr;
+		Node<T>* p = Head;
+		Head = Head->getNext();
+		T item = p->getItem();
+		p->setNext(nullptr);
+		delete p;
+		return item;
 	}
 	////////////////////////////////////////////////////////////////////////
 
 	/*
 	* Function: InsertEnd
-	* Creates a new node and adds it to the endf a linked list.
+	* Creates a new node and adds it to the end of a linked list.
 	*
 	* Parameters:
 	*	- data : The value to be stored in the new node.
@@ -144,18 +147,45 @@ public:
 	////////////////////////////////////////////////////////////////////////
 
 	/*
-	* Function: RemoveFirst
-	* removes and returns the first node in the linked list.
+	* Function: InsertSorted
+	* Creates a new node and adds it in the sorted place in the linked list.
+	*
+	* Parameters:
+	*	- data : The value to be stored in the new node.
 	*/
-	T RemoveFirst()
+	void InsertSorted(T data) //It is used for sorting Cooks
 	{
-		if (IsEmpty()) return nullptr;
 		Node<T>* p = Head;
-		Head = Head->getNext();
-		T item = p->getItem();
-		p->setNext(nullptr);
-		delete p;
-		return item;
+		Node<T>* pCook = new Node<T>(data);
+		if (!Head)
+		{
+			Head = pCook;
+			return;
+		}
+		Node<T>* After = Head->getNext();
+
+		if (Head->getItem()->GetFinishedOrders() > pCook->getItem()->GetFinishedOrders())
+		{
+			pCook->setNext(Head);
+			Head = pCook;
+			return;
+		}
+
+		while (After && After->getItem()->GetFinishedOrders() <= pCook->getItem()->GetFinishedOrders())
+		{
+			p = p->getNext();
+			After = After->getNext();
+		}
+
+		if (After)
+		{
+			pCook->setNext(p->getNext());
+			p->setNext(pCook);
+			return;
+		}
+
+		p->setNext(pCook);
+		return;
 	}
 	////////////////////////////////////////////////////////////////////////
 
@@ -194,75 +224,11 @@ public:
 	////////////////////////////////////////////////////////////////////////
 
 	/*
-	* Function: Remove.
-	* Deletes and returns the last item in the linked list.
+	* Function: SearchForOrder
+	* Searchs for the order with the sent id and deletes it
+	* Output: the deleted order
+	* returns: a boolean if the order with the sent id was found and deleted or not
 	*/
-	T Remove()    //removes any order (will be used in phase 1 only)
-	{
-		if (!Head)
-			return nullptr;
-
-		T item;
-		Node<T>* p = Head;
-		Node<T>* prev = Head;
-		if (!p->getNext()) // only one node
-		{
-			item = p->getItem();
-			delete Head;
-			Head = nullptr;
-			return item;
-		}
-
-		while (p && p->getNext())
-		{
-			prev = p;
-			p = p->getNext();
-		}
-
-		item = p->getItem();
-		delete p;
-		p = nullptr;
-		prev->setNext(nullptr);
-		return item;
-	}
-	////////////////////////////////////////////////////////////////////////
-
-	void InsertSorted(T data) //For Cooks
-	{
-		Node<T>* p = Head;
-		Node<T>* pCook = new Node<T>(data);
-		if (!Head)
-		{
-			Head = pCook;
-			return;
-		}
-		Node<T>* After = Head->getNext();
-
-		if (Head->getItem()->GetCurrOrd() >= pCook->getItem()->GetCurrOrd())
-		{
-			pCook->setNext(Head);
-			Head = pCook;
-			return;
-		}
-
-		while (After && After->getItem()->GetCurrOrd() >= pCook->getItem()->GetCurrOrd())
-		{
-			p = p->getNext();
-			After = After->getNext();
-		}
-
-		if (After)
-		{
-			pCook->setNext(p->getNext());
-			p->setNext(pCook);
-			return;
-		}
-
-		p->setNext(pCook);
-		return;
-	}
-	////////////////////////////////////////////////////////////////////////
-
 	bool SearchForOrder(int id, T& Entry)
 	{
 		Node<T>* Temp = Head;

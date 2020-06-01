@@ -76,7 +76,7 @@ void GUI::PrintMessage(string msg, int level, int horizonalAlign) const	//Prints
 		pWind->DrawString(10, WindHeight - (int)(StatusBarHeight / 1.56), msg);
 		break;
 	case 4:
-		pWind->DrawString(10 + horizonalAlign * 70, WindHeight - (int)(StatusBarHeight / 1.97), msg);
+		pWind->DrawString(10 + horizonalAlign * 120, WindHeight - (int)(StatusBarHeight / 1.97), msg);
 		break;
 	case 5:
 		pWind->DrawString(10, WindHeight - (int)(StatusBarHeight / 2.66), msg);

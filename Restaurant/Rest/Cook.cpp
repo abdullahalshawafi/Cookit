@@ -1,16 +1,15 @@
 #include "Cook.h"
 
 int Cook::OrdToBreak = 0;
-float Cook::injurypro = 0;
-int Cook::restperiod = 0;
+float Cook::InjuryPro = 0;
+int Cook::RestPeriod = 0;
 
 Cook::Cook()
 {
-	CurrOrd = 0;
+	FinishedOrders = 0;
 	InBreak = false;
 	AssignedOrder = nullptr;
-	TimeToBeFree = 0; //We considered that if TimeToBeFree = 0 this means "the cook is available"
-	ToBackFromRest = 0;
+	BackFromRest = 0;
 	Injured = false;
 }
 
@@ -54,37 +53,44 @@ int Cook::GetBreakDuration() const
 	return BreakDuration;
 }
 
-void Cook::SetCurrOrd(int OrderID)
+void Cook::SetFinishedOrders(int OrderID)
 {
-	CurrOrd = OrderID;
+	FinishedOrders = OrderID;
 }
 
-int Cook::GetCurrOrd() const
+int Cook::GetFinishedOrders() const
 {
-	return CurrOrd;
+	return FinishedOrders;
 }
 
-void Cook::SetAvailable(bool Av)
+void Cook::SetBreakTS(int TS)
 {
-	Available = Av;
+	BreakTimestep = TS;
 }
 
-bool Cook::GetAvailable()
+int Cook::GetBreakTS()
 {
-	return Available;
+	return BreakTimestep;
 }
 
-void  Cook::SetTimeToBeFree(int A)
+void Cook::SetOriginalSpeed(int s)
 {
-	if (!A)
-		TimeToBeFree = 0;
-	else
-		TimeToBeFree = A + speed * AssignedOrder->GetOrderSize(); //To Calculate When The Cook Finish The Order
+	OriginalSpeed = s;
 }
 
-int  Cook::GetTimeToBeFree()
+void Cook::ResetSpeed()
 {
-	return TimeToBeFree;
+	speed = OriginalSpeed;
+}
+
+void Cook::SetBackFromRest(int F)
+{
+	BackFromRest = F;
+}
+
+int Cook::GetBackFromRest()
+{
+	return BackFromRest;
 }
 
 void Cook::SetInBreak(bool inBreak)
@@ -97,6 +103,16 @@ bool Cook::GetInBreak() const
 	return InBreak;
 }
 
+void Cook::SetInjured(bool i)
+{
+	Injured = i;
+}
+
+bool Cook::GetInjured()
+{
+	return Injured;
+}
+
 void Cook::SetAssignedOrder(Order* order)
 {
 	AssignedOrder = order;
@@ -107,59 +123,26 @@ Order* Cook::GetAssignedOrder() const
 	return AssignedOrder;
 }
 
-void Cook::SetOrdToBreakANDRest(int OB ,int restd)
+void Cook::SetOrdToBreakANDRest(int OB, int restd)
 {
 	OrdToBreak = OB;
-	restperiod = restd;
+	RestPeriod = restd;
 }
 
-int Cook::GetOrdToBreakANDRest(int &restd)
+int Cook::GetOrdToBreakANDRest(int& restd)
 {
-	restd = restperiod;
+	restd = RestPeriod;
 	return OrdToBreak;
 }
 
-void Cook::SetBreakTS(int TS)
-{
-	BreakTimestep = TS;
-}
-
-int Cook::GetBreakTS()
-{
-	return BreakTimestep;
-}
-void Cook::ResetSpeed()
-{
-	speed = originalspeed;
-}
-void Cook::SetToBackFromRest(int F)
-{
-	ToBackFromRest = F;
-}
-int Cook::GetToBackFromRest()
-{
-return ToBackFromRest;
-
-}
-void Cook::SetInjured(bool i)
-{
-	Injured = i;
-}
-bool Cook::GetInjured()
-{
-	return Injured;
-}
-void Cook::SetOriginalSpeed(int s)
-{
-	originalspeed = s;
-}
 void Cook::SetInjProp(float i)
 {
-	injurypro = i;
+	InjuryPro = i;
 }
+
 float Cook::GetInjProp()
 {
-	return injurypro;
+	return InjuryPro;
 }
 
 Cook::~Cook()

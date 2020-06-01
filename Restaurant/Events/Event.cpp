@@ -20,4 +20,3 @@ Event::~Event()
 {
 
 }
-

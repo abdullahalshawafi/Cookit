@@ -1,18 +1,17 @@
 #include "ArrivalEvent.h"
 
-ArrivalEvent::ArrivalEvent(int eTime, int oID, ORD_TYPE oType, int oSize, double totalMoney) :Event(eTime, oID)
+ArrivalEvent::ArrivalEvent(int eTime, int oID, ORD_TYPE oType, int oSize, double totalMoney) : Event(eTime, oID)
 {
 	OrdType = oType;
 	OrdMoney = totalMoney;
 	OrdSize = oSize;
 }
 
+//This function creates an order and fills its data 
+//Then adds it to normal, vegan, or VIP order lists
 void ArrivalEvent::Execute(Restaurant* pRest)
 {
-	//This function should create an order and fills its data 
-	// Then adds it to normal, vegan, or VIP order lists
-
-	Order* pOrd = new Order(EventTime, OrderID, OrdType, OrdSize, OrdMoney);
+	Order* pOrd = new Order(getEventTime(), getOrderID(), OrdType, OrdSize, OrdMoney);
 	switch (OrdType)
 	{
 	case TYPE_NRM:
