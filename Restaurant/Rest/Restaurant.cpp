@@ -381,16 +381,45 @@ void  Restaurant::AddtoVeganQueue(Order* po) //adds an order to the vegan orders
 
 bool  Restaurant::DeletefromNormalQueue(int id) // Removes order from normal queue if cancelled
 {
-	Order* CancellatedOrder;
-	bool IsFound = WaitingNormal.SearchForOrder(id, CancellatedOrder);
-	return IsFound;
+	//First we search for the order and remove it from the queue
+	Order* CancellatedOrder = NULL;
+	int WaitingNormal_Count = 0;
+	WaitingNormal.toArray(WaitingNormal_Count);
+	for (int i = 0; i < WaitingNormal_Count; i++)
+	{
+		Order* temp;
+		WaitingNormal.dequeue(temp);
+		if (temp->GetID() == id)
+		{
+			CancellatedOrder = temp;
+			cout << "\nOrder " << CancellatedOrder->GetID() << " has been cancelled at TS " << CurrentTimeStep << endl;
+			continue;
+		}
+		WaitingNormal.enqueue(temp);
+	}
+	return (CancellatedOrder != NULL);
 }
 
 Order*& Restaurant::PromotOrder(int id, double Extra)
 {
+	//First we search for the order and remove it from the queue
 	Order* PromotedOrder = NULL;
-	bool IsFound = WaitingNormal.SearchForOrder(id, PromotedOrder);
-	if (IsFound)
+	int WaitingNormal_Count = 0;
+	WaitingNormal.toArray(WaitingNormal_Count);
+	for (int i = 0; i < WaitingNormal_Count; i++)
+	{
+		Order* temp;
+		WaitingNormal.dequeue(temp);
+		if (temp->GetID() == id)
+		{
+			PromotedOrder = temp;
+			continue;
+		}
+		WaitingNormal.enqueue(temp);
+	}
+
+	//Secondly set the new data members
+	if (PromotedOrder)
 	{
 		PromotedOrder->SetOrderMoney(PromotedOrder->GetOrderMoney() + Extra);
 		PromotedOrder->SetType(TYPE_VIP);
@@ -465,9 +494,6 @@ void Restaurant::UpdateCooks()
 					CookArr[i]->ResetSpeed();
 					WorkingCooks.DeleteNode(CookArr[i]);
 					InBreakCooks.InsertEnd(CookArr[i]); //Removing cooks from working list & adding them to in break list
-					if (CookArr[i]->GetType() == TYPE_NRM) NRM_C--;
-					else if (CookArr[i]->GetType() == TYPE_VGAN) VGN_C--;
-					else VIP_C--;
 				}
 			}
 			else if (CookArr[i]->GetAssignedOrder()->GetStatus() == DONE)
@@ -477,9 +503,6 @@ void Restaurant::UpdateCooks()
 				WorkingCooks.DeleteNode(CookArr[i]);
 				InjuredCooks.InsertEnd(CookArr[i]);		//Removing cooks from working list & adding them to injured list
 				CookArr[i]->SetInjured(false);
-				if (CookArr[i]->GetType() == TYPE_NRM) NRM_C--;
-				else if (CookArr[i]->GetType() == TYPE_VGAN) VGN_C--;
-				else VIP_C--;
 			}
 		}
 	}
@@ -493,9 +516,6 @@ void Restaurant::UpdateCooks()
 			CooksinBreak[i]->SetInBreak(false);
 			InBreakCooks.DeleteNode(CooksinBreak[i]);
 			WorkingCooks.InsertSorted(CooksinBreak[i]);	//Removing cooks from working list & adding them to in break list
-			if (CooksinBreak[i]->GetType() == TYPE_NRM) NRM_C++;
-			else if (CooksinBreak[i]->GetType() == TYPE_VGAN) VGN_C++;
-			else VIP_C++;
 			cout << "\nCook " << CooksinBreak[i]->GetID() << " finished his break at TS " << CurrentTimeStep << endl;
 		}
 
@@ -542,9 +562,6 @@ void Restaurant::UpdateCooks()
 			Cookinjured[i]->SetInjured(false);
 			InjuredCooks.DeleteNode(Cookinjured[i]);
 			WorkingCooks.InsertSorted(Cookinjured[i]);		//Removing cooks from working list & adding them to injured list
-			if (Cookinjured[i]->GetType() == TYPE_NRM) NRM_C++;
-			else if (Cookinjured[i]->GetType() == TYPE_VGAN) VGN_C++;
-			else VIP_C++;
 			cout << "\nCook " << Cookinjured[i]->GetID() << " finished his rest at TS " << CurrentTimeStep << endl;
 		}
 }
@@ -620,9 +637,6 @@ void Restaurant::Assigning()
 				pOrd->SetStatus(SRV);
 				InService.InsertEnd(pOrd);
 				WorkingCooks.InsertSorted(pCook);	//Returning the cook back to the working list
-				if (pCook->GetType() == TYPE_NRM) NRM_C++;
-				else if (pCook->GetType() == TYPE_VGAN) VGN_C++;
-				else VIP_C++;
 				cout << "\nOrder " << pOrd->GetID() << " of size " << pOrd->GetOrderSize() << " is assigned to cook " << pCook->GetID() << " with speed " << pCook->GetSpeed() << " and finished orders = " << pCook->GetFinishedOrders() << " at TS " << CurrentTimeStep << " and should be finished at TS " << pOrd->GetFinishTime() << endl;
 			}
 			else return; //There are neither free cooks nor in break or in rest cooks of all types so we return as other orders won't be assigned either
