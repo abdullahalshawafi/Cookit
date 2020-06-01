@@ -14,6 +14,12 @@ Order::Order(int arrTime, int id, ORD_TYPE O_Type, int O_Size, double O_Money)
 	type = O_Type;
 	status = WAIT;
 	OrderSize = O_Size;
+	//If the type of the order is already VIP then we will set its promotion TS the same as Arrival TS,
+	//but if the order was vegan or normal then we set the promotion TS to zero, so, when the order is promoted either 
+	//with a promotion event or auto-promotion, we will set the promotion TS to that CurrentTimeStep.
+	//this is to make the condition of turning VIP orders to urgent orders valid
+	//where we ask before making a VIP order an urgent order, whether the CurrentTimeStep - PromotionTS == VIP_wt ? make it urgent : skip it;
+	(type == TYPE_VIP) ? PromotionTS = ArrTime : PromotionTS = 0;
 	totalMoney = O_Money;
 	Urgent = false;
 }
@@ -88,6 +94,16 @@ int Order::GetOrderSize() const
 	return OrderSize;
 }
 
+void Order::SetPromotionTS(int TS)
+{
+	PromotionTS = TS;
+}
+
+int Order::GetPromotionTS() const
+{
+	return PromotionTS;
+}
+
 void Order::SetOrderMoney(double Money)
 {
 	totalMoney = Money;
@@ -100,8 +116,7 @@ double Order::GetOrderMoney() const
 
 void Order::SetUrgent(bool ans)
 {
-	if (type == TYPE_VIP)
-		Urgent = ans;
+	Urgent = ans;
 }
 
 bool Order::GetUrgent()const

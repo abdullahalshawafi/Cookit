@@ -15,9 +15,6 @@ Restaurant::Restaurant()
 	NRM_OrdCount = 0;
 	VGN_OrdCount = 0;
 	VIP_OrdCount = 0;
-	NRM_SRVCount = 0;
-	VGN_SRVCount = 0;
-	VIP_SRVCount = 0;
 	OriginalNRMOrders = 0;
 	NRM_FinishedCount = 0;
 	VGN_FinishedCount = 0;
@@ -25,6 +22,7 @@ Restaurant::Restaurant()
 	NRM_C = 0;
 	VIP_C = 0;
 	VGN_C = 0;
+	Injured_C = 0;
 	AutoPromoted = 0;
 	UrgentOrders = 0;
 	CurrentTimeStep = 1;
@@ -154,10 +152,8 @@ void Restaurant::FillDrawingList()
 
 	///////////Adding In service Orders to GUI::DrawingList//////////
 	Order* pServiceOrd;
-	int SRVCount = 0;
 	int Servicesize = 0;
 	Order** Service_Orders_Array = InService.toArray(Servicesize);
-	SRVCount += Servicesize;
 	for (int i = 0; i < Servicesize; i++)
 	{
 		pServiceOrd = Service_Orders_Array[i];
@@ -166,28 +162,11 @@ void Restaurant::FillDrawingList()
 
 	///////////Adding the finished Orders to GUI::DrawingList//////////
 	Order* pFinishedOrd;
-	NRM_FinishedCount = 0;
-	VGN_FinishedCount = 0;
-	VIP_FinishedCount = 0;
 	int finishedsize = 0;
 	Order** Finished_Orders_Array = Finished.toArray(finishedsize);
 	for (int i = 0; i < finishedsize; i++)
 	{
 		pFinishedOrd = Finished_Orders_Array[i];
-		switch (pFinishedOrd->GetType())
-		{
-		case TYPE_NRM:
-			NRM_FinishedCount++;
-			break;
-		case TYPE_VGAN:
-			VGN_FinishedCount++;
-			break;
-		case TYPE_VIP:
-			VIP_FinishedCount++;
-			break;
-		default:
-			break;
-		}
 		pGUI->AddToDrawingList(pFinishedOrd);
 	}
 }
@@ -351,7 +330,7 @@ void Restaurant::ReadInputFile(ifstream& InputFile)
 void Restaurant::WritingOutputFile()
 {
 	ofstream outputFile;
-	pGUI->PrintMessage("Please enter the output text file name without .txt: ", 1, 0);
+	pGUI->PrintMessage("Please enter the output text file name: ", 1, 0);
 	string FileName = "Output_Tests/";
 	FileName += pGUI->GetString();
 	if (!(FileName.find(".txt") != string::npos))
@@ -374,7 +353,7 @@ void Restaurant::WritingOutputFile()
 
 	outputFile << "Orders: " << NRM_FinishedCount + VGN_FinishedCount + VIP_FinishedCount << " [Norm: "
 		<< NRM_FinishedCount << ", Veg: " << VGN_FinishedCount << ", VIP: " << VIP_FinishedCount << "]\n";
-	outputFile << "Cooks: " << NRM_C + VGN_C + VIP_C << " [Norm: " << NRM_C << ", Veg: " << VGN_C << ", VIP: " << VIP_C << ", injured: " << UrgentOrders << " ]\n";
+	outputFile << "Cooks: " << NRM_C + VGN_C + VIP_C << " [Norm: " << NRM_C << ", Veg: " << VGN_C << ", VIP: " << VIP_C << ", injured: " << Injured_C << "]\n";
 	outputFile << "Avg Wait = " << TotalWaitingTime / finishedOrders_Size << ",  Avg Serv = " << TotalServingTime / finishedOrders_Size << endl;
 	outputFile << "Urgent orders: " << UrgentOrders << ",  Auto-promoted: " << (float(AutoPromoted) / float(OriginalNRMOrders)) * 100.0 << "%\n";
 
@@ -415,6 +394,7 @@ Order*& Restaurant::PromotOrder(int id, double Extra)
 	{
 		PromotedOrder->SetOrderMoney(PromotedOrder->GetOrderMoney() + Extra);
 		PromotedOrder->SetType(TYPE_VIP);
+		PromotedOrder->SetPromotionTS(CurrentTimeStep);
 		cout << "\nOrder " << PromotedOrder->GetID() << " has been promoted to VIP at TS " << CurrentTimeStep << " with extra money = " << Extra << endl;
 	}
 	return PromotedOrder;
@@ -478,6 +458,7 @@ void Restaurant::UpdateCooks()
 				}
 				else if (CookArr[i]->GetOrdToBreakANDRest(demo) == CookArr[i]->GetFinishedOrders() && (CookArr[i]->GetAssignedOrder()->GetStatus() == DONE))
 				{   //Check for injured cooks that finished their assigned order and needs to go to break
+					CookArr[i]->SetAssignedOrder(NULL);
 					CookArr[i]->SetInBreak(true);
 					CookArr[i]->SetFinishedOrders(0);
 					CookArr[i]->SetBreakTS(CurrentTimeStep);
@@ -545,6 +526,7 @@ void Restaurant::UpdateCooks()
 				CookArr[i]->GetAssignedOrder()->SetFinishTime(newFinishedTime);
 				CookArr[i]->SetBackFromRest(newFinishedTime + RestPeriod);
 				CookArr[i]->SetInjured(true);
+				Injured_C++;
 				cout << "\nCook " << CookArr[i]->GetID() << " got injured at TS " << CurrentTimeStep << " and will finish order " << CookArr[i]->GetAssignedOrder()->GetID() << " and go te rest at TS " << newFinishedTime << endl;
 				break;
 			}
@@ -705,7 +687,7 @@ void Restaurant::UpdateWaiting() //auto promote waiting nomral to vip, and waiti
 	///////////////////////////////Update Urgent vip orders of this time step//////////////////
 	for (int i = 0; i < VIP_size; i++)
 	{
-		if (CurrentTimeStep - VIP_Order[i]->GetArrivalTime() == vip_wt && !VIP_Order[i]->GetUrgent())
+		if (CurrentTimeStep - VIP_Order[i]->GetPromotionTS() >= vip_wt && !VIP_Order[i]->GetUrgent())
 		{
 			pOrd = VIP_Order[i];
 			WaitingVIP.DeleteNode(VIP_Order[i]->GetID());
@@ -721,6 +703,7 @@ void Restaurant::UpdateWaiting() //auto promote waiting nomral to vip, and waiti
 	{
 		WaitingNormal.dequeue(pOrd);
 		pOrd->SetType(TYPE_VIP);
+		pOrd->SetPromotionTS(CurrentTimeStep);
 		float Priority = pOrd->GetOrderMoney() / (pOrd->GetOrderSize() * pOrd->GetArrivalTime());
 		WaitingVIP.enqueue(pOrd, Priority);
 		AutoPromoted++;
@@ -732,22 +715,39 @@ void Restaurant::UpdateWaiting() //auto promote waiting nomral to vip, and waiti
 
 void Restaurant::PrintData()
 {
-	string waitingNRM = to_string(NRM_OrdCount);
-	string waitingVGN = to_string(VGN_OrdCount);
-	string waitingVIP = to_string(VIP_OrdCount);
+	/////////////////////Getting the number of urgent orders in this time step/////////////////////////
+	int UrgentOrders_Count = 0, n = VIP_OrdCount;
+	for (int i = 0; i < n; i++)
+	{
+		Order* pOrd;
+		WaitingVIP.dequeue(pOrd);
+		if (pOrd->GetUrgent())
+		{
+			UrgentOrders_Count++;
+			VIP_OrdCount--;
+			continue;
+		}
+		float p = pOrd->GetOrderMoney() / float(pOrd->GetOrderSize() * pOrd->GetArrivalTime());
+		WaitingVIP.enqueue(pOrd, p);
+	}
+	string urgent = to_string(UrgentOrders_Count);
 
-	string finishedNRM = to_string(NRM_FinishedCount);
-	string finishedVGN = to_string(VGN_FinishedCount);
-	string finishedVIP = to_string(VIP_FinishedCount);
+	string waitingNRM = to_string(NRM_OrdCount);	//
+	string waitingVGN = to_string(VGN_OrdCount);	//Turn waiting orders counters into strings
+	string waitingVIP = to_string(VIP_OrdCount);	//
 
-	string C_NRM = to_string(NRM_C);
-	string C_VGN = to_string(VGN_C);
-	string C_VIP = to_string(VIP_C);
+	string finishedNRM = to_string(NRM_FinishedCount);	//
+	string finishedVGN = to_string(VGN_FinishedCount);	//Turn finished orders counters into strings
+	string finishedVIP = to_string(VIP_FinishedCount);	//
+
+	string C_NRM = to_string(NRM_C);	//
+	string C_VGN = to_string(VGN_C);	//Turn cooks counters into strings
+	string C_VIP = to_string(VIP_C);	//
 
 	string timestep = to_string(CurrentTimeStep);
 
 	pGUI->PrintMessage("TS: " + timestep, 1, 0);	//print current timestep
-	pGUI->PrintMessage("Waiting: (Normal = " + waitingNRM + "), (Vegan = " + waitingVGN + "), (VIP = " + waitingVIP + ")", 2, 0);	//print waiting orders numbers
+	pGUI->PrintMessage("Waiting: (Normal = " + waitingNRM + "), (Vegan = " + waitingVGN + "), (VIP = " + waitingVIP + "), (Urgent = " + urgent + ")", 2, 0);	//print waiting orders numbers
 	pGUI->PrintMessage("Cooks: (Normal = " + C_NRM + "), (Vegan = " + C_VGN + "), (VIP = " + C_VIP + ")", 3, 0);		//Prints the number if cooks
 	pGUI->PrintMessage("Finished: (Normal = " + finishedNRM + "), (Vegan = " + finishedVGN + "), (VIP = " + finishedVIP + ")", 5, 0);	//print finished orders numbers
 

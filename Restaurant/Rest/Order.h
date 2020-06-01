@@ -11,10 +11,11 @@ class Order
 	ORD_STATUS status;					//Waiting, In-Service, and Done
 	int ArrTime, ServTime, FinishTime;	//Arrival, Service start, and Finish Timesteps
 	int OrderSize;						//No. of dishes in order
+	int PromotionTS;					//The Timestep in which the order has been promoted to VIP
 	double totalMoney;					//Total order money
 	bool Urgent;						//Is the order urgent or not
 	static int VIP_Wait;				//No. of Timesteps an VIP order should wait before being urgent
-	static int AutoPro;					//No. of Teimsteps a Normal order should wait before being autopromoted to VIP
+	static int AutoPro;					//No. of Timsteps a Normal order should wait before being autopromoted to VIP
 
 public:
 	Order();
@@ -40,6 +41,9 @@ public:
 
 	void SetOrderSize(int size);
 	int GetOrderSize() const;
+
+	void SetPromotionTS(int TS);
+	int GetPromotionTS() const;
 
 	void SetOrderMoney(double Money);
 	double GetOrderMoney() const;
